@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
-import { fmtMoney, sumItems, type Bill, type BillItem, type Student } from '@/lib/mock-data'
+import { fmtMoney, sumItems, type BillItem, type Student } from '@/lib/mock-data'
 
 const fmtDong = (n: number) => `${n.toLocaleString('vi-VN')} đồng`
 
@@ -15,8 +15,8 @@ function schoolYearStart(now: Date): number {
   return now.getMonth() + 1 >= 8 ? now.getFullYear() : now.getFullYear() - 1
 }
 
-function inSchoolYear(b: Bill, startYear: number): boolean {
-  const key = b.year * 12 + b.month
+function inSchoolYear(year: number, month: number, startYear: number): boolean {
+  const key = year * 12 + month
   return key >= startYear * 12 + 8 && key <= (startYear + 1) * 12 + 7
 }
 
@@ -174,8 +174,8 @@ function Donut({
 // "Tổng quan hóa đơn đã đóng" — reached from the "Đã thanh toán" tab. Everything
 // is derived from `student.bills` on each render, so it reflects payments made
 // in the list flow. The summary (counts, total, donut) is scoped to the
-// current school year; the month chart covers the last MONTHS_WINDOW calendar
-// months and only shows months that have payments. A bill counts as "Đã
+// current school year; the total and the donut count paid items only; the month chart covers the last MONTHS_WINDOW calendar
+// months (within that school year) and only shows months that have payments. A bill counts as "Đã
 // thanh toán" only when fully paid; a bill with any open item counts as "Chưa
 // thanh toán", so the two counts add up to the total.
 export function BillOverviewScreen({
@@ -205,13 +205,14 @@ export function BillOverviewScreen({
     })
 
   const startYear = schoolYearStart(now)
-  const yearBills = student.bills.filter((b) => inSchoolYear(b, startYear))
-  const yearItems = yearBills.flatMap((b) => b.items)
+  const yearBills = student.bills.filter((b) => inSchoolYear(b.year, b.month, startYear))
+  // Total and donut only count what has been paid.
+  const paidItems = yearBills.flatMap((b) => b.items.filter((it) => it.paid))
   // Partition of yearBills: fully paid vs. anything with an open item.
   const unpaidCount = yearBills.filter((b) => b.items.some((it) => !it.paid)).length
   const paidCount = yearBills.length - unpaidCount
 
-  const segments = buildSegments(yearItems)
+  const segments = buildSegments(paidItems)
   const selectedSeg = segments.find((s) => s.id === category) ?? null
   const otherSeg = segments.find((s) => s.id === OTHER_ID)
 
@@ -225,6 +226,7 @@ export function BillOverviewScreen({
   // Months are placed by billing period (Bill.year/month), not by when the
   // bill was paid. Each month keeps its paid items grouped per bill.
   const months = recentMonths(now)
+    .filter((m) => inSchoolYear(m.year, m.month, startYear))
     .map((m) => {
       const groups = student.bills
         .filter((b) => b.year === m.year && b.month === m.month)
@@ -237,8 +239,8 @@ export function BillOverviewScreen({
     })
     .filter((m) => m.amount > 0)
   const maxAmount = Math.max(...months.map((m) => m.amount), 0)
-  // Until a bar is tapped, preselect the latest month.
-  const active = months.find((m) => m.key === monthKey) ?? months[months.length - 1]
+  // No month is preselected: the detail list appears once a bar is tapped.
+  const active = months.find((m) => m.key === monthKey)
 
   return (
     <div className="screen">
@@ -250,7 +252,7 @@ export function BillOverviewScreen({
           Năm học {startYear} - {startYear + 1}
         </div>
         <div className="ov-total">
-          Tổng số tiền thanh toán: <b>{fmtDong(sumItems(yearItems))}</b> ({yearBills.length} hóa đơn)
+          Tổng số tiền thanh toán: <b>{fmtDong(sumItems(paidItems))}</b> ({yearBills.length} hóa đơn)
         </div>
 
         <div className="ov-stats">
@@ -314,14 +316,14 @@ export function BillOverviewScreen({
 
       <div className="ov-section">
         <div className="ov-heading">Theo tháng</div>
-        {active ? (
+        {months.length ? (
           <>
             <div className="ov-bars" role="group" aria-label="Số tiền đã thanh toán theo tháng">
               {months.map((m) => (
                 <button
                   key={m.key}
-                  className={`ov-bar-col ${m.key === active.key ? 'active' : ''}`}
-                  aria-pressed={m.key === active.key}
+                  className={`ov-bar-col ${m.key === active?.key ? 'active' : ''}`}
+                  aria-pressed={m.key === active?.key}
                   aria-label={`Tháng ${m.month}/${m.year}: ${fmtMoney(m.amount)}`}
                   onClick={() => setMonthKey(m.key)}
                 >
@@ -335,44 +337,48 @@ export function BillOverviewScreen({
               ))}
             </div>
 
-            <div className="ov-month-list">
-              <div className="ov-month-head">
-                <span>
-                  Tháng {active.month}/{active.year}
-                </span>
-                <span className="amt">{fmtMoney(active.amount)}</span>
-              </div>
-              {active.groups.length === 1
-                ? active.groups[0].items.map((it) => (
-                    <div className="invoice-line" key={it.id}>
-                      <span>{it.name}</span>
-                      <span className="amt">{fmtMoney(it.amount)}</span>
-                    </div>
-                  ))
-                : active.groups.map((g) => {
-                    const open = !collapsed.has(g.bill.id)
-                    return (
-                      <div key={g.bill.id}>
-                        <button
-                          className="ov-bill-head"
-                          aria-expanded={open}
-                          onClick={() => toggleBill(g.bill.id)}
-                        >
-                          <span className="chevron">{open ? '⌄' : '›'}</span>
-                          <span>{g.bill.label}</span>
-                          <span className="amt">{fmtMoney(g.amount)}</span>
-                        </button>
-                        {open &&
-                          g.items.map((it) => (
-                            <div className="invoice-line ov-bill-line" key={it.id}>
-                              <span>{it.name}</span>
-                              <span className="amt">{fmtMoney(it.amount)}</span>
-                            </div>
-                          ))}
+            {active ? (
+              <div className="ov-month-list">
+                <div className="ov-month-head">
+                  <span>
+                    Tháng {active.month}/{active.year}
+                  </span>
+                  <span className="amt">{fmtMoney(active.amount)}</span>
+                </div>
+                {active.groups.length === 1
+                  ? active.groups[0].items.map((it) => (
+                      <div className="invoice-line" key={it.id}>
+                        <span>{it.name}</span>
+                        <span className="amt">{fmtMoney(it.amount)}</span>
                       </div>
-                    )
-                  })}
-            </div>
+                    ))
+                  : active.groups.map((g) => {
+                      const open = !collapsed.has(g.bill.id)
+                      return (
+                        <div key={g.bill.id}>
+                          <button
+                            className="ov-bill-head"
+                            aria-expanded={open}
+                            onClick={() => toggleBill(g.bill.id)}
+                          >
+                            <span className="chevron">{open ? '⌄' : '›'}</span>
+                            <span>{g.bill.label}</span>
+                            <span className="amt">{fmtMoney(g.amount)}</span>
+                          </button>
+                          {open &&
+                            g.items.map((it) => (
+                              <div className="invoice-line ov-bill-line" key={it.id}>
+                                <span>{it.name}</span>
+                                <span className="amt">{fmtMoney(it.amount)}</span>
+                              </div>
+                            ))}
+                        </div>
+                      )
+                    })}
+              </div>
+            ) : (
+              <div className="ov-hint">Chạm vào một cột để xem các khoản đã thanh toán của tháng đó</div>
+            )}
           </>
         ) : (
           <div className="ov-hint">Chưa có khoản thanh toán nào trong 5 tháng gần nhất</div>
