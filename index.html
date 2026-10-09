@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>EDU Parent — Phụ huynh</title>
+<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="desktop-backdrop">
+    <div class="device-frame" id="deviceFrame">
+      <div class="device-notch"></div>
+      <span class="device-side-button power"></span>
+      <span class="device-side-button vol-up"></span>
+      <span class="device-side-button vol-down"></span>
+      <div class="device-screen">
+        <div class="app" id="app">
+          <div class="status-bar">
+            <span class="status-time">09:41</span>
+            <span class="status-icons">
+              <span class="status-wifi"><span></span><span></span><span></span><span></span></span>
+              <span class="status-battery"><span class="status-battery-fill"></span></span>
+            </span>
+          </div>
+          <main id="screenRoot" class="screen-root"></main>
+          <div id="overlayRoot" class="overlay-root"></div>
+        </div>
+      </div>
+      <div class="device-home-indicator"></div>
+    </div>
+  </div>
+
+  <script src="scripts/app.js"></script>
+</body>
+</html>
