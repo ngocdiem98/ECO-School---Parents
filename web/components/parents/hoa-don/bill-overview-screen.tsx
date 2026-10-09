@@ -34,8 +34,9 @@ const MAX_SEGMENTS = 4
 // A category under this share of the total is folded into "Khác".
 const MIN_SEGMENT_SHARE = 0.05
 const OTHER_ID = '__other'
-// Darkest → lightest; "Khác" always takes the last (lightest) shade.
-const SEGMENT_COLORS = ['#111111', '#595959', '#8f8f8f', '#d6d6d6']
+// Brand palette (blue, yellow, dark blue); "Khác" always takes the last,
+// lightest shade.
+const SEGMENT_COLORS = ['#0070ce', '#ffcc33', '#002c54', '#b8d4ee']
 
 interface Segment {
   id: string
@@ -115,10 +116,60 @@ function recentMonths(now: Date): { year: number; month: number }[] {
 
 // --- Donut ----------------------------------------------------------------
 
-const R = 44
+// Geometry in a 346 x 250 box (the phone's content width). The ring sits in
+// the middle; labels (% chip + name) are spread over the left and right
+// columns and joined to their slice by a straight leader line.
+const VB_W = 346
+const VB_H = 250
+const CX = VB_W / 2
+const CY = VB_H / 2
+const R = 62 // ring centre radius
+const RING = 28 // ring thickness
 const CIRC = 2 * Math.PI * R
+const LABEL_H = 52 // chip + name
+const LABEL_GAP = 6
+const LEFT_EDGE = 76 // x where a left label's chip ends / its leader starts
+const RIGHT_EDGE = VB_W - 76
 
-function Donut({
+interface Placed {
+  seg: Segment
+  side: 'left' | 'right'
+  // Point on the ring edge (leader line start) and the radial point that
+  // decides the label's height.
+  edge: [number, number]
+  elbow: [number, number]
+  top: number // label top (px in the 346 x 250 box)
+}
+
+// Slice mid-angles decide the side; each side stacks its labels top to bottom
+// in slice order, nudged apart so they never overlap.
+function placeLabels(segments: Segment[]): Placed[] {
+  const total = segments.reduce((n, x) => n + x.amount, 0)
+  let acc = 0
+  const raw = segments.map((seg) => {
+    const mid = (acc + seg.amount / 2) / total
+    acc += seg.amount
+    const th = mid * 2 * Math.PI // from 12 o'clock, clockwise
+    const dx = Math.sin(th)
+    const dy = -Math.cos(th)
+    const edge: [number, number] = [CX + (R + RING / 2 + 2) * dx, CY + (R + RING / 2 + 2) * dy]
+    const elbow: [number, number] = [CX + (R + RING / 2 + 12) * dx, CY + (R + RING / 2 + 12) * dy]
+    return { seg, side: (dx >= 0 ? 'right' : 'left') as 'left' | 'right', edge, elbow, top: elbow[1] - LABEL_H / 2 }
+  })
+  for (const side of ['left', 'right'] as const) {
+    const group = raw.filter((r) => r.side === side).sort((a, b) => a.top - b.top)
+    group.forEach((r, i) => {
+      if (i > 0) r.top = Math.max(r.top, group[i - 1].top + LABEL_H + LABEL_GAP)
+    })
+    // Shift the whole stack up if it runs past the bottom edge.
+    const overflow = group.length ? group[group.length - 1].top + LABEL_H - VB_H : 0
+    if (overflow > 0) group.forEach((r) => (r.top -= overflow))
+    group.forEach((r) => (r.top = Math.max(r.top, 0)))
+  }
+  return raw
+}
+
+function DonutChart({
   segments,
   selected,
   onSelect,
@@ -128,44 +179,78 @@ function Donut({
   onSelect: (id: string) => void
 }) {
   const total = segments.reduce((n, s) => n + s.amount, 0)
+  const placed = placeLabels(segments)
   let offset = 0
   return (
-    <svg className="ov-donut" viewBox="0 0 120 120" role="group" aria-label="Phân bổ danh mục">
-      <g transform="rotate(-90 60 60)">
-        {segments.map((s) => {
-          const len = (s.amount / total) * CIRC
-          const gap = segments.length > 1 ? 1.5 : 0
-          const dash = Math.max(len - gap, 0)
-          const el = (
-            <circle
-              key={s.id}
-              className={`ov-donut-seg ${selected === s.id ? 'active' : ''}`}
-              cx="60"
-              cy="60"
-              r={R}
-              fill="none"
-              stroke={s.color}
-              strokeWidth={selected === s.id ? 26 : 20}
-              strokeDasharray={`${dash} ${CIRC - dash}`}
-              strokeDashoffset={-offset}
-              role="button"
-              tabIndex={0}
-              aria-label={`${s.label} ${pctLabel(s)}`}
-              aria-pressed={selected === s.id}
-              onClick={() => onSelect(s.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  onSelect(s.id)
-                }
-              }}
+    <div className="ov-donut-wrap" role="group" aria-label="Phân bổ danh mục">
+      <svg className="ov-donut" viewBox={`0 0 ${VB_W} ${VB_H}`}>
+        <circle cx={CX} cy={CY} r={R} fill="none" stroke="var(--c-blue-50)" strokeWidth={RING + 12} />
+        {placed.map(({ seg, side, edge, top }) => {
+          const endX = side === 'left' ? LEFT_EDGE : RIGHT_EDGE
+          const endY = top + 15
+          return (
+            <line
+              key={seg.id}
+              x1={edge[0]}
+              y1={edge[1]}
+              x2={endX}
+              y2={endY}
+              stroke="var(--c-gray-300)"
+              strokeWidth="1"
             />
           )
-          offset += len
-          return el
         })}
-      </g>
-    </svg>
+        <g transform={`rotate(-90 ${CX} ${CY})`}>
+          {segments.map((s) => {
+            const len = (s.amount / total) * CIRC
+            const gap = segments.length > 1 ? 2.5 : 0
+            const dash = Math.max(len - gap, 0.8)
+            const el = (
+              <circle
+                key={s.id}
+                className={`ov-donut-seg ${selected === s.id ? 'active' : ''}`}
+                cx={CX}
+                cy={CY}
+                r={R}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={selected === s.id ? RING + 8 : RING}
+                strokeDasharray={`${dash} ${CIRC - dash}`}
+                strokeDashoffset={-(offset + gap / 2)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${s.label} ${pctLabel(s)}`}
+                aria-pressed={selected === s.id}
+                onClick={() => onSelect(s.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onSelect(s.id)
+                  }
+                }}
+              />
+            )
+            offset += len
+            return el
+          })}
+        </g>
+      </svg>
+      {placed.map(({ seg, side, top }) => (
+        <button
+          key={seg.id}
+          className={`ov-donut-label ov-donut-label--${side} ${selected === seg.id ? 'active' : ''}`}
+          style={{ top: `${(top / VB_H) * 100}%` }}
+          aria-pressed={selected === seg.id}
+          onClick={() => onSelect(seg.id)}
+        >
+          <span className="ov-pct">
+            <span className="ov-dot" style={{ background: seg.color }} />
+            {pctLabel(seg)}
+          </span>
+          <span className="ov-name">{seg.label}</span>
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -217,10 +302,9 @@ export function BillOverviewScreen({
   const otherSeg = segments.find((s) => s.id === OTHER_ID)
 
   const pickSegment = (id: string) => {
-    // Tapping the selected segment again clears it; "Khác" also opens its sheet.
-    const next = category === id ? null : id
-    setCategory(next)
-    if (next === OTHER_ID) setShowOther(true)
+    // Tapping the selected segment again clears it. The "Khác" sheet is opened
+    // only from the "Xem chi tiết ›" link in the callout.
+    setCategory(category === id ? null : id)
   }
 
   // Months are placed by billing period (Bill.year/month), not by when the
@@ -281,21 +365,7 @@ export function BillOverviewScreen({
         <div className="ov-heading">Phân bổ danh mục</div>
         {segments.length ? (
           <>
-            <div className="ov-donut-row">
-              <Donut segments={segments} selected={category} onSelect={pickSegment} />
-              <div className="ov-legend">
-                {segments.map((s) => (
-                  <button
-                    key={s.id}
-                    className={`ov-legend-item ${category === s.id ? 'active' : ''}`}
-                    onClick={() => pickSegment(s.id)}
-                  >
-                    <span className="ov-dot" style={{ background: s.color }} />
-                    {pctLabel(s)} - {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <DonutChart segments={segments} selected={category} onSelect={pickSegment} />
             {selectedSeg ? (
               <div className="ov-callout">
                 Tổng số tiền ({selectedSeg.label}): <b>{fmtDong(selectedSeg.amount)}</b>

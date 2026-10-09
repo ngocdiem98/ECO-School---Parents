@@ -22,6 +22,19 @@
   --c-gray-50: #f7f7f7;
   --c-white: #ffffff;
 
+  /* ECO Me brand palette — from "Logo Guideline ver2.4" (Finviet / ECO).
+     Only the web app uses these; styles/main.css (vanilla) stays monochrome. */
+  --c-yellow: #ffcc33;       /* Pantone 123 C  */
+  --c-blue: #0070ce;         /* Pantone 285 C  */
+  --c-cobalt: #005caf;       /* Pantone 295 C (ecosystem icons) */
+  --c-navy: #002c54;         /* Pantone 295 C (Finviet dark blue) */
+  /* Tints / shades derived from the palette (backgrounds, pressed states) */
+  --c-yellow-deep: #e6b019;
+  --c-yellow-50: #fff8e1;
+  --c-blue-50: #eef5fc;
+  --c-blue-100: #dcebfa;
+  --c-blue-200: #b8d4ee;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -44,18 +57,18 @@
   --card-foreground: var(--c-ink);
   --popover: var(--c-white);
   --popover-foreground: var(--c-ink);
-  --primary: var(--c-black);
+  --primary: var(--c-blue);
   --primary-foreground: var(--c-white);
   --secondary: var(--c-gray-100);
   --secondary-foreground: var(--c-ink);
   --muted: var(--c-gray-50);
   --muted-foreground: var(--c-gray-500);
-  --accent: var(--c-gray-100);
+  --accent: var(--c-blue-50);
   --accent-foreground: var(--c-ink);
   --destructive: oklch(0.577 0.245 27.325);
   --border: var(--c-gray-150);
   --input: var(--c-gray-200);
-  --ring: var(--c-gray-300);
+  --ring: var(--c-blue-200);
   --radius: var(--radius-md);
 }
 
@@ -1222,25 +1235,41 @@ img { max-width: 100%; display: block; }
   color: var(--c-ink);
 }
 
-.ov-donut-row { display: flex; align-items: center; gap: 14px; }
-.ov-donut { width: 150px; height: 150px; flex: none; }
+.ov-donut-wrap { position: relative; width: 100%; aspect-ratio: 346 / 250; }
+.ov-donut { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .ov-donut-seg { cursor: pointer; transition: stroke-width 0.15s; outline: none; }
 .ov-donut-seg:focus-visible { stroke-opacity: 0.7; }
-.ov-legend { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-.ov-legend-item {
+.ov-donut-label {
+  position: absolute;
+  width: 27%;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  border: none;
   background: none;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: left;
+  font: inherit;
 }
-.ov-legend-item.active { border-color: var(--c-black); background: var(--c-gray-50); }
-.ov-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; border: 1px solid var(--c-gray-300); }
+.ov-donut-label--left { left: 0; align-items: flex-start; text-align: left; }
+.ov-donut-label--right { right: 0; align-items: flex-end; text-align: right; }
+.ov-pct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 70px;
+  padding: 5px 0;
+  border-radius: 999px;
+  background: var(--c-gray-50);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--c-ink);
+}
+.ov-name { font-size: 12px; line-height: 1.25; color: var(--c-gray-600); }
+.ov-donut-label.active .ov-pct { background: var(--c-blue-50); border-color: var(--c-blue); }
+.ov-donut-label.active .ov-name { color: var(--c-ink); font-weight: 700; }
+.ov-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
 .ov-callout {
   margin-top: 10px;
   padding: 12px 14px;
@@ -1421,3 +1450,90 @@ img { max-width: 100%; display: block; }
 }
 .bill-result-bill { display: flex; justify-content: space-between; font-weight: 700; padding: 4px 0; }
 .bill-result-item { display: flex; justify-content: space-between; color: var(--c-gray-700); padding: 3px 0; }
+
+
+/* ============================================================
+   ECO Me brand theme (Yellow #FFCC33 / Blue #0070CE)
+   Colour overrides only — layout lives in the rules above. Source: Logo
+   Guideline ver2.4. Body text stays black/white per the guideline; yellow is
+   the primary-action colour, blue is interaction/selection, navy is
+   headers. The iPhone frame and status bar stay black (device hardware).
+   ============================================================ */
+.brand-hero {
+  background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-cobalt) 100%);
+}
+.brand-hero h1 { color: var(--c-yellow); }
+.brand-hero p { color: var(--c-blue-200); }
+
+.icon-glyph { background: var(--c-blue-50); color: var(--c-blue); }
+.icon-dot.active { background: var(--c-blue); }
+.avatar, .eco-avatar { background: var(--c-blue); color: var(--c-white); }
+.student-card-head { background: var(--c-blue-50); }
+
+.tab-pill.active { background: var(--c-blue); border-color: var(--c-blue); color: var(--c-white); }
+.badge--filled { background: var(--c-blue); color: var(--c-white); }
+.badge--outline { background: var(--c-white); border-color: var(--c-blue); color: var(--c-blue); }
+.pick-row.selected { background: var(--c-blue); border-color: var(--c-blue); }
+.pick-row.selected .right .lbl { color: var(--c-blue-100); }
+.segmented button.active { background: var(--c-blue); color: var(--c-white); }
+
+.btn-primary { background: var(--c-yellow); color: var(--c-navy); }
+.btn-primary:active:not(:disabled) { background: var(--c-yellow-deep); }
+.btn-outline { color: var(--c-blue); border-color: var(--c-blue); }
+.btn-link, .pay-banner button, .eco-link, .ov-stat-link, .ov-callout-link { color: var(--c-blue); }
+.btn-change { border-color: var(--c-blue); color: var(--c-blue); }
+.banner-note .btn-mini { background: var(--c-yellow); color: var(--c-navy); }
+
+.amount-opt.active { border-color: var(--c-blue); background: var(--c-blue-50); color: var(--c-blue); }
+.checkbox.checked { background: var(--c-blue); border-color: var(--c-blue); }
+.checkbox.partial { border-color: var(--c-blue); color: var(--c-blue); }
+.sample-invoice .si-highlight { border-color: var(--c-blue); }
+.alert-box { border-color: var(--c-yellow-deep); background: var(--c-yellow-50); }
+.result-check { border-color: var(--c-blue); color: var(--c-blue); }
+.upload-thumb .rm { background: var(--c-navy); }
+.feedback-card { border-color: var(--c-blue); }
+.feedback-card-tab { background: var(--c-blue); }
+.guide-topic-pill { background: var(--c-navy); }
+.guide-step .n { background: var(--c-blue); }
+
+.gb-hero { background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-cobalt) 100%); }
+.gb-hero--miss { background: var(--c-gray-100); }
+.gb-cal-star--achieved { color: var(--c-yellow-deep); }
+
+.invoice-group-head { background: var(--c-blue-50); }
+
+/* ECO Me home */
+.eco-header .icon-btn { background: var(--c-blue-50); }
+.eco-wallet-actions .icon-glyph { background: var(--c-yellow-50); color: var(--c-yellow-deep); }
+.eco-wallet-actions .icon-item[disabled] .icon-glyph { background: var(--c-yellow-50); color: var(--c-yellow-deep); }
+.eco-balance-link { color: var(--c-blue); }
+
+/* Hóa đơn — Tổng quan */
+.ov-stat:first-child .ov-stat-box { background: var(--c-blue-50); border-color: var(--c-blue-200); }
+.ov-stat:last-child .ov-stat-box { background: var(--c-yellow-50); border-color: var(--c-yellow); }
+.ov-stat-num { color: var(--c-navy); }
+.ov-callout { border-color: var(--c-blue); background: var(--c-blue-50); }
+.ov-bar { background: var(--c-blue-200); }
+.ov-bar-col.active .ov-bar { background: var(--c-blue); }
+.ov-month-head { background: var(--c-blue-50); }
+.ov-entry { background: var(--c-blue-50); border-color: var(--c-blue-100); color: var(--c-navy); }
+.ov-entry .chevron { color: var(--c-blue); }
+@keyframes bill-focus-fade {
+  0%, 60% { box-shadow: 0 0 0 2px var(--c-blue); }
+  100% { box-shadow: 0 0 0 2px transparent; }
+}
+.eco-wallet-actions .icon-item[disabled] { opacity: .85; }
+.eco-wallet-actions .icon-glyph { font-weight: 700; }
+
+/* Hóa đơn — "Số tiền còn lại" row on a partly paid bill (Đã thanh toán tab) */
+.bill-remaining { justify-content: space-between; padding: 14px; font-size: 13.5px; }
+.bill-remaining b { font-weight: 800; }
+.bill-remaining-cta {
+  flex: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-blue);
+}

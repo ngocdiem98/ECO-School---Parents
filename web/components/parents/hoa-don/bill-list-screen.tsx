@@ -13,7 +13,7 @@ const TABS: { value: BillTab; label: string }[] = [
 
 // "Hóa đơn" list. A partially paid bill appears in both tabs, each showing
 // only the items that belong to that tab. On "Đã thanh toán", a bill that
-// still has open items gets a "Thanh toán tiếp" CTA (the annotated addition
+// still has open items gets a "Số tiền còn lại … Thanh toán ngay ›" row (the annotated addition
 // on the design: let parents continue paying partially paid invoices).
 export function BillListScreen({
   student,
@@ -106,13 +106,12 @@ export function BillListScreen({
                 </div>
               )}
               {wantPaid && remaining.length > 0 && (
-                <div className="invoice-line" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
-                  <div className="feedback-row" style={{ margin: 0 }}>
-                    <span className="text-muted">Còn lại chưa thanh toán</span>
-                    <span style={{ fontWeight: 700 }}>{fmtMoney(sumItems(remaining))}</span>
-                  </div>
-                  <button className="btn btn-primary" onClick={() => onPayRemaining(bill)}>
-                    Thanh toán tiếp
+                <div className="invoice-line bill-remaining">
+                  <span>
+                    Số tiền còn lại: <b>{fmtMoney(sumItems(remaining))}</b>
+                  </span>
+                  <button className="bill-remaining-cta" onClick={() => onPayRemaining(bill)}>
+                    Thanh toán ngay ›
                   </button>
                 </div>
               )}
