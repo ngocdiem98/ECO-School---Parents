@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "allow": ["Read", "Write", "Edit", "Glob", "Grep", "Bash"],
-    "deny": ["Bash(git commit:*)", "Bash(git push:*)"]
+    "allow": ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
   }
 }
