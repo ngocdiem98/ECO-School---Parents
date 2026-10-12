@@ -4,8 +4,6 @@
 // screens still not rebuilt (spending history, timetable, attendance) are
 // still not ported.
 
-export type GbStatus = 'dat' | 'khongdat'
-
 export type AbsenceStatus = 'pending' | 'approved' | 'cancelled'
 
 export interface AbsenceRequest {
@@ -15,6 +13,81 @@ export interface AbsenceRequest {
   time: string
   days: number
   note: string
+}
+
+// 'completed' (Đã hoàn thành) = every dose of every day was confirmed by the
+// teacher; see effectiveMedicineStatus() in components/parents/medicine/utils.ts.
+export type MedicineStatus = 'sent' | 'completed' | 'cancelled'
+
+export interface MedicineDose {
+  time: string // 'HH:mm', 30-minute steps only
+  note: string // per-dose note, '' when none
+}
+
+export interface MedicineOrder {
+  id: string
+  from: string // ISO yyyy-mm-dd
+  to: string
+  doses: MedicineDose[]
+  note: string
+  photos: string[] // image URLs (blob: for uploads, data: for the seed orders)
+  status: MedicineStatus
+  // Teacher confirmations ("Đánh dấu đã uống thuốc"), keyed `${date}|${doseIndex}`.
+  confirmations?: Record<string, { by: string; at: string }>
+}
+
+// Stand-in "medicine photo" for the seeded orders (there is no backend or
+// real image to show).
+function medicinePhoto(label: string, bg: string): string {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">` +
+    `<rect width="600" height="600" fill="${bg}"/>` +
+    `<rect x="190" y="230" width="220" height="140" rx="26" fill="#fff" stroke="#002C54" stroke-width="8"/>` +
+    `<line x1="300" y1="230" x2="300" y2="370" stroke="#002C54" stroke-width="8"/>` +
+    `<text x="300" y="450" font-family="Arial" font-size="34" font-weight="700" text-anchor="middle" fill="#002C54">${label}</text>` +
+    `</svg>`
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+// ---- Lịch sử chi tiêu ------------------------------------------------------
+export interface SpendingTx {
+  id: string
+  title: string
+  at: string // 'YYYY-MM-DDTHH:mm'
+  amount: number // + in, - out (points)
+}
+
+// ---- Thời khoá biểu --------------------------------------------------------
+export interface TimetableLesson {
+  period: string // e.g. 'Tiết 1'
+  time: string // e.g. '07:00 - 07:45'
+  subjects: string[] // Mon..Fri
+}
+export interface Timetable {
+  period: string // validity range, display text
+  lessons: TimetableLesson[]
+}
+
+// ---- Theo dõi điểm danh ----------------------------------------------------
+export type AttendanceStatus = 'present' | 'late' | 'excused' | 'unexcused'
+export interface AttendanceSession {
+  status: AttendanceStatus
+  checkIn?: string // 'HH:mm'
+  checkOut?: string | null // null = chưa về
+  outLate?: boolean // về muộn
+  photoIn?: string
+  photoOut?: string
+  note?: string
+}
+export interface AttendanceDay {
+  date: string // ISO yyyy-mm-dd
+  full?: AttendanceSession
+  morning?: AttendanceSession
+  afternoon?: AttendanceSession
+}
+export interface AttendanceData {
+  sessions: 'full' | 'two' // trường học cả ngày / 2 buổi
+  days: AttendanceDay[]
 }
 
 export type HomeworkStatus = 'notsubmitted' | 'submitted' | 'graded'
@@ -109,51 +182,18 @@ export interface Bill {
   hasVat?: boolean
 }
 
-export interface GoodBehaviorCycle {
-  id: string
-  type: 'week' | 'month'
-  label: string
-  status: GbStatus
-  comment: string | null
-  // ISO date (YYYY-MM-DD) of the Monday that starts this cycle's week —
-  // only set for type: 'week', used to place the cycle on the calendar in
-  // the "Tổng kết" tab (the week's Sunday cell gets the star).
-  weekStart?: string
-}
-
-export interface GoodBehaviorRankingEntry {
-  name: string
-  count: number
-  isSelf?: boolean
-}
-
-// Count of times the child has placed 1st/2nd/3rd in the class ranking,
-// tallied at the end of each month based on the "Phiếu bé ngoan" count at
-// that time — distinct from `top3`/`selfRank`, which reflect the *current*
-// standing.
-export interface GoodBehaviorPositionsAchieved {
-  first: number
-  second: number
-  third: number
-}
-
-export interface GoodBehaviorRanking {
-  achieved: number
-  totalCycles: number
-  top3: GoodBehaviorRankingEntry[]
-  selfInTop3: boolean
-  selfRank: number | null
-  totalStudents: number
-  // Week label the ranking was last recalculated for — the leaderboard
-  // updates weekly, so this can lag behind the child's own latest cycle.
-  asOfLabel: string
-  positionsAchieved: GoodBehaviorPositionsAchieved
+// Phiếu bé ngoan (PRD PH-17): one record per Monday-started week. A week
+// belongs to the month its first day falls in. `comment` is the teacher's
+// weekly remark (hidden when absent).
+export interface GoodBehaviorWeek {
+  weekStart: string // ISO Monday
+  got: boolean // "Có phiếu" / "Chưa có phiếu"
+  teacher?: string
+  comment?: string
 }
 
 export interface GoodBehavior {
-  yearLabel: string
-  cycles: GoodBehaviorCycle[]
-  ranking: GoodBehaviorRanking
+  weeks: GoodBehaviorWeek[]
 }
 
 export interface HealthRecord {
@@ -192,6 +232,10 @@ export interface Student {
   bills: Bill[]
   homework: Homework[]
   absence: AbsenceRequest[]
+  medicine: MedicineOrder[]
+  spending: SpendingTx[]
+  timetable: Timetable | null
+  attendance: AttendanceData
   results: Results | null
   goodBehavior: GoodBehavior
 }
@@ -209,6 +253,78 @@ export const PROVIDERS: Provider[] = [
 ]
 
 export const AMOUNT_PRESETS = [10000, 20000, 50000, 100000, 200000, 500000]
+
+// ---- seed helpers ----------------------------------------------------------
+function faceShot(label: string): string {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">` +
+    `<rect width="480" height="480" fill="#E5F1FB"/><circle cx="240" cy="190" r="78" fill="#9DB7D3"/>` +
+    `<path d="M90 440c10-96 70-140 150-140s140 44 150 140z" fill="#9DB7D3"/>` +
+    `<text x="240" y="62" font-family="Arial" font-size="30" font-weight="700" text-anchor="middle" fill="#002C54">${label}</text></svg>`
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+// Weekdays between two ISO dates, inclusive.
+function weekdaysBetween(from: string, to: string): string[] {
+  const out: string[] = []
+  const d = new Date(from + 'T00:00:00')
+  const end = new Date(to + 'T00:00:00')
+  while (d <= end) {
+    const dow = d.getDay()
+    if (dow !== 0 && dow !== 6) {
+      const p = (n: number) => String(n).padStart(2, '0')
+      out.push(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
+    }
+    d.setDate(d.getDate() + 1)
+  }
+  return out
+}
+
+function hhmm(base: number, jitter: number): string {
+  const m = base + jitter
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
+}
+
+// Deterministic mock attendance: mostly on time, a few late / excused /
+// unexcused days. `two` = school with morning + afternoon sessions.
+function seedAttendance(sessions: 'full' | 'two', special: Record<string, Partial<Record<'full' | 'morning' | 'afternoon', AttendanceSession>>>): AttendanceData {
+  const days = weekdaysBetween('2026-09-01', '2026-10-12').map((date, i): AttendanceDay => {
+    const day: AttendanceDay = { date }
+    const late = i % 9 === 4
+    const inMin = late ? 8 * 60 + 12 + (i % 5) : 7 * 60 + 25 + ((i * 7) % 20)
+    const photo = i % 6 === 0 ? faceShot('Điểm danh vào') : undefined
+    if (sessions === 'full') {
+      day.full = {
+        status: late ? 'late' : 'present',
+        checkIn: hhmm(inMin, 0),
+        checkOut: hhmm(16 * 60 + 5, (i * 3) % 25),
+        photoIn: photo,
+      }
+    } else {
+      day.morning = { status: late ? 'late' : 'present', checkIn: hhmm(inMin, 0), checkOut: hhmm(11 * 60 + 30, (i * 2) % 12), photoIn: photo }
+      day.afternoon = { status: 'present', checkIn: hhmm(13 * 60 + 15, (i * 5) % 14), checkOut: hhmm(16 * 60 + 30, (i * 3) % 20) }
+    }
+    return { ...day, ...special[date] }
+  })
+  // The latest day is still in progress: no check-out yet.
+  const last = days[days.length - 1]
+  const sess = last.full ?? last.afternoon
+  if (sess && sess.status !== 'excused' && sess.status !== 'unexcused') sess.checkOut = null
+  return { sessions, days }
+}
+
+// Weekly Phiếu bé ngoan for school year 2026-2027: Mondays 03/08 … 12/10/2026.
+function seedGoodBehavior(teacher: string, got: boolean[], comments: Record<number, string>): GoodBehavior {
+  const starts = weekdaysBetween('2026-08-03', '2026-10-12').filter((d) => new Date(d + 'T00:00:00').getDay() === 1)
+  return {
+    weeks: starts.map((weekStart, i) => ({
+      weekStart,
+      got: got[i] ?? false,
+      teacher: comments[i] ? teacher : undefined,
+      comment: comments[i],
+    })),
+  }
+}
 
 export const MOCK_STUDENTS: Student[] = [
   {
@@ -235,6 +351,18 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     balance: 12000,
     avatar: 'V',
+    spending: [
+      { id: 'vysp1', title: 'Nạp tiền', at: '2026-10-09T09:41', amount: 1000 },
+      { id: 'vysp2', title: 'Mua đồ ăn căng tin', at: '2026-10-07T10:15', amount: -15000 },
+      { id: 'vysp3', title: 'Nạp tiền', at: '2026-10-02T13:52', amount: 5000 },
+      { id: 'vysp4', title: 'Nạp tiền', at: '2026-08-27T14:18', amount: 1000 },
+      { id: 'vysp5', title: 'Nạp tiền', at: '2026-06-17T16:04', amount: 5000 },
+    ],
+    timetable: null,
+    attendance: seedAttendance('full', {
+      '2026-09-30': { full: { status: 'excused', note: 'Con ốm, có đơn xin phép' } },
+      '2026-10-08': { full: { status: 'unexcused' } },
+    }),
     supportsTopUp: true,
     hasLinkedInvoice: false,
     recentActivity: [
@@ -247,33 +375,18 @@ export const MOCK_STUDENTS: Student[] = [
     bills: [],
     homework: [],
     absence: [],
+    medicine: [],
     results: null,
-    goodBehavior: {
-      yearLabel: 'Năm học 2025 - 2026',
-      cycles: [
-        { id: 'vygb0', type: 'week', label: 'Tuần 27/07 - 02/08/2026', status: 'dat', comment: null, weekStart: '2026-07-27' },
-        { id: 'vygb0b', type: 'week', label: 'Tuần 20/07 - 26/07/2026', status: 'khongdat', comment: null, weekStart: '2026-07-20' },
-        { id: 'vygb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'dat', comment: 'Con rất ngoan, biết giúp đỡ bạn bè', weekStart: '2026-07-13' },
-        { id: 'vygb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: null, weekStart: '2026-07-06' },
-        { id: 'vygb3', type: 'week', label: 'Tuần 29/06 - 04/07/2026', status: 'dat', comment: null, weekStart: '2026-06-29' },
-        { id: 'vygb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'khongdat', comment: null, weekStart: '2026-06-22' },
-        { id: 'vygb5', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: 'Con tích cực tham gia các hoạt động của lớp' },
-      ],
-      ranking: {
-        achieved: 25,
-        totalCycles: 32,
-        top3: [
-          { name: 'Trần Thị Bình', count: 30 },
-          { name: 'Nguyễn Văn An', count: 28 },
-          { name: 'Lê Gia Hân', count: 27 },
-        ],
-        selfInTop3: false,
-        selfRank: 5,
-        totalStudents: 32,
-        asOfLabel: 'Tuần 13/07 - 18/07/2026',
-        positionsAchieved: { first: 2, second: 3, third: 0 },
+    goodBehavior: seedGoodBehavior(
+      'Nguyễn Ngọc Đài Trang',
+      [true, true, false, true, true, true, false, true, true, true, true],
+      {
+        1: 'Con ngoan, biết xếp hàng chờ đến lượt.',
+        3: 'Con hòa đồng và hay giúp đỡ các bạn.',
+        7: 'Con tích cực tham gia hoạt động vẽ tranh.',
+        10: 'Con rất ngoan, biết giúp đỡ bạn bè và chào cô khi đến lớp.',
       },
-    },
+    ),
   },
   {
     id: 'khoa',
@@ -296,6 +409,24 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     balance: 0,
     avatar: 'K',
+    spending: [],
+    timetable: {
+      period: '10/08/2026 - 31/05/2027',
+      lessons: [
+        { period: 'Tiết 1', time: '07:00 - 07:45', subjects: ['Chào cờ', 'Toán', 'Ngữ văn', 'Vật lý', 'Toán'] },
+        { period: 'Tiết 2', time: '07:50 - 08:35', subjects: ['Toán', 'Toán', 'Ngữ văn', 'Hóa học', 'Tiếng Anh'] },
+        { period: 'Tiết 3', time: '08:50 - 09:35', subjects: ['Ngữ văn', 'Tiếng Anh', 'Lịch sử', 'Sinh học', 'Vật lý'] },
+        { period: 'Tiết 4', time: '09:40 - 10:25', subjects: ['Tiếng Anh', 'Vật lý', 'Địa lý', 'Tin học', 'Hóa học'] },
+        { period: 'Tiết 5', time: '10:30 - 11:15', subjects: ['GDQP-AN', 'Thể dục', 'GDCD', 'Tiếng Anh', 'Sinh hoạt lớp'] },
+      ],
+    },
+    attendance: seedAttendance('two', {
+      '2026-09-23': { morning: { status: 'unexcused' } },
+      '2026-10-08': {
+        morning: { status: 'present', checkIn: '07:31', checkOut: '11:40' },
+        afternoon: { status: 'excused', note: 'Con khám bệnh, đã báo vắng' },
+      },
+    }),
     supportsTopUp: false,
     hasLinkedInvoice: true,
     recentActivity: [
@@ -510,6 +641,48 @@ export const MOCK_STUDENTS: Student[] = [
       { id: 'ab1', range: '10/07/2026 - 10/07/2026', status: 'pending', time: 'Cả ngày', days: 1, note: 'con xin nghi' },
       { id: 'ab2', range: '25/06/2026 - 27/06/2026', status: 'cancelled', time: 'Buổi sáng', days: 3, note: 'Con xin nghỉ phép' },
     ],
+    medicine: [
+      {
+        id: 'khoamd1',
+        from: '2026-10-12',
+        to: '2026-10-16',
+        doses: [
+          { time: '08:00', note: 'Uống sau khi ăn sáng' },
+          { time: '12:00', note: '' },
+        ],
+        note: 'Thuốc hạ sốt Paracetamol 250mg, uống 1 gói mỗi lần, nếu con sốt trên 38.5 độ.',
+        photos: [medicinePhoto('Paracetamol', '#E5F1FB'), medicinePhoto('Đơn thuốc', '#FFF6D6')],
+        status: 'sent',
+        confirmations: { '2026-10-12|0': { by: 'Nguyễn Ngọc Lan', at: '2026-10-12T08:15' } },
+      },
+      {
+        id: 'khoamd3',
+        from: '2026-09-28',
+        to: '2026-09-30',
+        doses: [
+          { time: '08:30', note: 'Uống sau khi ăn sáng khoảng 15 phút' },
+          { time: '12:30', note: '' },
+        ],
+        note: 'Thuốc kháng sinh Amoxicillin 250mg, uống đủ liều theo chỉ định của bác sĩ.',
+        photos: [medicinePhoto('Amoxicillin', '#E5F7EE')],
+        status: 'sent',
+        confirmations: Object.fromEntries(
+          ['2026-09-28', '2026-09-29', '2026-09-30'].flatMap((d) => [
+            [`${d}|0`, { by: 'Nguyễn Ngọc Lan', at: `${d}T08:35` }],
+            [`${d}|1`, { by: 'Nguyễn Ngọc Lan', at: `${d}T12:34` }],
+          ]),
+        ),
+      },
+      {
+        id: 'khoamd2',
+        from: '2026-10-05',
+        to: '2026-10-07',
+        doses: [{ time: '10:30', note: 'Uống nhiều nước sau khi uống thuốc' }],
+        note: 'Siro ho Prospan, uống 5ml mỗi lần.',
+        photos: [],
+        status: 'cancelled',
+      },
+    ],
     results: {
       year: '2025-2026',
       terms: {
@@ -523,30 +696,7 @@ export const MOCK_STUDENTS: Student[] = [
         { name: 'Ngoại ngữ 1', gtx: '--', gk: '--' },
       ],
     },
-    goodBehavior: {
-      yearLabel: 'Năm học 2025 - 2026',
-      cycles: [
-        { id: 'khoagb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn nói chuyện riêng trong giờ học', weekStart: '2026-07-13' },
-        { id: 'khoagb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: 'Con tích cực phát biểu xây dựng bài', weekStart: '2026-07-06' },
-        { id: 'khoagb3', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: null },
-        { id: 'khoagb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'dat', comment: null, weekStart: '2026-06-22' },
-        { id: 'khoagb5', type: 'week', label: 'Tuần 15/06 - 20/06/2026', status: 'khongdat', comment: null, weekStart: '2026-06-15' },
-      ],
-      ranking: {
-        achieved: 18,
-        totalCycles: 28,
-        top3: [
-          { name: 'Nguyễn Thị Mai', count: 27 },
-          { name: 'Đặng Văn Hùng', count: 25 },
-          { name: 'Lý Gia Bảo', count: 23 },
-        ],
-        selfInTop3: false,
-        selfRank: 7,
-        totalStudents: 25,
-        asOfLabel: 'Tuần 13/07 - 18/07/2026',
-        positionsAchieved: { first: 0, second: 1, third: 2 },
-      },
-    },
+    goodBehavior: { weeks: [] },
   },
   {
     id: 'lam',
@@ -573,6 +723,9 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     balance: 0,
     avatar: 'L',
+    spending: [],
+    timetable: null,
+    attendance: { sessions: 'full', days: [] },
     supportsTopUp: false,
     hasLinkedInvoice: false,
     recentActivity: [
@@ -583,32 +736,127 @@ export const MOCK_STUDENTS: Student[] = [
     bills: [],
     homework: [],
     absence: [],
+    medicine: [],
     results: null,
-    goodBehavior: {
-      yearLabel: 'Năm học 2025 - 2026',
-      cycles: [
-        { id: 'lamgb1', type: 'week', label: 'Tuần 27/07 - 02/08/2026', status: 'dat', comment: 'Con ngoan, ăn ngủ tốt', weekStart: '2026-07-27' },
-        { id: 'lamgb2', type: 'week', label: 'Tuần 20/07 - 26/07/2026', status: 'dat', comment: null, weekStart: '2026-07-20' },
-        { id: 'lamgb3', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn quấy khóc buổi trưa', weekStart: '2026-07-13' },
-        { id: 'lamgb4', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: null },
-      ],
-      ranking: {
-        achieved: 10,
-        totalCycles: 14,
-        top3: [
-          { name: 'Nguyễn Bảo Ngọc', count: 13 },
-          { name: 'Trần Gia Khang', count: 12 },
-          { name: 'Đỗ Minh Thư', count: 11 },
-        ],
-        selfInTop3: false,
-        selfRank: 6,
-        totalStudents: 20,
-        asOfLabel: 'Tuần 20/07 - 26/07/2026',
-        positionsAchieved: { first: 0, second: 1, third: 2 },
+    goodBehavior: seedGoodBehavior(
+      'Lê Thị Hồng',
+      [true, false, true, true, false, true, true, true, false, true, false],
+      {
+        1: 'Con còn quấy khóc buổi trưa, cô sẽ phối hợp cùng gia đình.',
+        5: 'Con ăn ngủ tốt, tự xúc ăn gọn gàng.',
+        9: 'Con ngoan, ăn ngủ tốt.',
       },
-    },
+    ),
+
   },
 ]
+
+// ECO Me notification centre ("Thông báo"). No vanilla counterpart; the
+// layout comes from a design screenshot. Mutated in place (read flags), like
+// the rest of the mock data. `at` is local 'YYYY-MM-DDTHH:mm'. A notification
+// with a `target` opens that feature when tapped.
+export type NotificationCategory = 'transaction' | 'school'
+
+export type NotificationTarget =
+  | { type: 'medicine'; studentId: string; orderId: string }
+  // Opens a service by intent id (see ServiceIntent), optionally a chat thread.
+  | { type: 'service'; intent: string; studentId: string; threadId?: string; albumId?: string }
+
+export interface AppNotification {
+  id: string
+  category: NotificationCategory
+  title: string
+  body: string
+  at: string
+  read: boolean
+  target?: NotificationTarget
+}
+
+export const MOCK_NOTIFICATIONS: AppNotification[] = [
+  {
+    id: 'nt-md1',
+    category: 'school',
+    title: 'Thông báo đã uống thuốc - khung giờ 08:00',
+    body: 'Giáo viên đã cho học sinh Trần Đăng Khoa uống thuốc. Nhấn để xem chi tiết.',
+    at: '2026-10-12T08:15',
+    read: false,
+    target: { type: 'medicine', studentId: 'khoa', orderId: 'khoamd1' },
+  },
+  {
+    id: 'nt-menu',
+    category: 'school',
+    title: 'Thực đơn đã được cập nhật',
+    body: 'Thực đơn tuần 12/10/2026 - 16/10/2026 đã được cập nhật. Phụ huynh vui lòng xem thông tin mới nhất.',
+    at: '2026-10-09T11:39',
+    read: false,
+    target: { type: 'service', intent: 'menu', studentId: 'vy' },
+  },
+  {
+    id: 'nt-album',
+    category: 'school',
+    title: 'Album Ngày hội Trung thu 2026 có ảnh/video mới',
+    body: 'Nhà trường vừa đăng 14 ảnh/video mới trong album Ngày hội Trung thu 2026. Bấm vào để xem chi tiết.',
+    at: '2026-10-10T09:05',
+    read: false,
+    target: { type: 'service', intent: 'gallery', studentId: 'vy', albumId: 'al-trungthu' },
+  },
+  {
+    id: 'nt-chat1',
+    category: 'school',
+    title: 'Tin nhắn mới từ giáo viên Cô Trang',
+    body: 'Cô Trang: Chiều nay bé ăn hết phần cháo và ngủ rất ngon ạ.',
+    at: '2026-10-09T15:30',
+    read: false,
+    target: { type: 'service', intent: 'chat', studentId: 'vy', threadId: 'ch-vy-gv' },
+  },
+  {
+    id: 'nt-chat2',
+    category: 'school',
+    title: 'Tin mới trong nhóm lớp Nhóm lớp 10A1',
+    body: 'Thầy Huy: Thông báo: Họp phụ huynh lớp vào 19h00 thứ Sáu tuần này.',
+    at: '2026-10-09T18:00',
+    read: false,
+    target: { type: 'service', intent: 'chat', studentId: 'khoa', threadId: 'ch-khoa-group' },
+  },
+  {
+    id: 'nt-pay1',
+    category: 'transaction',
+    title: 'Thanh toán thành công',
+    body: 'Thanh toán 15,000đ thành công cho Cafe take away',
+    at: '2026-10-09T09:53',
+    read: false,
+  },
+  {
+    id: 'nt-gb1',
+    category: 'school',
+    title: 'Chúc mừng Phan Khánh Vy đã nhận Phiếu bé ngoan',
+    body: 'Phan Khánh Vy đã nhận Phiếu bé ngoan tuần 05/10/2026 - 09/10/2026. Nhấn để xem nhận xét của giáo viên.',
+    at: '2026-10-06T11:20',
+    read: false,
+    target: { type: 'service', intent: 'goodbehavior', studentId: 'vy' },
+  },
+  {
+    id: 'nt-gb0',
+    category: 'school',
+    title: 'Chúc mừng Phan Khánh Vy đã nhận Phiếu bé ngoan',
+    body: 'Phan Khánh Vy đã nhận Phiếu bé ngoan tuần 28/09/2026 - 02/10/2026. Nhấn để xem nhận xét của giáo viên.',
+    at: '2026-10-05T10:48',
+    read: true,
+    target: { type: 'service', intent: 'goodbehavior', studentId: 'vy' },
+  },
+  {
+    id: 'nt-pay0',
+    category: 'transaction',
+    title: 'Nạp tiền thành công',
+    body: 'Bạn đã nạp 200,000đ vào Ví ECO thành công.',
+    at: '2026-10-03T14:05',
+    read: true,
+  },
+]
+
+export function unreadNotificationCount(): number {
+  return MOCK_NOTIFICATIONS.filter((n) => !n.read).length
+}
 
 export function getStudent(id: string): Student | undefined {
   return MOCK_STUDENTS.find((s) => s.id === id)

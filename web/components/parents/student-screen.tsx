@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type HealthRecord } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
+import { eligibleStudents, type ServiceIntent } from '@/components/parents/shared/use-service-launcher'
+import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
+import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
 
 // Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
 // ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
@@ -291,32 +294,17 @@ function ZScoreInfoSheet({ onClose }: { onClose: () => void }) {
   )
 }
 
-// Mirrors SCREENS.student in ../../scripts/app.js — a single (non-swiping)
-// page1 icon grid. "Đóng học phí", "Nạp điểm vào thẻ", "Báo vắng", "Bài tập"
-// and "Kết quả học tập" are wired; "Lịch sử chi tiêu", "Thời khoá biểu" and
-// "Theo dõi điểm danh" stay inert (not rebuilt yet). "Cài đặt" (⚙) has no
-// reference screenshot in the vanilla app either — stays inert here too.
-const PAGE1 = [
-  { id: 'fee', icon: '▣', label: 'Đóng học phí' },
-  { id: 'topup', icon: '◈', label: 'Nạp điểm vào thẻ' },
-  { id: 'spending', icon: '▥', label: 'Lịch sử chi tiêu' },
-  { id: 'timetable', icon: '▦', label: 'Thời khoá biểu' },
-  { id: 'attendance', icon: '◷', label: 'Theo dõi điểm danh' },
-  { id: 'absence', icon: '✎', label: 'Báo vắng' },
-  { id: 'homework', icon: '▧', label: 'Bài tập' },
-  { id: 'results', icon: '▨', label: 'Kết quả học tập' },
-]
-
+// Icon grid of every service this student can open (same catalogue and order
+// as the ECO Phụ huynh Home), paged 8 per swipeable page. A service only shows
+// when the student passes its gate (`eligibleStudents`: Nạp điểm needs a top-up
+// school, Phiếu bé ngoan / Nhật ký chăm sóc are Mầm non only, Hóa đơn needs
+// bills); inert placeholders (Học bạ số) are left out.
 interface StudentScreenProps {
   studentId: string
   onBack: () => void
   onSelectStudent: (studentId: string) => void
   onOpenProfile: (studentId: string) => void
-  onOpenFee: (studentId: string) => void
-  onOpenTopup: (studentId: string) => void
-  onOpenAbsence: (studentId: string) => void
-  onOpenHomework: (studentId: string) => void
-  onOpenResults: (studentId: string) => void
+  onOpenService: (intent: ServiceIntent, studentId: string) => void
 }
 
 export function StudentScreen({
@@ -324,11 +312,7 @@ export function StudentScreen({
   onBack,
   onSelectStudent,
   onOpenProfile,
-  onOpenFee,
-  onOpenTopup,
-  onOpenAbsence,
-  onOpenHomework,
-  onOpenResults,
+  onOpenService,
 }: StudentScreenProps) {
   const [showPicker, setShowPicker] = useState(false)
   const [showHealthHistory, setShowHealthHistory] = useState(false)
@@ -372,28 +356,13 @@ export function StudentScreen({
         <span className="value">{student.balance.toLocaleString('vi-VN')} điểm</span>
       </div>
 
-      <div className="icon-grid-wrap">
-        <div className="icon-grid-page" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
-          {PAGE1.map(({ id, icon, label }) => {
-            const isTopup = id === 'topup'
-            const disabled = isTopup && !student.supportsTopUp
-            let onClick: (() => void) | undefined
-            if (!disabled) {
-              if (id === 'fee') onClick = () => onOpenFee(student.id)
-              else if (id === 'topup') onClick = () => onOpenTopup(student.id)
-              else if (id === 'absence') onClick = () => onOpenAbsence(student.id)
-              else if (id === 'homework') onClick = () => onOpenHomework(student.id)
-              else if (id === 'results') onClick = () => onOpenResults(student.id)
-            }
-            return (
-              <button key={id} className="icon-item" disabled={disabled} onClick={onClick}>
-                <span className="icon-glyph">{icon}</span>
-                <span className="icon-label">{label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <PagedIconGrid
+        pages={chunk(
+          PARENT_SERVICES.filter((svc) => svc.intent && eligibleStudents(svc.intent).some((x) => x.id === student.id)),
+        ).map((page) =>
+          page.map((svc) => ({ ...svc, onClick: () => onOpenService(svc.intent!, student.id) })),
+        )}
+      />
 
       <div className="section-heading section-heading-row">
         <span>Chỉ số sức khoẻ</span>
@@ -438,7 +407,7 @@ export function StudentScreen({
         <button
           className="btn btn-primary"
           disabled={!student.supportsTopUp}
-          onClick={() => onOpenTopup(student.id)}
+          onClick={() => onOpenService('topup', student.id)}
         >
           Nạp điểm vào thẻ
         </button>

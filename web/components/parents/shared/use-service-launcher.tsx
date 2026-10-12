@@ -8,26 +8,40 @@ import { StudentPickerSheet } from '@/components/parents/shared/student-picker-s
 // Phụ huynh Home grid, the ECO Me home and its "Danh sách dịch vụ" list).
 // Mirrors App.pickStudent's eligibility check in ../../../scripts/app.js.
 
-export type ServiceIntent = 'fee' | 'topup' | 'goodbehavior' | 'hoadon' | 'absence' | 'homework' | 'results'
+export type ServiceIntent =
+  | 'fee'
+  | 'topup'
+  | 'goodbehavior'
+  | 'hoadon'
+  | 'absence'
+  | 'homework'
+  | 'results'
+  | 'medicine'
+  | 'attendance'
+  | 'timetable'
+  | 'spending'
+  | 'menu'
+  | 'activity'
+  | 'bulletin'
+  | 'diary'
+  | 'chat'
+  | 'gallery'
+  | 'feedback'
 
+// One handler for every service: page.tsx maps the intent to a screen.
 export interface ServiceNav {
-  onNavigateToPhieuBeNgoan: (studentId: string) => void
-  onNavigateToFee: (studentId: string) => void
-  onNavigateToTopup: (studentId: string) => void
-  onNavigateToAbsence: (studentId: string) => void
-  onNavigateToHomework: (studentId: string) => void
-  onNavigateToResults: (studentId: string) => void
-  onNavigateToHoaDon: (studentId: string) => void
+  onOpenService: (intent: ServiceIntent, studentId: string) => void
 }
 
 // "Nạp điểm vào thẻ" only lists students whose school supports top-up,
-// "Phiếu bé ngoan" only applies to Mầm non students, and "Hóa đơn" only to
-// students with bills.
+// "Phiếu bé ngoan" and "Nhật ký chăm sóc" only apply to Mầm non students, and
+// "Hóa đơn" only to students with bills.
 export function eligibleStudents(intent: ServiceIntent): Student[] {
   switch (intent) {
     case 'topup':
       return MOCK_STUDENTS.filter((s) => s.supportsTopUp)
     case 'goodbehavior':
+    case 'diary':
       return MOCK_STUDENTS.filter(isMamNonStudent)
     case 'hoadon':
       return MOCK_STUDENTS.filter((s) => s.bills.length > 0)
@@ -42,19 +56,9 @@ export function eligibleStudents(intent: ServiceIntent): Student[] {
 export function useServiceLauncher(nav: ServiceNav): { launch: (intent: ServiceIntent) => void; picker: ReactNode } {
   const [pickerIntent, setPickerIntent] = useState<ServiceIntent | null>(null)
 
-  const navigateFor = (intent: ServiceIntent, studentId: string) => {
-    if (intent === 'fee') nav.onNavigateToFee(studentId)
-    else if (intent === 'topup') nav.onNavigateToTopup(studentId)
-    else if (intent === 'goodbehavior') nav.onNavigateToPhieuBeNgoan(studentId)
-    else if (intent === 'absence') nav.onNavigateToAbsence(studentId)
-    else if (intent === 'homework') nav.onNavigateToHomework(studentId)
-    else if (intent === 'results') nav.onNavigateToResults(studentId)
-    else if (intent === 'hoadon') nav.onNavigateToHoaDon(studentId)
-  }
-
   const launch = (intent: ServiceIntent) => {
     const eligible = eligibleStudents(intent)
-    if (eligible.length === 1) navigateFor(intent, eligible[0].id)
+    if (eligible.length === 1) nav.onOpenService(intent, eligible[0].id)
     else setPickerIntent(intent)
   }
 
@@ -63,7 +67,7 @@ export function useServiceLauncher(nav: ServiceNav): { launch: (intent: ServiceI
       students={eligibleStudents(pickerIntent)}
       onSelect={(s) => {
         setPickerIntent(null)
-        navigateFor(pickerIntent, s.id)
+        nav.onOpenService(pickerIntent, s.id)
       }}
       onClose={() => setPickerIntent(null)}
     />

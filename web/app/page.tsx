@@ -13,6 +13,20 @@ import { AbsenceApp } from '@/components/parents/absence'
 import { HomeworkApp } from '@/components/parents/homework'
 import { ResultsApp } from '@/components/parents/results'
 import { HoaDonApp } from '@/components/parents/hoa-don'
+import { MedicineApp } from '@/components/parents/medicine'
+import { NotificationsApp } from '@/components/parents/notifications'
+import { AttendanceApp } from '@/components/parents/attendance'
+import { TimetableApp } from '@/components/parents/timetable'
+import { SpendingApp } from '@/components/parents/spending'
+import { MenuApp } from '@/components/parents/menu'
+import { ActivityApp } from '@/components/parents/activity'
+import { BulletinApp } from '@/components/parents/bulletin'
+import { DiaryApp } from '@/components/parents/diary'
+import { ChatApp } from '@/components/parents/chat'
+import { GalleryApp } from '@/components/parents/gallery'
+import { FeedbackApp } from '@/components/parents/feedback'
+import type { ServiceIntent } from '@/components/parents/shared/use-service-launcher'
+import type { NotificationTarget } from '@/lib/mock-data'
 import { LinkStudentApp } from '@/components/parents/link-student'
 import { HelpApp } from '@/components/parents/help'
 
@@ -36,6 +50,7 @@ import { HelpApp } from '@/components/parents/help'
 type Screen =
   | 'eco-home'
   | 'eco-services'
+  | 'notifications'
   | 'home'
   | 'student'
   | 'profile'
@@ -46,29 +61,71 @@ type Screen =
   | 'homework'
   | 'results'
   | 'hoa-don'
+  | 'medicine'
+  | 'attendance'
+  | 'timetable'
+  | 'spending'
+  | 'menu'
+  | 'activity'
+  | 'bulletin'
+  | 'diary'
+  | 'chat'
+  | 'gallery'
+  | 'feedback'
   | 'link-student'
   | 'help'
+
+// Which screen each service intent opens (Phiếu bé ngoan / Hóa đơn keep their
+// original screen ids).
+const INTENT_SCREEN: Record<ServiceIntent, Screen> = {
+  fee: 'fee',
+  topup: 'topup',
+  goodbehavior: 'phieu-be-ngoan',
+  hoadon: 'hoa-don',
+  absence: 'absence',
+  homework: 'homework',
+  results: 'results',
+  medicine: 'medicine',
+  attendance: 'attendance',
+  timetable: 'timetable',
+  spending: 'spending',
+  menu: 'menu',
+  activity: 'activity',
+  bulletin: 'bulletin',
+  diary: 'diary',
+  chat: 'chat',
+  gallery: 'gallery',
+  feedback: 'feedback',
+}
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('eco-home')
   const [returnScreen, setReturnScreen] = useState<Screen>('eco-home')
   const [activeStudentId, setActiveStudentId] = useState<string | null>(null)
+  // Deep links: Dặn thuốc opened on a given order (notification, chat order
+  // card), Trao đổi on a given conversation, Báo vắng straight on its form.
+  const [medicineOrderId, setMedicineOrderId] = useState<string | null>(null)
+  const [chatThreadId, setChatThreadId] = useState<string | null>(null)
+  const [galleryAlbumId, setGalleryAlbumId] = useState<string | null>(null)
+  const [absenceOnCreate, setAbsenceOnCreate] = useState(false)
+  // Shortcuts between features (Điểm danh → Báo vắng, Trao đổi → đơn): back
+  // returns to the feature that opened it without losing `returnScreen`.
+  const [subReturn, setSubReturn] = useState<Screen | null>(null)
 
   // Opens a service for a student and remembers which screen it came from, so
-  // back returns there. Used by both home screens and the service list.
-  const openService = (target: Screen, from: Screen) => (studentId: string) => {
+  // back returns there. Used by both home screens, the service list and Học sinh.
+  const openService = (intent: ServiceIntent, studentId: string, from: Screen) => {
+    setMedicineOrderId(null)
+    setChatThreadId(null)
+    setGalleryAlbumId(null)
+    setAbsenceOnCreate(false)
+    setSubReturn(null)
     setActiveStudentId(studentId)
     setReturnScreen(from)
-    setScreen(target)
+    setScreen(INTENT_SCREEN[intent])
   }
   const serviceNav = (from: Screen) => ({
-    onNavigateToPhieuBeNgoan: openService('phieu-be-ngoan', from),
-    onNavigateToFee: openService('fee', from),
-    onNavigateToTopup: openService('topup', from),
-    onNavigateToAbsence: openService('absence', from),
-    onNavigateToHomework: openService('homework', from),
-    onNavigateToResults: openService('results', from),
-    onNavigateToHoaDon: openService('hoa-don', from),
+    onOpenService: (intent: ServiceIntent, studentId: string) => openService(intent, studentId, from),
   })
   // Học sinh has its own origin: features opened from it overwrite
   // `returnScreen` with 'student', so back from Học sinh can't use that.
@@ -80,7 +137,7 @@ export default function Page() {
   }
   // Where "Về trang chủ" should land: the home the current flow started from.
   const originHome: Screen =
-    returnScreen === 'student' ? studentOrigin : returnScreen === 'eco-services' ? 'eco-home' : returnScreen
+    returnScreen === 'student' ? studentOrigin : returnScreen === 'eco-services' || returnScreen === 'notifications' ? 'eco-home' : returnScreen
 
   return (
     <div className="desktop-backdrop">
@@ -111,11 +168,24 @@ export default function Page() {
                 <EcoHomeScreen
                   {...serviceNav('eco-home')}
                   onOpenServices={() => setScreen('eco-services')}
+                  onOpenNotifications={() => setScreen('notifications')}
                   onOpenEcoParent={() => setScreen('home')}
                   onNavigateToStudent={openStudent('eco-home')}
                   onNavigateToLinkStudent={() => {
                     setReturnScreen('eco-home')
                     setScreen('link-student')
+                  }}
+                />
+              )}
+
+              {screen === 'notifications' && (
+                <NotificationsApp
+                  onBack={() => setScreen('eco-home')}
+                  onOpenTarget={(target: NotificationTarget) => {
+                    openService(target.type === 'medicine' ? 'medicine' : (target.intent as ServiceIntent), target.studentId, 'notifications')
+                    if (target.type === 'medicine') setMedicineOrderId(target.orderId)
+                    else if (target.threadId) setChatThreadId(target.threadId)
+                    else if (target.albumId) setGalleryAlbumId(target.albumId)
                   }}
                 />
               )}
@@ -153,31 +223,7 @@ export default function Page() {
                     setActiveStudentId(studentId)
                     setScreen('profile')
                   }}
-                  onOpenFee={(studentId) => {
-                    setActiveStudentId(studentId)
-                    setReturnScreen('student')
-                    setScreen('fee')
-                  }}
-                  onOpenTopup={(studentId) => {
-                    setActiveStudentId(studentId)
-                    setReturnScreen('student')
-                    setScreen('topup')
-                  }}
-                  onOpenAbsence={(studentId) => {
-                    setActiveStudentId(studentId)
-                    setReturnScreen('student')
-                    setScreen('absence')
-                  }}
-                  onOpenHomework={(studentId) => {
-                    setActiveStudentId(studentId)
-                    setReturnScreen('student')
-                    setScreen('homework')
-                  }}
-                  onOpenResults={(studentId) => {
-                    setActiveStudentId(studentId)
-                    setReturnScreen('student')
-                    setScreen('results')
-                  }}
+                  onOpenService={(intent, studentId) => openService(intent, studentId, 'student')}
                 />
               )}
 
@@ -202,7 +248,11 @@ export default function Page() {
               )}
 
               {screen === 'absence' && activeStudentId && (
-                <AbsenceApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+                <AbsenceApp
+                  studentId={activeStudentId}
+                  startOnCreate={absenceOnCreate}
+                  onBack={() => setScreen(subReturn ?? returnScreen)}
+                />
               )}
 
               {screen === 'homework' && activeStudentId && (
@@ -219,6 +269,83 @@ export default function Page() {
                   onBack={() => setScreen(returnScreen)}
                   onGoHome={() => setScreen(originHome)}
                 />
+              )}
+
+              {screen === 'medicine' && activeStudentId && (
+                <MedicineApp
+                  studentId={activeStudentId}
+                  openOrderId={medicineOrderId}
+                  onBack={() => setScreen(subReturn ?? returnScreen)}
+                />
+              )}
+
+              {screen === 'attendance' && activeStudentId && (
+                <AttendanceApp
+                  studentId={activeStudentId}
+                  onBack={() => setScreen(returnScreen)}
+                  onCreateAbsence={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setAbsenceOnCreate(true)
+                    setSubReturn('attendance')
+                    setScreen('absence')
+                  }}
+                />
+              )}
+
+              {screen === 'timetable' && activeStudentId && (
+                <TimetableApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'spending' && activeStudentId && (
+                <SpendingApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'menu' && activeStudentId && (
+                <MenuApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'activity' && activeStudentId && (
+                <ActivityApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'bulletin' && activeStudentId && (
+                <BulletinApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'diary' && activeStudentId && (
+                <DiaryApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'chat' && activeStudentId && (
+                <ChatApp
+                  studentId={activeStudentId}
+                  openThreadId={chatThreadId}
+                  onBack={() => setScreen(returnScreen)}
+                  onOpenOrder={(card, studentId) => {
+                    setActiveStudentId(studentId)
+                    setSubReturn('chat')
+                    setChatThreadId(null)
+                    if (card.kind === 'medicine') {
+                      setMedicineOrderId(card.orderId ?? null)
+                      setScreen('medicine')
+                    } else {
+                      setAbsenceOnCreate(false)
+                      setScreen('absence')
+                    }
+                  }}
+                />
+              )}
+
+              {screen === 'gallery' && activeStudentId && (
+                <GalleryApp
+                  studentId={activeStudentId}
+                  openAlbumId={galleryAlbumId}
+                  onBack={() => setScreen(returnScreen)}
+                />
+              )}
+
+              {screen === 'feedback' && activeStudentId && (
+                <FeedbackApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
               )}
 
               {screen === 'link-student' && <LinkStudentApp onBack={() => setScreen(returnScreen)} />}

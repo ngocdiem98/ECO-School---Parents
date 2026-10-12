@@ -25,7 +25,8 @@ export function StudentHeader({
   onChangeStudent,
 }: {
   student: Student
-  onChangeStudent: () => void
+  // Omit to hide the "Đổi" button (screens where switching student makes no sense).
+  onChangeStudent?: () => void
 }) {
   return (
     <div className="student-header">
@@ -36,9 +37,11 @@ export function StudentHeader({
         <div className="meta">{student.className}</div>
         <div className="meta">{student.school}</div>
       </div>
-      <button className="btn-change" onClick={onChangeStudent}>
-        ⇄ Đổi
-      </button>
+      {onChangeStudent && (
+        <button className="btn-change" onClick={onChangeStudent}>
+          ⇄ Đổi
+        </button>
+      )}
     </div>
   )
 }

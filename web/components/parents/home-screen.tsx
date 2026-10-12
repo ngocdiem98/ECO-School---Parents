@@ -1,45 +1,12 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import { MOCK_STUDENTS } from '@/lib/mock-data'
-import { useServiceLauncher, type ServiceIntent, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
+import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
+import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
+import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
 
-// Mirrors PAGE1_LABELS/PAGE2_LABELS + ICONS in ../../scripts/app.js (vanilla
-// app) — same glyph-character icon system (not eduteachers' line-art SVGs),
-// to keep pixel parity with the already-verified vanilla screens. Wired by
-// Đợt 3: "Đóng học phí", "Nạp điểm vào thẻ", "Báo vắng", "Bài tập", "Kết quả
-// học tập" (page 1), "Phiếu bé ngoan" and "Hóa đơn" (page 2), "?" help, "Thêm học sinh mới
-// +". Every other icon stays an inert placeholder, same convention
-// eduteachers uses for its own unbuilt entry points (see its CLAUDE.md).
-const PAGE1 = [
-  { id: 'fee', icon: '▣', label: 'Đóng học phí' },
-  { id: 'topup', icon: '◈', label: 'Nạp điểm vào thẻ' },
-  { id: 'spending', icon: '▥', label: 'Lịch sử chi tiêu' },
-  { id: 'timetable', icon: '▦', label: 'Thời khoá biểu' },
-  { id: 'attendance', icon: '◷', label: 'Theo dõi điểm danh' },
-  { id: 'absence', icon: '✎', label: 'Báo vắng' },
-  { id: 'homework', icon: '▧', label: 'Bài tập' },
-  { id: 'results', icon: '▨', label: 'Kết quả học tập' },
-]
-
-const PAGE2 = [
-  { id: 'hocba', icon: '▩', label: 'Học bạ số' },
-  { id: 'thucdon', icon: '▥', label: 'Thực đơn' },
-  { id: 'hoatdong', icon: '◐', label: 'Hoạt động' },
-  { id: 'hoadon', icon: '▤', label: 'Hóa đơn' },
-  { id: 'danthuoc', icon: '✛', label: 'Dặn thuốc' },
-  { id: 'bangtin', icon: '▬', label: 'Bảng tin' },
-  { id: 'nhatky', icon: '▭', label: 'Nhật ký chăm sóc' },
-  { id: 'goodbehavior', icon: '★', label: 'Phiếu bé ngoan' },
-]
-
-const WIRED_PAGE1_IDS = new Set(['fee', 'topup', 'absence', 'homework', 'results'])
-
-// Page 2 entries that open a feature (id → picker intent).
-const WIRED_PAGE2_INTENTS: Record<string, ServiceIntent> = {
-  goodbehavior: 'goodbehavior',
-  hoadon: 'hoadon',
-}
+// Icons come from the shared catalogue (shared/parent-services.ts), 8 per
+// swipeable page; entries without an intent (Học bạ số) stay inert.
 
 interface ParentsHomeScreenProps extends ServiceNav {
   onBack: () => void
@@ -51,34 +18,11 @@ interface ParentsHomeScreenProps extends ServiceNav {
 export function ParentsHomeScreen({
   onBack,
   onNavigateToStudent,
-  onNavigateToPhieuBeNgoan,
-  onNavigateToFee,
-  onNavigateToTopup,
-  onNavigateToAbsence,
-  onNavigateToHomework,
-  onNavigateToResults,
-  onNavigateToHoaDon,
+  onOpenService,
   onNavigateToHelp,
   onNavigateToLinkStudent,
 }: ParentsHomeScreenProps) {
-  const [page, setPage] = useState(0)
-  const scrollerRef = useRef<HTMLDivElement>(null)
-
-  const handleScroll = () => {
-    const el = scrollerRef.current
-    if (!el) return
-    setPage(Math.round(el.scrollLeft / el.clientWidth))
-  }
-
-  const { launch, picker } = useServiceLauncher({
-    onNavigateToPhieuBeNgoan,
-    onNavigateToFee,
-    onNavigateToTopup,
-    onNavigateToAbsence,
-    onNavigateToHomework,
-    onNavigateToResults,
-    onNavigateToHoaDon,
-  })
+  const { launch, picker } = useServiceLauncher({ onOpenService })
 
   return (
     <div className="screen">
@@ -93,46 +37,15 @@ export function ParentsHomeScreen({
         <p>Bước tiến mới trong chuyển đổi số giáo dục</p>
       </div>
 
-      <div className="icon-grid-wrap">
-        <div className="icon-grid-scroller" ref={scrollerRef} onScroll={handleScroll}>
-          <div className="icon-grid-page">
-            {PAGE1.map(({ id, icon, label }) => {
-              const wired = WIRED_PAGE1_IDS.has(id)
-              return (
-                <button
-                  key={id}
-                  className="icon-item"
-                  disabled={!wired}
-                  onClick={wired ? () => launch(id as ServiceIntent) : undefined}
-                >
-                  <span className="icon-glyph">{icon}</span>
-                  <span className="icon-label">{label}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className="icon-grid-page">
-            {PAGE2.map(({ id, icon, label }) => {
-              const intent = WIRED_PAGE2_INTENTS[id]
-              return (
-                <button
-                  key={id}
-                  className="icon-item"
-                  disabled={!intent}
-                  onClick={intent ? () => launch(intent) : undefined}
-                >
-                  <span className="icon-glyph">{icon}</span>
-                  <span className="icon-label">{label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-        <div className="icon-dots">
-          <span className={`icon-dot ${page === 0 ? 'active' : ''}`} />
-          <span className={`icon-dot ${page === 1 ? 'active' : ''}`} />
-        </div>
-      </div>
+      <PagedIconGrid
+        pages={chunk(PARENT_SERVICES).map((page) =>
+          page.map((svc) => ({
+            ...svc,
+            disabled: !svc.intent,
+            onClick: svc.intent ? () => launch(svc.intent!) : undefined,
+          })),
+        )}
+      />
 
       <div className="section-heading">Danh sách học sinh</div>
       {MOCK_STUDENTS.map((s) => (

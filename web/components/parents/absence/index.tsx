@@ -9,6 +9,8 @@ import { AbsenceCreateScreen, DEFAULT_ABSENCE_FORM, type AbsenceFormState } from
 
 interface AbsenceAppProps {
   studentId: string
+  /** Open straight on the create form (shortcut from Theo dõi điểm danh). */
+  startOnCreate?: boolean
   onBack: () => void
 }
 
@@ -19,9 +21,9 @@ type AbsenceScreen = 'list' | 'create'
 // eduteachers uses for its own PHIEU_BE_NGOAN_RECORDS — see its
 // components/teachers/phieu-be-ngoan/index.tsx) and bumps a version counter
 // to force React to re-read it.
-export function AbsenceApp({ studentId, onBack }: AbsenceAppProps) {
+export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
-  const [screen, setScreen] = useState<AbsenceScreen>('list')
+  const [screen, setScreen] = useState<AbsenceScreen>(startOnCreate ? 'create' : 'list')
   const [filter, setFilter] = useState<'all' | AbsenceStatus>('all')
   const [form, setForm] = useState<AbsenceFormState>(DEFAULT_ABSENCE_FORM)
   const [showPicker, setShowPicker] = useState(false)
@@ -81,7 +83,7 @@ export function AbsenceApp({ studentId, onBack }: AbsenceAppProps) {
           form={form}
           onFieldChange={handleFieldChange}
           onAddPhotos={handleAddPhotos}
-          onBack={() => setScreen('list')}
+          onBack={() => (startOnCreate ? onBack() : setScreen('list'))}
           onChangeStudent={() => setShowPicker(true)}
           onSubmit={handleSubmit}
         />
