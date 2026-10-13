@@ -108,7 +108,7 @@ export function FeedbackDetailScreen({
       </section>
 
       <section className="fb-thread-wrap">
-        <div className="fb-thread-title">— Phản hồi —</div>
+        <div className="section-heading">Phản hồi</div>
         {feedback.replies.length === 0 ? (
           <div className="fb-thread-empty">
             <b>Chưa có phản hồi</b>

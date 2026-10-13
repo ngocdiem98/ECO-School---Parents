@@ -2162,7 +2162,7 @@ img { max-width: 100%; display: block; }
 .fb-d-files button { width: 54px; height: 54px; padding: 0; border: 1px solid var(--c-gray-200); border-radius: 8px; background: var(--c-gray-50); overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .fb-d-files img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fb-thread-wrap { flex: 1; padding: 14px 16px 14px; background-color: #FFFAEB; background-image: linear-gradient(rgba(255, 204, 51, .13) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 204, 51, .13) 1px, transparent 1px); background-size: 26px 26px; }
-.fb-thread-title { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--c-gray-700); }
+.fb-thread-wrap .section-heading { margin: 0 0 6px; }
 .fb-thread-empty { text-align: center; padding: 28px 12px; font-size: 13px; color: var(--c-gray-500); }
 .fb-thread-empty b { display: block; color: var(--c-ink); margin-bottom: 4px; font-size: 14px; }
 .fb-thread-empty p { margin: 0; }
