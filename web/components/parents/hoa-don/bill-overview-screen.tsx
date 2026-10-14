@@ -32,8 +32,9 @@ function recentMonths(now: Date): { year: number; month: number }[] {
 // in the list flow. The summary (counts, total, donut) is scoped to the
 // current school year; the total and the donut count paid items only; the month chart covers the last MONTHS_WINDOW calendar
 // months (within that school year) and only shows months that have payments. A bill counts as "Đã
-// thanh toán" only when fully paid; a bill with any open item counts as "Chưa
-// thanh toán", so the two counts add up to the total.
+// thanh toán" once any item is paid (fully or partly paid) and as "Chưa thanh
+// toán" when none is paid and something still needs paying, so the two counts
+// add up to the total.
 export function BillOverviewScreen({
   student,
   year,
@@ -63,7 +64,7 @@ export function BillOverviewScreen({
       return next
     })
 
-  const { startYear, paidItems, paidAmount, paidCount, unpaidCount } = summarizeYear(student, now, year)
+  const { startYear, paidItems, paidAmount, paidCount, unpaidCount, hasOpenItems } = summarizeYear(student, now, year)
   // Months are placed by billing period (Bill.year/month), not by when the
   // bill was paid. Each month keeps its paid items grouped per bill.
   const months = recentMonths(yearAnchor(now, startYear))
@@ -109,7 +110,7 @@ export function BillOverviewScreen({
               <div className="ov-stat-label">Chưa thanh toán</div>
               <div className="ov-stat-num">{unpaidCount}</div>
             </div>
-            <button className="ov-stat-link" onClick={onOpenUnpaid} disabled={unpaidCount === 0}>
+            <button className="ov-stat-link" onClick={onOpenUnpaid} disabled={!hasOpenItems}>
               Thanh toán ngay ›
             </button>
           </div>

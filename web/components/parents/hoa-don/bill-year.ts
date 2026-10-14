@@ -37,19 +37,23 @@ export function yearAnchor(now: Date, startYear: number): Date {
 }
 
 // Paid amount and bill counts of one school year (the current one by default).
-// "Đã thanh toán" counts fully paid bills; a bill with any open item counts as
-// "Chưa thanh toán", so the two counts add up to `totalBills`.
+// A bill counts as "Đã thanh toán" once at least one of its items is paid
+// (fully or partly paid), and as "Chưa thanh toán" when none is paid and at
+// least one item still needs paying. `hasOpenItems` tells whether anything is
+// left to pay in the year (partly paid bills included).
 export function summarizeYear(student: Student, now: Date, startYear = schoolYearStart(now)) {
   const bills = billsInYear(student, startYear)
   const paidItems = bills.flatMap((b) => b.items.filter((it) => it.paid))
-  const unpaidCount = bills.filter((b) => b.items.some((it) => !it.paid)).length
+  const paidCount = bills.filter((b) => b.items.some((it) => it.paid)).length
+  const unpaidCount = bills.filter((b) => !b.items.some((it) => it.paid) && b.items.some((it) => !it.paid)).length
   return {
     startYear,
     bills,
     paidItems,
     paidAmount: sumItems(paidItems),
-    totalBills: bills.length,
+    totalBills: paidCount + unpaidCount,
+    paidCount,
     unpaidCount,
-    paidCount: bills.length - unpaidCount,
+    hasOpenItems: bills.some((b) => b.items.some((it) => !it.paid)),
   }
 }
