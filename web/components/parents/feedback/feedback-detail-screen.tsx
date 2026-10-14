@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Plus, RotateCw, Send, X } from 'lucide-react'
+import { FileText, Info, Plus, RotateCw, Send, X } from 'lucide-react'
 import { TopBar } from '@/components/parents/shared/header'
+import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
 import { CURRENT_PARENT, canReopen, reopenDaysLeft, REOPEN_WINDOW_DAYS, type Feedback } from '@/lib/school-data'
 import { dayTitle } from '@/components/parents/medicine/utils'
@@ -31,6 +32,7 @@ export function FeedbackDetailScreen({
   const [images, setImages] = useState<string[]>([])
   const [attach, setAttach] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const [reason, setReason] = useState('')
   const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
@@ -74,18 +76,14 @@ export function FeedbackDetailScreen({
       <TopBar title="Chi tiết góp ý" onBack={onBack} />
 
       <section className="fb-d-info">
-        <FeedbackBadge status={feedback.status} />
         <h2>{feedback.title}</h2>
-        <dl>
-          <dt>Người gửi</dt>
-          <dd>{feedback.sender}</dd>
-          <dt>Ngày gửi</dt>
-          <dd>{fullDateTime(feedback.createdAt)}</dd>
-          <dt>Loại góp ý</dt>
-          <dd>{feedback.type || 'Chưa phân loại'}</dd>
-          <dt>Người xử lý</dt>
-          <dd className={feedback.handler ? '' : 'muted'}>{feedback.handler ?? 'Chưa phân công'}</dd>
-        </dl>
+        <div className="fb-d-meta">
+          <FeedbackBadge status={feedback.status} />
+          <span className="fb-d-date">{fullDateTime(feedback.createdAt)}</span>
+          <button className="fb-d-info-btn" onClick={() => setShowInfo(true)} aria-label="Thông tin góp ý">
+            <Info size={18} />
+          </button>
+        </div>
         <hr />
         <p>{feedback.content}</p>
         {feedback.files.length > 0 && (
@@ -268,6 +266,34 @@ export function FeedbackDetailScreen({
             <small>{reason.length}/500</small>
           </label>
         </FbDialog>
+      )}
+      {showInfo && (
+        <OverlayPortal>
+          <div className="scrim" onClick={() => setShowInfo(false)} />
+          <div className="sheet">
+            <div className="sheet-grab" />
+            <div className="sheet-head">
+              <span className="t">Thông tin góp ý</span>
+              <button className="icon-btn" onClick={() => setShowInfo(false)} aria-label="Đóng">
+                ✕
+              </button>
+            </div>
+            <div className="sheet-body fb-info-sheet">
+              <dl>
+                {feedback.type && (
+                  <>
+                    <dt>Loại góp ý</dt>
+                    <dd>{feedback.type}</dd>
+                  </>
+                )}
+                <dt>Người gửi</dt>
+                <dd>{feedback.sender}</dd>
+                <dt>Người xử lý</dt>
+                <dd className={feedback.handler ? '' : 'muted'}>{feedback.handler ?? 'Chưa phân công'}</dd>
+              </dl>
+            </div>
+          </div>
+        </OverlayPortal>
       )}
       {viewer && <PhotoViewer photos={viewer.photos} startIndex={viewer.index} onClose={() => setViewer(null)} onToast={onToast} />}
     </div>
