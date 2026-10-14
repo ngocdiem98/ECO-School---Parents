@@ -61,7 +61,7 @@ export function ServiceIcon({ name, tint, disabled }: { name: string; tint: [str
       className={`svc-icon ${disabled ? 'is-off' : ''}`}
       style={{ background: `linear-gradient(145deg, ${tint[0]}, ${tint[1]})` }}
     >
-      <Icon size={26} strokeWidth={2} color="#fff" />
+      <Icon size={22} strokeWidth={2} color="#fff" />
     </span>
   )
 }

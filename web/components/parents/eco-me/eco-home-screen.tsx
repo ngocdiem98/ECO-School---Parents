@@ -140,7 +140,7 @@ export function EcoHomeScreen({
             <div>
               <div className="eco-balance-label">ECO trả sau</div>
               <div className="eco-balance-link">
-                Đăng ký <ChevronRight size={14} style={{ verticalAlign: '-2px' }} />
+                Đăng ký <ChevronRight size={14} />
               </div>
             </div>
           </div>

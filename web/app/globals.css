@@ -1235,7 +1235,7 @@ img { max-width: 100%; display: block; }
   color: var(--c-ink);
 }
 
-.ov-donut-wrap { position: relative; width: 100%; aspect-ratio: 346 / 250; }
+.ov-donut-wrap { position: relative; width: 100%; aspect-ratio: 346 / 206; }
 .ov-donut { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .ov-donut-seg { cursor: pointer; transition: stroke-width 0.15s; outline: none; }
 .ov-donut-seg:focus-visible { stroke-opacity: 0.7; }
@@ -1705,11 +1705,11 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 6px 20px rgba(0, 44, 84, .16);
 }
 .eco-wallet-actions { padding: 14px 4px 8px; }
-.svc-item { display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; background: none; padding: 0; min-width: 0; color: var(--c-ink); }
+.svc-item { display: flex; flex-direction: column; align-items: center; gap: 6px; border: none; background: none; padding: 0; min-width: 0; color: var(--c-ink); }
 .svc-item:disabled { opacity: 1; }
-.svc-label { font-size: 12.5px; text-align: center; line-height: 1.25; }
+.svc-label { font-size: 12px; text-align: center; line-height: 1.25; }
 .svc-icon {
-  width: 56px; height: 56px; border-radius: 18px;
+  width: 48px; height: 48px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 3px 8px rgba(0, 44, 84, .16), inset 0 1px 0 rgba(255, 255, 255, .35);
 }
@@ -2203,3 +2203,43 @@ img { max-width: 100%; display: block; }
 /* Demo student portraits (boy / girl SVG) replace the initial letter */
 .student-avatar { background: transparent; overflow: hidden; padding: 0; }
 .student-avatar svg { display: block; }
+
+/* ECO Me home — compact banner and wallet card (smaller than the first pass) */
+.eco-banner { padding: 8px 14px 58px; }
+.eco-banner::after { bottom: -58px; height: 110px; }
+.eco-header { gap: 6px; }
+.eco-avatar { width: 32px; height: 32px; font-size: 13px; }
+.eco-greeting { font-size: 15px; }
+.eco-round { width: 32px; height: 32px; }
+.eco-round svg { width: 17px; height: 17px; }
+.eco-bell-badge { min-width: 16px; height: 16px; font-size: 9.5px; line-height: 13px; top: -3px; right: -3px; }
+.eco-promo { margin-top: 4px; min-height: 92px; }
+.eco-promo-title { font-size: 14px; }
+.eco-promo-limit { margin-top: 4px; font-size: 11px; }
+.eco-promo-amount { font-size: 20px; }
+.eco-promo-art { height: 92px; top: -2px; }
+.eco-promo-phone { width: 66px; height: 84px; right: 18px; font-size: 8px; border-width: 2.5px; }
+.eco-promo-phone b { font-size: 8.5px; }
+.eco-promo-burst { width: 52px; height: 52px; font-size: 8px; right: -8px; top: 42px; }
+.eco-promo-cta { padding: 4px 12px; font-size: 10px; bottom: -16px; }
+
+.eco-wallet { margin: -34px 14px 4px; border-radius: 18px; }
+.eco-wallet-actions { padding: 10px 4px 6px; }
+.eco-action-icon { width: 38px; height: 38px; border-radius: 13px; }
+.eco-action-icon svg { width: 20px; height: 20px; }
+.eco-action .svc-label { font-size: 11.5px; }
+.eco-balance { padding: 8px 10px; gap: 6px; }
+.eco-balance-label { font-size: 12px; }
+.eco-balance-value { font-size: 14px; }
+.eco-balance-link { font-size: 12.5px; }
+.eco-eye svg { width: 16px; height: 16px; }
+.eco-coin { font-size: 12.5px; padding: 4px 6px 4px 4px; }
+.eco-coin-dot { width: 18px; height: 18px; font-size: 9.5px; }
+
+/* "Đăng ký ›" stays on one line (svg is display:block under the reset) */
+.eco-balance-link { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.eco-balance-link svg { flex: none; }
+
+/* Student list cards: label column shrinks to its text, the value (e.g. school name) stays on one line */
+.student-card-body { grid-template-columns: auto 1fr; gap: 8px 12px; }
+.student-card-body .kv-value { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

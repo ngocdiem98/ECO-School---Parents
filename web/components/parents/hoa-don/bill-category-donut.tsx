@@ -85,11 +85,11 @@ function toPercents(values: number[]): number[] {
 
 // --- Donut ----------------------------------------------------------------
 
-// Geometry in a 346 x 250 box (the phone's content width). The ring sits in
+// Geometry in a 346 x 206 box (the phone's content width). The ring sits in
 // the middle; labels (% chip + name) are spread over the left and right
 // columns and joined to their slice by a straight leader line.
 const VB_W = 346
-const VB_H = 250
+const VB_H = 206
 const CX = VB_W / 2
 const CY = VB_H / 2
 const R = 62 // ring centre radius
@@ -107,7 +107,7 @@ interface Placed {
   // decides the label's height.
   edge: [number, number]
   elbow: [number, number]
-  top: number // label top (px in the 346 x 250 box)
+  top: number // label top (px in the 346 x 206 box)
 }
 
 // Slice mid-angles decide the side; each side stacks its labels top to bottom

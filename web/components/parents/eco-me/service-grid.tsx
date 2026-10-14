@@ -31,7 +31,7 @@ export function ServiceGrid({
       {more && (
         <button className="svc-item" onClick={more}>
           <span className="svc-icon" style={{ background: 'linear-gradient(145deg, #5A6486, #3B4466)' }}>
-            <LayoutGrid size={26} strokeWidth={2} color="#fff" />
+            <LayoutGrid size={22} strokeWidth={2} color="#fff" />
           </span>
           <span className="svc-label">Xem thêm</span>
         </button>
