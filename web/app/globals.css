@@ -1211,7 +1211,6 @@ img { max-width: 100%; display: block; }
    ============================================================ */
 .ov-section { padding: 14px 16px 6px; }
 .ov-heading { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
-.ov-year { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
 .ov-total { font-size: 13px; color: var(--c-gray-700); }
 .ov-total b { color: var(--c-ink); }
 
@@ -2181,16 +2180,13 @@ img { max-width: 100%; display: block; }
 
 /* Hóa đơn — summary card at the top of the list ("Tổng quan Hóa đơn") */
 .ov-card {
-  margin: 12px 16px 0;
+  margin: 0 16px;
   padding: 14px;
   background: var(--c-blue-50);
   border: 1px solid var(--c-blue-100);
   border-radius: var(--radius-lg);
 }
-.ov-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-.ov-card-title { font-size: 15px; font-weight: 800; color: var(--c-navy); }
 .ov-card-link { flex: none; background: none; border: none; padding: 0; font-size: 13px; font-weight: 700; color: var(--c-blue); }
-.ov-card-year { font-size: 14px; font-weight: 700; }
 .ov-card-total { margin-top: 2px; font-size: 13px; color: var(--c-gray-700); }
 .ov-card-total b { color: var(--c-ink); }
 .ov-card .ov-donut-wrap { margin-top: 10px; }
@@ -2243,3 +2239,20 @@ img { max-width: 100%; display: block; }
 /* Student list cards: label column shrinks to its text, the value (e.g. school name) stays on one line */
 .student-card-body { grid-template-columns: auto 1fr; gap: 8px 12px; }
 .student-card-body .kv-value { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Hóa đơn — section titles ("Tổng quan Hóa đơn", "Hóa đơn chưa/đã thanh toán (n)"): same level, same style */
+.bill-section-title { margin: 18px 16px 8px; font-size: 15px; font-weight: 800; color: var(--c-ink); }
+.bill-section-title--row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+/* Hóa đơn — school-year filter under the student card */
+
+/* Hóa đơn — "Năm học" filter row: notebook icon + bold label, dividers like the student card */
+.year-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 16px;
+  border: none; border-bottom: 1px solid var(--c-gray-150); background: var(--c-white);
+  font: inherit; text-align: left; color: var(--c-ink);
+}
+.year-row-icon { flex: none; color: #F29A1F; }
+.year-row-text { font-size: 15px; font-weight: 800; }
+.year-row-chevron { flex: none; margin-left: 2px; color: var(--c-gray-500); }

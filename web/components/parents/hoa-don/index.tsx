@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, sumItems, type Bill } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { BillOverviewScreen } from './bill-overview-screen'
+import { availableYears, billsInYear, schoolYearStart } from './bill-year'
 import { BillInvoicePdfScreen } from './bill-invoice-pdf-screen'
 import { BillListScreen, type BillTab } from './bill-list-screen'
 import { BillSelectScreen } from './bill-select-screen'
@@ -34,6 +35,8 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
   const [screen, setScreen] = useState<HoaDonScreen>('list')
   const [tab, setTab] = useState<BillTab>('unpaid')
+  // School year filter on the list (start year); the overview follows it.
+  const [year, setYear] = useState(() => schoolYearStart(new Date()))
   const [focusBillId, setFocusBillId] = useState<string | null>(null)
   const [scrollToTabs, setScrollToTabs] = useState(false)
   // Where the select screen's back button returns to.
@@ -70,6 +73,13 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
     setScreen('result')
   }
 
+  // Changing the school year reloads whichever screen shows it (list or overview).
+  const changeYear = (y: number) => {
+    setYear(y)
+    setSelected(new Set())
+    setFocusBillId(null)
+  }
+
   const openList = (nextTab: BillTab, billId: string | null = null, scroll = false) => {
     setTab(nextTab)
     setFocusBillId(billId)
@@ -81,9 +91,12 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
     <>
       {screen === 'overview' && (
         <BillOverviewScreen
-          // Remount per student so the chart/donut selections reset.
-          key={student.id}
+          // Remount per student/year so the chart/donut selections reset.
+          key={`${student.id}-${year}`}
           student={student}
+          year={year}
+          years={availableYears(student, new Date())}
+          onYearChange={changeYear}
           onBack={() => {
             setScrollToTabs(false)
             setScreen('list')
@@ -103,6 +116,9 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
         <BillListScreen
           student={student}
           tab={tab}
+          year={year}
+          years={availableYears(student, new Date())}
+          onYearChange={changeYear}
           focusBillId={focusBillId}
           scrollToTabs={scrollToTabs}
           onTabChange={(t) => {
@@ -138,6 +154,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
       {screen === 'select' && (
         <BillSelectScreen
           student={student}
+          bills={billsInYear(student, year)}
           selected={selected}
           onSelectedChange={setSelected}
           onBack={() => setScreen(selectOrigin)}
@@ -162,6 +179,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)
+            setYear(schoolYearStart(new Date()))
             setSelected(new Set())
             openList('unpaid')
             setShowPicker(false)

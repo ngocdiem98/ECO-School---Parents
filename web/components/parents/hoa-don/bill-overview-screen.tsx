@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Student } from '@/lib/mock-data'
-import { fmtDong, inSchoolYear, summarizeYear } from './bill-year'
+import { fmtDong, inSchoolYear, summarizeYear, yearAnchor } from './bill-year'
 import { CategoryDonut } from './bill-category-donut'
+import { YearFilter } from './bill-year-row'
 
 const sumOf = (xs: { amount: number }[]) => xs.reduce((n, x) => n + x.amount, 0)
 
@@ -35,11 +36,18 @@ function recentMonths(now: Date): { year: number; month: number }[] {
 // thanh toán", so the two counts add up to the total.
 export function BillOverviewScreen({
   student,
+  year,
+  years,
+  onYearChange,
   onBack,
   onOpenPaid,
   onOpenUnpaid,
 }: {
   student: Student
+  // Start of the school year being shown; the row under the student card changes it.
+  year: number
+  years: number[]
+  onYearChange: (startYear: number) => void
   onBack: () => void
   onOpenPaid: () => void
   onOpenUnpaid: () => void
@@ -55,10 +63,10 @@ export function BillOverviewScreen({
       return next
     })
 
-  const { startYear, paidItems, paidAmount, paidCount, unpaidCount } = summarizeYear(student, now)
+  const { startYear, paidItems, paidAmount, paidCount, unpaidCount } = summarizeYear(student, now, year)
   // Months are placed by billing period (Bill.year/month), not by when the
   // bill was paid. Each month keeps its paid items grouped per bill.
-  const months = recentMonths(now)
+  const months = recentMonths(yearAnchor(now, startYear))
     .filter((m) => inSchoolYear(m.year, m.month, startYear))
     .map((m) => {
       const groups = student.bills
@@ -79,13 +87,11 @@ export function BillOverviewScreen({
     <div className="screen">
       <TopBar title="Tổng quan hóa đơn" onBack={onBack} />
       <StudentHeader student={student} />
+      <YearFilter year={startYear} years={years} onChange={onYearChange} />
 
       <div className="ov-section">
-        <div className="ov-year">
-          Năm học {startYear} - {startYear + 1}
-        </div>
         <div className="ov-total">
-          Tổng số tiền đã thanh toán: <b>{fmtDong(paidAmount)}</b> ({paidCount} hóa đơn)
+          Tổng số tiền đã thanh toán: <b>{fmtDong(paidAmount)}</b>
         </div>
 
         <div className="ov-stats">
@@ -116,7 +122,7 @@ export function BillOverviewScreen({
       </div>
 
       <div className="ov-section">
-        <div className="ov-heading">Theo tháng</div>
+        <div className="ov-heading">Thanh toán theo tháng</div>
         {months.length ? (
           <>
             <div className="ov-bars" role="group" aria-label="Số tiền đã thanh toán theo tháng">

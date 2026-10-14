@@ -1,25 +1,28 @@
 'use client'
 
 import { TopBar } from '@/components/parents/shared/header'
-import { fmtMoney, sumItems, type Student } from '@/lib/mock-data'
+import { fmtMoney, sumItems, type Bill, type Student } from '@/lib/mock-data'
 
 // "Thông tin hóa đơn": pick which open items to pay. A bill's header checkbox
 // is tri-state (none / some / all of its open items), matching the dash/check
 // states in the design. Paid items are not listed here.
 export function BillSelectScreen({
   student,
+  bills,
   selected,
   onSelectedChange,
   onBack,
   onContinue,
 }: {
   student: Student
+  // Bills to pick from (the school year chosen on the list); all when omitted.
+  bills?: Bill[]
   selected: Set<string>
   onSelectedChange: (next: Set<string>) => void
   onBack: () => void
   onContinue: () => void
 }) {
-  const openBills = student.bills
+  const openBills = (bills ?? student.bills)
     .map((b) => ({ bill: b, open: b.items.filter((it) => !it.paid) }))
     .filter((x) => x.open.length > 0)
   const total = sumItems(openBills.flatMap((x) => x.open).filter((it) => selected.has(it.id)))

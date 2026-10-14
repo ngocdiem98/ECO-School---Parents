@@ -164,8 +164,10 @@ function DonutChart({
               y1={edge[1]}
               x2={endX}
               y2={endY}
-              stroke="var(--c-gray-300)"
-              strokeWidth="1"
+              stroke="var(--c-gray-400)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeDasharray="0.1 4"
             />
           )
         })}

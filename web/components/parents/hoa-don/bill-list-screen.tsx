@@ -5,6 +5,7 @@ import { TriangleAlert } from 'lucide-react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Bill, type Student } from '@/lib/mock-data'
 import { fmtDong, summarizeYear } from './bill-year'
+import { YearFilter } from './bill-year-row'
 import { CategoryDonut } from './bill-category-donut'
 
 export type BillTab = 'unpaid' | 'paid'
@@ -22,6 +23,9 @@ const TABS: { value: BillTab; label: string }[] = [
 export function BillListScreen({
   student,
   tab,
+  year,
+  years,
+  onYearChange,
   focusBillId,
   scrollToTabs,
   onTabChange,
@@ -33,6 +37,10 @@ export function BillListScreen({
 }: {
   student: Student
   tab: BillTab
+  // School year filter (start year): both tabs and the overview load this year.
+  year: number
+  years: number[]
+  onYearChange: (startYear: number) => void
   // Bill to scroll to and briefly highlight (set when arriving from the
   // month chart on Tổng quan).
   focusBillId?: string | null
@@ -48,8 +56,8 @@ export function BillListScreen({
 }) {
   const wantPaid = tab === 'paid'
   const [now] = useState(() => new Date())
-  const year = summarizeYear(student, now)
-  const bills = student.bills.filter((b) => b.items.some((it) => it.paid === wantPaid))
+  const summary = summarizeYear(student, now, year)
+  const bills = summary.bills.filter((b) => b.items.some((it) => it.paid === wantPaid))
   const focusRef = useRef<HTMLDivElement>(null)
   const tabsRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -58,25 +66,13 @@ export function BillListScreen({
   useEffect(() => {
     focusRef.current?.scrollIntoView({ block: 'center' })
   }, [focusBillId])
-  const hasUnpaid = student.bills.some((b) => b.items.some((it) => !it.paid))
+  const hasUnpaid = summary.bills.some((b) => b.items.some((it) => !it.paid))
 
   return (
     <div className="screen">
       <TopBar title="Hóa đơn" onBack={onBack} />
       <StudentHeader student={student} onChangeStudent={onChangeStudent} />
-      <div className="ov-card">
-        <div className="ov-card-head">
-          <span className="ov-card-title">Tổng quan Hóa đơn</span>
-          <button className="ov-card-link" onClick={onOpenOverview}>
-            Xem chi tiết ›
-          </button>
-        </div>
-        <div className="ov-card-year">Năm học {year.startYear} - {year.startYear + 1}</div>
-        <div className="ov-card-total">
-          Tổng số tiền đã thanh toán: <b>{fmtDong(year.paidAmount)}</b>
-        </div>
-        <CategoryDonut paidItems={year.paidItems} showHint={false} />
-      </div>
+      <YearFilter year={year} years={years} onChange={onYearChange} />
 
       <div className="tabs" ref={tabsRef}>
         {TABS.map((t) => (
@@ -88,6 +84,27 @@ export function BillListScreen({
             {t.label}
           </button>
         ))}
+      </div>
+
+      {wantPaid && (
+        <>
+          <div className="bill-section-title bill-section-title--row">
+            <span>Tổng quan Hóa đơn</span>
+            <button className="ov-card-link" onClick={onOpenOverview}>
+              Xem chi tiết ›
+            </button>
+          </div>
+          <div className="ov-card">
+            <div className="ov-card-total">
+              Tổng số tiền đã thanh toán: <b>{fmtDong(summary.paidAmount)}</b>
+            </div>
+            <CategoryDonut paidItems={summary.paidItems} showHint={false} />
+          </div>
+        </>
+      )}
+
+      <div className="bill-section-title">
+        {wantPaid ? 'Hóa đơn đã thanh toán' : 'Hóa đơn chưa thanh toán'} ({bills.length})
       </div>
 
       {bills.length ? (
