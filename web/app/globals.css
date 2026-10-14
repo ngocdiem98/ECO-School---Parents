@@ -1351,22 +1351,6 @@ img { max-width: 100%; display: block; }
   color: var(--c-ink);
 }
 
-/* Entry row on the "Đã thanh toán" tab → Tổng quan hóa đơn đã đóng */
-.ov-entry {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: calc(100% - 32px);
-  margin: 10px 16px 0;
-  padding: 14px;
-  background: var(--c-gray-50);
-  border: 1px solid var(--c-gray-150);
-  border-radius: var(--radius-lg);
-  font-size: 13.5px;
-  font-weight: 700;
-  text-align: left;
-}
-.ov-entry .chevron { margin-left: auto; font-size: 18px; color: var(--c-gray-400); line-height: 1; }
 
 /* Bill focused from the overview chart: briefly outlined, then fades. */
 @keyframes bill-focus-fade {
@@ -1516,8 +1500,6 @@ img { max-width: 100%; display: block; }
 .ov-bar { background: var(--c-blue-200); }
 .ov-bar-col.active .ov-bar { background: var(--c-blue); }
 .ov-month-head { background: var(--c-blue-50); }
-.ov-entry { background: var(--c-blue-50); border-color: var(--c-blue-100); color: var(--c-navy); }
-.ov-entry .chevron { color: var(--c-blue); }
 @keyframes bill-focus-fade {
   0%, 60% { box-shadow: 0 0 0 2px var(--c-blue); }
   100% { box-shadow: 0 0 0 2px transparent; }
@@ -1526,16 +1508,18 @@ img { max-width: 100%; display: block; }
 .eco-wallet-actions .icon-glyph { font-weight: 700; }
 
 /* Hóa đơn — "Số tiền còn lại" row on a partly paid bill (Đã thanh toán tab) */
-.bill-remaining { justify-content: space-between; padding: 14px; font-size: 13.5px; }
-.bill-remaining b { font-weight: 800; }
+.bill-remaining { justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; font-size: 13px; background: #FFF6E0; }
+.bill-remaining-warn { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; font-weight: 600; color: #9A5B00; line-height: 1.3; }
+.bill-remaining-warn svg { flex: none; color: #E58A00; }
 .bill-remaining-cta {
   flex: none;
-  background: none;
   border: none;
-  padding: 0;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--c-blue);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 800;
+  background: var(--c-yellow);
+  color: var(--c-navy);
 }
 
 /* Dặn thuốc (PH-13) */
@@ -2185,3 +2169,37 @@ img { max-width: 100%; display: block; }
 .fb-bottom.closed { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
 .fb-bottom.closed p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--c-gray-600); }
 .fb-bottom.closed b { color: var(--c-ink); }
+
+/* Góp ý — reply author + reopen reason */
+.fb-msg.guardian { justify-content: flex-start; }
+.fb-msg.guardian .fb-bubble { background: #E8F1FB; box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+.fb-msg.parent .fb-who { text-align: right; }
+.fb-reopen-tag { display: inline-block; margin-bottom: 4px; padding: 1px 8px; border-radius: 6px; background: #EFE8FF; color: #6A3FD6; font-size: 11.5px; font-weight: 700; }
+.fb-reason { margin: 12px 0 14px; }
+.fb-reason textarea { height: 84px; }
+.fb-reason small { display: block; text-align: right; font-size: 11px; color: var(--c-gray-400); }
+
+/* Hóa đơn — summary card at the top of the list ("Tổng quan Hóa đơn") */
+.ov-card {
+  margin: 12px 16px 0;
+  padding: 14px;
+  background: var(--c-blue-50);
+  border: 1px solid var(--c-blue-100);
+  border-radius: var(--radius-lg);
+}
+.ov-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.ov-card-title { font-size: 15px; font-weight: 800; color: var(--c-navy); }
+.ov-card-link { flex: none; background: none; border: none; padding: 0; font-size: 13px; font-weight: 700; color: var(--c-blue); }
+.ov-card-year { font-size: 14px; font-weight: 700; }
+.ov-card-total { margin-top: 2px; font-size: 13px; color: var(--c-gray-700); }
+.ov-card-total b { color: var(--c-ink); }
+.ov-card .ov-donut-wrap { margin-top: 10px; }
+.ov-card .ov-hint { margin-bottom: 0; }
+
+/* Land the tabs just under the sticky top bar when scrolled into view */
+.tabs { scroll-margin-top: 60px; }
+.ov-stat-link:disabled { color: var(--c-gray-400); }
+
+/* Demo student portraits (boy / girl SVG) replace the initial letter */
+.student-avatar { background: transparent; overflow: hidden; padding: 0; }
+.student-avatar svg { display: block; }

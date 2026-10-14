@@ -4,6 +4,7 @@ import { MOCK_STUDENTS } from '@/lib/mock-data'
 import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
 import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
 import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
+import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 // Icons come from the shared catalogue (shared/parent-services.ts), 8 per
 // swipeable page; entries without an intent (Học bạ số) stay inert.
@@ -51,7 +52,7 @@ export function ParentsHomeScreen({
       {MOCK_STUDENTS.map((s) => (
         <div className="student-card" key={s.id} onClick={() => onNavigateToStudent(s.id)}>
           <div className="student-card-head">
-            <div className="avatar">{s.avatar}</div>
+            <StudentAvatar student={s} />
             <div>
               <div className="student-name">{s.name}</div>
               <div className="student-code">{s.code}</div>

@@ -27,18 +27,18 @@ type HoaDonScreen = 'overview' | 'list' | 'invoice' | 'select' | 'confirm' | 're
 // student's mock data in place (marks the chosen BillItems paid) and bumps a
 // version counter to re-render. Paying ends on Kết quả giao dịch.
 //
-// `selected` holds BillItem ids across the select/confirm screens. It is
-// preloaded with a bill's open items when entering via "Thanh toán tiếp" on a
-// partially paid bill, and starts empty from the main "Đóng học phí" CTA.
+// `selected` holds BillItem ids across the select/confirm screens. It always
+// starts empty: both the main CTA and "Thanh toán ngay" on a partly paid bill
+// open the select screen with every open item unchecked.
 export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
   const [screen, setScreen] = useState<HoaDonScreen>('list')
   const [tab, setTab] = useState<BillTab>('unpaid')
   const [focusBillId, setFocusBillId] = useState<string | null>(null)
+  const [scrollToTabs, setScrollToTabs] = useState(false)
+  // Where the select screen's back button returns to.
+  const [selectOrigin, setSelectOrigin] = useState<'list' | 'overview'>('list')
   const [invoiceBill, setInvoiceBill] = useState<Bill | null>(null)
-  // True when the confirm screen was entered straight from "Thanh toán tiếp",
-  // so its back button returns to the list instead of the select screen.
-  const [skippedSelect, setSkippedSelect] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showPicker, setShowPicker] = useState(false)
   const [result, setResult] = useState<BillPaymentResult | null>(null)
@@ -70,9 +70,10 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
     setScreen('result')
   }
 
-  const openList = (nextTab: BillTab, billId: string | null = null) => {
+  const openList = (nextTab: BillTab, billId: string | null = null, scroll = false) => {
     setTab(nextTab)
     setFocusBillId(billId)
+    setScrollToTabs(scroll)
     setScreen('list')
   }
 
@@ -83,10 +84,18 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           // Remount per student so the chart/donut selections reset.
           key={student.id}
           student={student}
-          onBack={() => openList('paid')}
-          onChangeStudent={() => setShowPicker(true)}
-          onOpenPaid={() => openList('paid')}
-          onOpenUnpaid={() => openList('unpaid')}
+          onBack={() => {
+            setScrollToTabs(false)
+            setScreen('list')
+          }}
+          // "Xem chi tiết ›": paid tab, scrolled down to the list.
+          onOpenPaid={() => openList('paid', null, true)}
+          // "Thanh toán ngay ›": straight to the bill / item picker.
+          onOpenUnpaid={() => {
+            setSelected(new Set())
+            setSelectOrigin('overview')
+            setScreen('select')
+          }}
         />
       )}
 
@@ -95,6 +104,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           student={student}
           tab={tab}
           focusBillId={focusBillId}
+          scrollToTabs={scrollToTabs}
           onTabChange={(t) => {
             setFocusBillId(null)
             setTab(t)
@@ -104,18 +114,12 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           onChangeStudent={() => setShowPicker(true)}
           onPay={() => {
             setSelected(new Set())
-            setSkippedSelect(false)
+            setSelectOrigin('list')
             setScreen('select')
           }}
           onViewInvoice={(bill) => {
             setInvoiceBill(bill)
             setScreen('invoice')
-          }}
-          onPayRemaining={(bill) => {
-            // The open items are already known, so skip the select screen.
-            setSelected(new Set(bill.items.filter((it) => !it.paid).map((it) => it.id)))
-            setSkippedSelect(true)
-            setScreen('confirm')
           }}
         />
       )}
@@ -136,7 +140,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           student={student}
           selected={selected}
           onSelectedChange={setSelected}
-          onBack={() => setScreen('list')}
+          onBack={() => setScreen(selectOrigin)}
           onContinue={() => setScreen('confirm')}
         />
       )}
@@ -147,7 +151,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           bills={student.bills}
           selected={selected}
           total={sumItems(selectedItems)}
-          onBack={() => setScreen(skippedSelect ? 'list' : 'select')}
+          onBack={() => setScreen('select')}
           onContinue={handlePay}
         />
       )}
@@ -159,8 +163,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           onSelect={(s) => {
             setSelectedStudentId(s.id)
             setSelected(new Set())
-            // Stay on Tổng quan; from anywhere else restart at the list.
-            if (screen !== 'overview') openList('unpaid')
+            openList('unpaid')
             setShowPicker(false)
           }}
           onClose={() => setShowPicker(false)}

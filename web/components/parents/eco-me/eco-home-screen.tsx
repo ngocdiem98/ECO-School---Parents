@@ -21,6 +21,7 @@ import { MOCK_STUDENTS, fmtMoney, unreadNotificationCount } from '@/lib/mock-dat
 import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
 import { ServiceGrid } from './service-grid'
 import { EDU_SERVICES, HOME_SERVICE_IDS, type EcoService } from './services'
+import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 // Mock Ví ECO balance (same figure as the confirm screens' wallet row).
 const WALLET_BALANCE = 204913
@@ -163,7 +164,7 @@ export function EcoHomeScreen({
         {MOCK_STUDENTS.map((s) => (
           <div className="student-card eco-student-card" key={s.id} onClick={() => onNavigateToStudent(s.id)}>
             <div className="student-card-head">
-              <div className="avatar">{s.avatar}</div>
+              <StudentAvatar student={s} />
               <div>
                 <div className="student-name">{s.name}</div>
                 <div className="student-code">{s.code}</div>

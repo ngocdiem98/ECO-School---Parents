@@ -1,8 +1,11 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { TriangleAlert } from 'lucide-react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Bill, type Student } from '@/lib/mock-data'
+import { fmtDong, summarizeYear } from './bill-year'
+import { CategoryDonut } from './bill-category-donut'
 
 export type BillTab = 'unpaid' | 'paid'
 
@@ -13,17 +16,18 @@ const TABS: { value: BillTab; label: string }[] = [
 
 // "Hóa đơn" list. A partially paid bill appears in both tabs, each showing
 // only the items that belong to that tab. On "Đã thanh toán", a bill that
-// still has open items gets a "Số tiền còn lại … Thanh toán ngay ›" row (the annotated addition
-// on the design: let parents continue paying partially paid invoices).
+// still has open items gets a warning row ("Hóa đơn chưa được thanh toán xong")
+// with a "Thanh toán ngay" button that starts the normal payment flow (the
+// select screen, all open items unchecked).
 export function BillListScreen({
   student,
   tab,
   focusBillId,
+  scrollToTabs,
   onTabChange,
   onBack,
   onChangeStudent,
   onPay,
-  onPayRemaining,
   onViewInvoice,
   onOpenOverview,
 }: {
@@ -32,17 +36,25 @@ export function BillListScreen({
   // Bill to scroll to and briefly highlight (set when arriving from the
   // month chart on Tổng quan).
   focusBillId?: string | null
+  // Scroll the tabs (and the list under them) to the top of the screen on
+  // arrival — set when coming from "Xem chi tiết ›" on Tổng quan.
+  scrollToTabs?: boolean
   onTabChange: (tab: BillTab) => void
   onBack: () => void
   onChangeStudent: () => void
   onPay: () => void
-  onPayRemaining: (bill: Bill) => void
   onViewInvoice: (bill: Bill) => void
   onOpenOverview: () => void
 }) {
   const wantPaid = tab === 'paid'
+  const [now] = useState(() => new Date())
+  const year = summarizeYear(student, now)
   const bills = student.bills.filter((b) => b.items.some((it) => it.paid === wantPaid))
   const focusRef = useRef<HTMLDivElement>(null)
+  const tabsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (scrollToTabs) tabsRef.current?.scrollIntoView({ block: 'start' })
+  }, [scrollToTabs])
   useEffect(() => {
     focusRef.current?.scrollIntoView({ block: 'center' })
   }, [focusBillId])
@@ -52,7 +64,21 @@ export function BillListScreen({
     <div className="screen">
       <TopBar title="Hóa đơn" onBack={onBack} />
       <StudentHeader student={student} onChangeStudent={onChangeStudent} />
-      <div className="tabs">
+      <div className="ov-card">
+        <div className="ov-card-head">
+          <span className="ov-card-title">Tổng quan Hóa đơn</span>
+          <button className="ov-card-link" onClick={onOpenOverview}>
+            Xem chi tiết ›
+          </button>
+        </div>
+        <div className="ov-card-year">Năm học {year.startYear} - {year.startYear + 1}</div>
+        <div className="ov-card-total">
+          Tổng số tiền đã thanh toán: <b>{fmtDong(year.paidAmount)}</b>
+        </div>
+        <CategoryDonut paidItems={year.paidItems} showHint={false} />
+      </div>
+
+      <div className="tabs" ref={tabsRef}>
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -63,13 +89,6 @@ export function BillListScreen({
           </button>
         ))}
       </div>
-
-      {wantPaid && (
-        <button className="ov-entry" onClick={onOpenOverview}>
-          <span>Xem tổng quan hóa đơn đã đóng</span>
-          <span className="chevron">›</span>
-        </button>
-      )}
 
       {bills.length ? (
         bills.map((bill) => {
@@ -107,11 +126,12 @@ export function BillListScreen({
               )}
               {wantPaid && remaining.length > 0 && (
                 <div className="invoice-line bill-remaining">
-                  <span>
-                    Số tiền còn lại: <b>{fmtMoney(sumItems(remaining))}</b>
+                  <span className="bill-remaining-warn">
+                    <TriangleAlert size={18} />
+                    Hóa đơn chưa được thanh toán xong
                   </span>
-                  <button className="bill-remaining-cta" onClick={() => onPayRemaining(bill)}>
-                    Thanh toán ngay ›
+                  <button className="bill-remaining-cta" onClick={onPay}>
+                    Thanh toán ngay
                   </button>
                 </div>
               )}

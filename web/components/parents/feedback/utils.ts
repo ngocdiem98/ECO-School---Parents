@@ -1,5 +1,5 @@
 import type { Feedback, FeedbackStatus } from '@/lib/school-data'
-import { feedbackUpdatedAt } from '@/lib/school-data'
+import { CURRENT_PARENT, feedbackUpdatedAt } from '@/lib/school-data'
 
 export const STATUS_LABEL: Record<FeedbackStatus, string> = {
   new: 'Góp ý mới',
@@ -25,7 +25,7 @@ export function listTime(at: string): string {
 export const fullDateTime = (at: string) => `${at.slice(8, 10)}/${at.slice(5, 7)}/${at.slice(0, 4)} ${at.slice(11, 16)}`
 
 // Sender line "Diễm (PH Minh An)": parent + the child's given name (surname dropped).
-export const senderLabel = (studentName: string) => `Diễm (PH ${studentName.split(' ').slice(1).join(' ') || studentName})`
+export const senderLabel = (studentName: string) => `${CURRENT_PARENT} (PH ${studentName.split(' ').slice(1).join(' ') || studentName})`
 
 export const replyCountLabel = (f: Feedback) => (f.replies.length ? `${f.replies.length} phản hồi` : 'Chưa có phản hồi')
 export const lastUpdate = feedbackUpdatedAt

@@ -8,6 +8,7 @@ import { StudentPickerSheet } from '@/components/parents/shared/student-picker-s
 import { threadsFor, type ChatOrderCard, type ChatThread } from '@/lib/school-data'
 import { ChatThreadScreen } from './chat-thread-screen'
 import { timeAgo, previewOf } from './utils'
+import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 interface ChatAppProps {
   studentId: string
@@ -79,7 +80,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
                 })
               }
             >
-              <span className="avatar sm">{s.avatar}</span>
+              <StudentAvatar student={s} className="avatar sm" />
               <span className="chat-group-name">
                 <b>{s.name}</b>
                 <small>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { FileText, Plus, RotateCw, Send, X } from 'lucide-react'
 import { TopBar } from '@/components/parents/shared/header'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
-import { canReopen, reopenDaysLeft, REOPEN_WINDOW_DAYS, type Feedback } from '@/lib/school-data'
+import { CURRENT_PARENT, canReopen, reopenDaysLeft, REOPEN_WINDOW_DAYS, type Feedback } from '@/lib/school-data'
 import { dayTitle } from '@/components/parents/medicine/utils'
 import { AttachSheet } from './attach-sheet'
 import { FeedbackBadge } from './feedback-list-screen'
@@ -31,6 +31,7 @@ export function FeedbackDetailScreen({
   const [images, setImages] = useState<string[]>([])
   const [attach, setAttach] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [reason, setReason] = useState('')
   const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
 
@@ -57,7 +58,7 @@ export function FeedbackDetailScreen({
     feedback.replies.push({
       id: 'rp' + Date.now(),
       from: 'parent',
-      sender: 'Bạn',
+      sender: CURRENT_PARENT,
       at: nowIso(),
       text: text.trim() || undefined,
       images: images.length ? images : undefined,
@@ -120,9 +121,12 @@ export function FeedbackDetailScreen({
               <div className="fb-day">{dayTitle(day)}</div>
               {feedback.replies
                 .filter((r) => r.at.startsWith(day))
-                .map((r) => (
-                  <div key={r.id} className={`fb-msg ${r.from}`}>
-                    {r.from === 'parent' && r.failed && (
+                .map((r) => {
+                  const mine = r.from === 'parent' && r.sender === CURRENT_PARENT
+                  const side = r.from === 'school' ? 'school' : mine ? 'parent' : 'guardian'
+                  return (
+                  <div key={r.id} className={`fb-msg ${side}`}>
+                    {mine && r.failed && (
                       <button
                         className="fb-retry"
                         aria-label="Gửi lại"
@@ -135,7 +139,10 @@ export function FeedbackDetailScreen({
                       </button>
                     )}
                     <div className="fb-bubble">
-                      {r.from === 'school' && <div className="fb-who">{r.sender} · Nhà trường</div>}
+                      <div className="fb-who">
+                        {r.sender} · {r.from === 'school' ? 'Nhà trường' : mine ? 'Bạn' : 'Phụ huynh'}
+                      </div>
+                      {r.kind === 'reopen' && <div className="fb-reopen-tag">Lý do mở lại</div>}
                       {r.images && (
                         <div className="fb-msg-imgs">
                           {r.images.map((src, i) => (
@@ -154,7 +161,8 @@ export function FeedbackDetailScreen({
                       </span>
                     )}
                   </div>
-                ))}
+                  )
+                })}
             </div>
           ))
         )}
@@ -222,17 +230,44 @@ export function FeedbackDetailScreen({
       {confirming && (
         <FbDialog
           title="Mở lại góp ý?"
-          body="Góp ý sẽ chuyển sang trạng thái Mở lại và bạn có thể tiếp tục trao đổi với nhà trường."
+          body="Góp ý sẽ chuyển sang trạng thái Mở lại. Lý do bạn nhập sẽ được gửi đến nhà trường như một phản hồi."
           secondary="Hủy"
           primary="Mở lại"
-          onSecondary={() => setConfirming(false)}
+          primaryDisabled={!reason.trim()}
+          onSecondary={() => {
+            setConfirming(false)
+            setReason('')
+          }}
           onPrimary={() => {
+            feedback.replies.push({
+              id: 'rp' + Date.now(),
+              from: 'parent',
+              sender: CURRENT_PARENT,
+              at: nowIso(),
+              text: reason.trim(),
+              kind: 'reopen',
+            })
             feedback.status = 'reopened'
             setConfirming(false)
+            setReason('')
             onChanged()
             onToast('Đã mở lại góp ý', true)
           }}
-        />
+        >
+          <label className="fb-field fb-reason">
+            <span>
+              Lý do mở lại <b>*</b>
+            </span>
+            <textarea
+              autoFocus
+              maxLength={500}
+              placeholder="Nhập lý do bạn muốn mở lại góp ý"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+            <small>{reason.length}/500</small>
+          </label>
+        </FbDialog>
       )}
       {viewer && <PhotoViewer photos={viewer.photos} startIndex={viewer.index} onClose={() => setViewer(null)} onToast={onToast} />}
     </div>

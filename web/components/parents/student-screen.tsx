@@ -7,6 +7,7 @@ import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { eligibleStudents, type ServiceIntent } from '@/components/parents/shared/use-service-launcher'
 import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
 import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
+import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 // Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
 // ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
@@ -337,12 +338,10 @@ export function StudentScreen({
           onClick={() => onOpenProfile(student.id)}
           aria-label="Hồ sơ học sinh"
         >
-          <div className="avatar">{student.avatar}</div>
+          <StudentAvatar student={student} />
           <div className="info">
             <div className="student-name">{student.name}</div>
-            <div className="meta">{student.code}</div>
             <div className="meta">{student.className}</div>
-            <div className="meta">{student.school}</div>
           </div>
           <span className="student-header-chevron">›</span>
         </button>

@@ -687,14 +687,21 @@ export interface FeedbackFile {
   kind: 'image' | 'pdf'
   src: string
 }
+// The signed-in parent. Several guardians can be linked to one student and
+// reply to the same feedback, so every parent reply carries the name of who
+// wrote it (`FeedbackReply.sender`); replies by someone else show as another
+// guardian.
+export const CURRENT_PARENT = 'Diễm'
+
 export interface FeedbackReply {
   id: string
   from: 'parent' | 'school'
-  sender: string
+  sender: string // display name of the person who replied
   at: string
   text?: string
   images?: string[]
   failed?: boolean // "Gửi lỗi" — shown with a retry button
+  kind?: 'reopen' // the reason the parent gave when reopening the feedback
 }
 export interface Feedback {
   id: string
@@ -739,6 +746,7 @@ export const FEEDBACKS: Feedback[] = [
     files: [{ name: 'cong-truong.png', kind: 'image', src: scene('Cổng trường', 40) }],
     replies: [
       { id: 'r1', from: 'school', sender: 'Cô Nguyễn Ngọc Lan', at: '2026-10-09T10:05', text: 'Nhà trường đã tiếp nhận góp ý và sẽ trao đổi với Ban giám hiệu trong tuần này.' },
+      { id: 'r1a', from: 'parent', sender: 'Trần Văn Bình', at: '2026-10-10T19:00', text: 'Gia đình em cũng gặp tình trạng này mỗi chiều, mong nhà trường sớm có phương án ạ.' },
       { id: 'r1b', from: 'school', sender: 'Cô Nguyễn Ngọc Lan', at: '2026-10-11T15:30', text: 'Từ tuần sau trường sẽ chia khung giờ đón theo khối lớp, nhà trường sẽ gửi thông báo cụ thể.' },
     ],
   },
@@ -756,7 +764,7 @@ export const FEEDBACKS: Feedback[] = [
     files: [{ name: 'thuc-don.pdf', kind: 'pdf', src: pdfPage('Thực đơn bán trú') }],
     replies: [
       { id: 'r2', from: 'school', sender: 'Thầy Phạm Quốc Huy', at: '2026-10-03T08:00', text: 'Nhà trường đã làm việc với bộ phận bếp.' },
-      { id: 'r3', from: 'parent', sender: 'Bạn', at: '2026-10-03T19:30', text: 'Cảm ơn thầy, em sẽ theo dõi thêm.' },
+      { id: 'r3', from: 'parent', sender: CURRENT_PARENT, at: '2026-10-03T19:30', text: 'Cảm ơn thầy, em sẽ theo dõi thêm.' },
       { id: 'r4', from: 'school', sender: 'Thầy Phạm Quốc Huy', at: '2026-10-08T16:00', text: 'Thực đơn tuần này đã bổ sung thêm rau xanh. Nhà trường xin đóng góp ý.' },
     ],
   },

@@ -222,6 +222,8 @@ export function FbDialog({
   secondary,
   primary,
   outlinePrimary,
+  primaryDisabled,
+  children,
   onSecondary,
   onPrimary,
 }: {
@@ -230,6 +232,8 @@ export function FbDialog({
   secondary: string
   primary: string
   outlinePrimary?: boolean
+  primaryDisabled?: boolean
+  children?: React.ReactNode
   onSecondary: () => void
   onPrimary: () => void
 }) {
@@ -240,11 +244,12 @@ export function FbDialog({
         <div className="dialog-card fb-dialog">
           <div className="d-title">{title}</div>
           <div className="d-sub">{body}</div>
+          {children}
           <div className="btn-row">
             <button className={`btn ${outlinePrimary ? 'btn-gray' : 'btn-gray'}`} onClick={onSecondary}>
               {secondary}
             </button>
-            <button className={`btn ${outlinePrimary ? 'btn-outline' : 'btn-primary'}`} onClick={onPrimary}>
+            <button className={`btn ${outlinePrimary ? 'btn-outline' : 'btn-primary'}`} disabled={primaryDisabled} onClick={onPrimary}>
               {primary}
             </button>
           </div>

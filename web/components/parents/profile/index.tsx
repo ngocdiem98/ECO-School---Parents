@@ -2,6 +2,7 @@
 
 import { getStudent } from '@/lib/mock-data'
 import { TopBar } from '@/components/parents/shared/header'
+import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 interface ProfileAppProps {
   studentId: string
@@ -23,7 +24,7 @@ export function ProfileApp({ studentId, onBack }: ProfileAppProps) {
 
       <div className="profile-panel">
         <div className="profile-hero">
-          <div className="profile-avatar">{student.avatar}</div>
+          <StudentAvatar student={student} className="profile-avatar" />
           <div className="profile-hero-name">{student.name}</div>
           <div className="profile-hero-code">{student.code}</div>
         </div>
