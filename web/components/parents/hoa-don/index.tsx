@@ -38,7 +38,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
   // School year filter on the list (start year); the overview follows it.
   const [year, setYear] = useState(() => schoolYearStart(new Date()))
   const [focusBillId, setFocusBillId] = useState<string | null>(null)
-  const [scrollToTabs, setScrollToTabs] = useState(false)
+  const [scrollToList, setScrollToList] = useState(false)
   // Where the select screen's back button returns to.
   const [selectOrigin, setSelectOrigin] = useState<'list' | 'overview'>('list')
   const [invoiceBill, setInvoiceBill] = useState<Bill | null>(null)
@@ -83,7 +83,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
   const openList = (nextTab: BillTab, billId: string | null = null, scroll = false) => {
     setTab(nextTab)
     setFocusBillId(billId)
-    setScrollToTabs(scroll)
+    setScrollToList(scroll)
     setScreen('list')
   }
 
@@ -98,17 +98,11 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           years={availableYears(student, new Date())}
           onYearChange={changeYear}
           onBack={() => {
-            setScrollToTabs(false)
+            setScrollToList(false)
             setScreen('list')
           }}
           // "Xem chi tiết ›": paid tab, scrolled down to the list.
           onOpenPaid={() => openList('paid', null, true)}
-          // "Thanh toán ngay ›": straight to the bill / item picker.
-          onOpenUnpaid={() => {
-            setSelected(new Set())
-            setSelectOrigin('overview')
-            setScreen('select')
-          }}
         />
       )}
 
@@ -120,7 +114,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           years={availableYears(student, new Date())}
           onYearChange={changeYear}
           focusBillId={focusBillId}
-          scrollToTabs={scrollToTabs}
+          scrollToList={scrollToList}
           onTabChange={(t) => {
             setFocusBillId(null)
             setTab(t)

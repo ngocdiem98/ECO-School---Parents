@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Student } from '@/lib/mock-data'
-import { fmtDong, inSchoolYear, summarizeYear, yearAnchor } from './bill-year'
+import { fmtDong, summarizeYear, yearAnchor } from './bill-year'
 import { CategoryDonut } from './bill-category-donut'
 import { YearFilter } from './bill-year-row'
 
@@ -16,25 +16,27 @@ function fmtCompact(n: number): string {
   return String(n)
 }
 
-// The most recent MONTHS_WINDOW months ending at `now`, oldest first.
-const MONTHS_WINDOW = 5
-function recentMonths(now: Date): { year: number; month: number }[] {
-  return Array.from({ length: MONTHS_WINDOW }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (MONTHS_WINDOW - 1 - i), 1)
-    return { year: d.getFullYear(), month: d.getMonth() + 1 }
-  })
+// Every month of the school year from August up to `anchor`, oldest first.
+function schoolYearMonths(startYear: number, anchor: Date): { year: number; month: number }[] {
+  const out: { year: number; month: number }[] = []
+  for (let d = new Date(startYear, 7, 1); d <= anchor; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+    out.push({ year: d.getFullYear(), month: d.getMonth() + 1 })
+  }
+  return out
 }
+
+// Bars visible at once; the chart scrolls sideways through the rest of the year.
+const VISIBLE_MONTHS = 5
 
 // --- Screen ---------------------------------------------------------------
 
 // "Tổng quan hóa đơn đã đóng" — reached from the "Đã thanh toán" tab. Everything
 // is derived from `student.bills` on each render, so it reflects payments made
 // in the list flow. The summary (counts, total, donut) is scoped to the
-// current school year; the total and the donut count paid items only; the month chart covers the last MONTHS_WINDOW calendar
-// months (within that school year) and only shows months that have payments. A bill counts as "Đã
-// thanh toán" once any item is paid (fully or partly paid) and as "Chưa thanh
-// toán" when none is paid and something still needs paying, so the two counts
-// add up to the total.
+// current school year; the total and the donut count paid items only; the month chart lists every month of that school year up to today (July for
+// a past year), months without payments included, 5 visible at a time and
+// scrolling sideways; it opens on the latest months.
+// "Số hóa đơn" counts bills with at least one paid item (fully or partly paid).
 export function BillOverviewScreen({
   student,
   year,
@@ -42,7 +44,6 @@ export function BillOverviewScreen({
   onYearChange,
   onBack,
   onOpenPaid,
-  onOpenUnpaid,
 }: {
   student: Student
   // Start of the school year being shown; the row under the student card changes it.
@@ -51,7 +52,6 @@ export function BillOverviewScreen({
   onYearChange: (startYear: number) => void
   onBack: () => void
   onOpenPaid: () => void
-  onOpenUnpaid: () => void
 }) {
   const [now] = useState(() => new Date())
   const [monthKey, setMonthKey] = useState<string | null>(null)
@@ -64,11 +64,10 @@ export function BillOverviewScreen({
       return next
     })
 
-  const { startYear, paidItems, paidAmount, paidCount, unpaidCount, hasOpenItems } = summarizeYear(student, now, year)
+  const { startYear, paidItems, paidAmount, paidCount } = summarizeYear(student, now, year)
   // Months are placed by billing period (Bill.year/month), not by when the
   // bill was paid. Each month keeps its paid items grouped per bill.
-  const months = recentMonths(yearAnchor(now, startYear))
-    .filter((m) => inSchoolYear(m.year, m.month, startYear))
+  const yearMonths = schoolYearMonths(startYear, yearAnchor(now, startYear))
     .map((m) => {
       const groups = student.bills
         .filter((b) => b.year === m.year && b.month === m.month)
@@ -79,7 +78,15 @@ export function BillOverviewScreen({
         .filter((g) => g.items.length > 0)
       return { ...m, key: `${m.year}-${m.month}`, groups, amount: sumOf(groups) }
     })
-    .filter((m) => m.amount > 0)
+  // Every month of the year so far, empty ones included. The chart shows
+  // VISIBLE_MONTHS at a time and opens scrolled to the end (this month, or July
+  // for a past year); the parent scrolls left for older months.
+  const months = yearMonths
+  const barsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = barsRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [])
   const maxAmount = Math.max(...months.map((m) => m.amount), 0)
   // No month is preselected: the detail list appears once a bar is tapped.
   const active = months.find((m) => m.key === monthKey)
@@ -91,27 +98,16 @@ export function BillOverviewScreen({
       <YearFilter year={startYear} years={years} onChange={onYearChange} />
 
       <div className="ov-section">
-        <div className="ov-total">
-          Tổng số tiền đã thanh toán: <b>{fmtDong(paidAmount)}</b>
-        </div>
-
-        <div className="ov-stats">
-          <div className="ov-stat">
-            <div className="ov-stat-box">
-              <div className="ov-stat-label">Đã thanh toán</div>
-              <div className="ov-stat-num">{paidCount}</div>
-            </div>
-            <button className="ov-stat-link" onClick={onOpenPaid}>
-              Xem chi tiết ›
-            </button>
+        <div className="ov-kpis">
+          <div className="ov-kpi">
+            <div className="ov-kpi-label">Tổng số tiền đã thanh toán</div>
+            <div className="ov-kpi-value">{fmtDong(paidAmount)}</div>
           </div>
-          <div className="ov-stat">
-            <div className="ov-stat-box">
-              <div className="ov-stat-label">Chưa thanh toán</div>
-              <div className="ov-stat-num">{unpaidCount}</div>
-            </div>
-            <button className="ov-stat-link" onClick={onOpenUnpaid} disabled={!hasOpenItems}>
-              Thanh toán ngay ›
+          <div className="ov-kpi ov-kpi-count">
+            <div className="ov-kpi-label">Số hóa đơn</div>
+            <div className="ov-kpi-value">{paidCount}</div>
+            <button className="ov-detail-link" onClick={onOpenPaid}>
+              Xem chi tiết ›
             </button>
           </div>
         </div>
@@ -124,9 +120,12 @@ export function BillOverviewScreen({
 
       <div className="ov-section">
         <div className="ov-heading">Thanh toán theo tháng</div>
-        {months.length ? (
+        {yearMonths.length ? (
           <>
-            <div className="ov-bars" role="group" aria-label="Số tiền đã thanh toán theo tháng">
+            <div
+              ref={barsRef}
+              className={`ov-bars ${months.length > VISIBLE_MONTHS ? 'scroll' : ''}`}
+              role="group" aria-label="Số tiền đã thanh toán theo tháng">
               {months.map((m) => (
                 <button
                   key={m.key}
@@ -136,7 +135,7 @@ export function BillOverviewScreen({
                   onClick={() => setMonthKey(m.key)}
                 >
                   <div className="ov-bar-track">
-                    <div className="ov-bar" style={{ height: `${Math.max((m.amount / maxAmount) * 82, 3)}%` }}>
+                    <div className="ov-bar" style={{ height: m.amount > 0 ? `${Math.max((m.amount / maxAmount) * 82, 3)}%` : 0 }}>
                       <span className="ov-bar-value">{fmtCompact(m.amount)}</span>
                     </div>
                   </div>
@@ -153,7 +152,11 @@ export function BillOverviewScreen({
                   </span>
                   <span className="amt">{fmtMoney(active.amount)}</span>
                 </div>
-                {active.groups.length === 1
+                {active.groups.length === 0 ? (
+                  <div className="invoice-line">
+                    <span>Không có khoản thanh toán trong tháng này</span>
+                  </div>
+                ) : active.groups.length === 1
                   ? active.groups[0].items.map((it) => (
                       <div className="invoice-line" key={it.id}>
                         <span>{it.name}</span>
@@ -189,7 +192,7 @@ export function BillOverviewScreen({
             )}
           </>
         ) : (
-          <div className="ov-hint">Chưa có khoản thanh toán nào trong 5 tháng gần nhất</div>
+          <div className="ov-hint">Chưa có khoản thanh toán nào trong năm học này</div>
         )}
       </div>
 

@@ -27,7 +27,7 @@ export function BillListScreen({
   years,
   onYearChange,
   focusBillId,
-  scrollToTabs,
+  scrollToList,
   onTabChange,
   onBack,
   onChangeStudent,
@@ -46,7 +46,7 @@ export function BillListScreen({
   focusBillId?: string | null
   // Scroll the tabs (and the list under them) to the top of the screen on
   // arrival — set when coming from "Xem chi tiết ›" on Tổng quan.
-  scrollToTabs?: boolean
+  scrollToList?: boolean
   onTabChange: (tab: BillTab) => void
   onBack: () => void
   onChangeStudent: () => void
@@ -59,10 +59,10 @@ export function BillListScreen({
   const summary = summarizeYear(student, now, year)
   const bills = summary.bills.filter((b) => b.items.some((it) => it.paid === wantPaid))
   const focusRef = useRef<HTMLDivElement>(null)
-  const tabsRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (scrollToTabs) tabsRef.current?.scrollIntoView({ block: 'start' })
-  }, [scrollToTabs])
+    if (scrollToList) listRef.current?.scrollIntoView({ block: 'start' })
+  }, [scrollToList])
   useEffect(() => {
     focusRef.current?.scrollIntoView({ block: 'center' })
   }, [focusBillId])
@@ -74,7 +74,7 @@ export function BillListScreen({
       <StudentHeader student={student} onChangeStudent={onChangeStudent} />
       <YearFilter year={year} years={years} onChange={onYearChange} />
 
-      <div className="tabs" ref={tabsRef}>
+      <div className="tabs">
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -103,7 +103,7 @@ export function BillListScreen({
         </>
       )}
 
-      <div className="bill-section-title">
+      <div className="bill-section-title bill-list-title" ref={listRef}>
         {wantPaid ? 'Hóa đơn đã thanh toán' : 'Hóa đơn chưa thanh toán'} ({bills.length})
       </div>
 

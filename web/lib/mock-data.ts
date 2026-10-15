@@ -459,6 +459,9 @@ export const MOCK_STUDENTS: Student[] = [
       ],
     },
     bills: [
+      // School year 2025-2026 (Feb–Jul 2026): payments in Jan–Apr, Jun, Jul (Mar partly
+      // paid) — May has no payment, so the month chart skips it and the < > arrows
+      // have an older page; Apr bổ sung, May and Mar's Tiếng Anh stay open.
       // School year 2026-2027 (5 bills, the Tổng quan demo set when the app is
       // opened in Oct 2026): 3 fully paid (Aug, Sep, Sep bổ sung — the last
       // without an e-invoice), Oct partially paid, Oct bổ sung fully unpaid.
@@ -528,11 +531,12 @@ export const MOCK_STUDENTS: Student[] = [
         label: 'Hóa đơn tháng 7/2026',
         year: 2026,
         month: 7,
+        hasVat: true,
         items: [
-          { id: 'b07-1', name: 'Học phí 07/2026', amount: 200000, paid: false },
-          { id: 'b07-2', name: 'Tiền ăn tháng 07/2026', amount: 945000, paid: false },
-          { id: 'b07-3', name: 'Cơ sở vật chất', amount: 280000, paid: false },
-          { id: 'b07-4', name: 'Tiếng Anh', amount: 1000, paid: false },
+          { id: 'b07-1', name: 'Học phí 07/2026', amount: 200000, paid: true },
+          { id: 'b07-2', name: 'Tiền ăn tháng 07/2026', amount: 945000, paid: true },
+          { id: 'b07-3', name: 'Cơ sở vật chất', amount: 280000, paid: true },
+          { id: 'b07-4', name: 'Tiếng Anh', amount: 1000, paid: true },
         ],
       },
       {
@@ -540,11 +544,12 @@ export const MOCK_STUDENTS: Student[] = [
         label: 'Hóa đơn tháng 6/2026',
         year: 2026,
         month: 6,
+        hasVat: true,
         items: [
-          { id: 'b06-1', name: 'Học phí 06/2026', amount: 200000, paid: false },
-          { id: 'b06-2', name: 'Tiền ăn tháng 06/2026', amount: 910000, paid: false },
-          { id: 'b06-3', name: 'Cơ sở vật chất', amount: 280000, paid: false },
-          { id: 'b06-4', name: 'Tiếng Anh', amount: 1000, paid: false },
+          { id: 'b06-1', name: 'Học phí 06/2026', amount: 200000, paid: true },
+          { id: 'b06-2', name: 'Tiền ăn tháng 06/2026', amount: 910000, paid: true },
+          { id: 'b06-3', name: 'Cơ sở vật chất', amount: 280000, paid: true },
+          { id: 'b06-4', name: 'Tiếng Anh', amount: 1000, paid: true },
         ],
       },
       {
@@ -564,10 +569,11 @@ export const MOCK_STUDENTS: Student[] = [
         label: 'Hóa đơn tháng 4/2026',
         year: 2026,
         month: 4,
+        hasVat: true,
         items: [
-          { id: 'b04a-1', name: 'Tiền ăn tháng 04/2026', amount: 770000, paid: false },
-          { id: 'b04a-2', name: 'Cơ sở vật chất', amount: 2000, paid: false },
-          { id: 'b04a-3', name: 'Tiếng Anh', amount: 1000, paid: false },
+          { id: 'b04a-1', name: 'Tiền ăn tháng 04/2026', amount: 770000, paid: true },
+          { id: 'b04a-2', name: 'Cơ sở vật chất', amount: 2000, paid: true },
+          { id: 'b04a-3', name: 'Tiếng Anh', amount: 1000, paid: true },
         ],
       },
       {
@@ -604,6 +610,16 @@ export const MOCK_STUDENTS: Student[] = [
         items: [
           { id: 'b02-1', name: 'Học phí 02/2026', amount: 200000, paid: true },
           { id: 'b02-2', name: 'Tiền ăn tháng 02/2026', amount: 840000, paid: true },
+        ],
+      },
+      {
+        id: 'bill-2026-01',
+        label: 'Hóa đơn tháng 1/2026',
+        year: 2026,
+        month: 1,
+        items: [
+          { id: 'b01-1', name: 'Học phí 01/2026', amount: 200000, paid: true },
+          { id: 'b01-2', name: 'Tiền ăn tháng 01/2026', amount: 840000, paid: true },
         ],
       },
     ],

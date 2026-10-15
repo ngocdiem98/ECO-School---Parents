@@ -1211,24 +1211,27 @@ img { max-width: 100%; display: block; }
    ============================================================ */
 .ov-section { padding: 14px 16px 6px; }
 .ov-heading { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
-.ov-total { font-size: 13px; color: var(--c-gray-700); }
-.ov-total b { color: var(--c-ink); }
-
-.ov-stats { display: flex; gap: 12px; margin-top: 14px; }
-.ov-stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.ov-stat-box {
-  width: 100%;
+.ov-kpis { display: flex; gap: 12px; }
+.ov-kpi {
   border: 1px solid var(--c-gray-200);
   border-radius: var(--radius-lg);
-  padding: 12px 8px;
+  padding: 12px;
+  flex: 1.6;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
 }
-.ov-stat-label { font-size: 13px; font-weight: 600; color: var(--c-gray-600); }
-.ov-stat-num { font-size: 24px; font-weight: 800; margin-top: 2px; }
-.ov-stat-link {
+.ov-kpi-count { flex: 1; }
+.ov-kpi-label { font-size: 12px; font-weight: 600; color: var(--c-gray-600); }
+.ov-kpi-value { font-size: 20px; font-weight: 800; margin-top: 4px; white-space: nowrap; }
+.ov-detail-link {
+  align-self: center;
+  margin-top: 4px;
   background: none;
   border: none;
-  padding: 4px 0;
+  padding: 2px 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--c-ink);
@@ -1463,7 +1466,7 @@ img { max-width: 100%; display: block; }
 .btn-primary { background: var(--c-yellow); color: var(--c-navy); }
 .btn-primary:active:not(:disabled) { background: var(--c-yellow-deep); }
 .btn-outline { color: var(--c-blue); border-color: var(--c-blue); }
-.btn-link, .pay-banner button, .eco-link, .ov-stat-link, .ov-callout-link { color: var(--c-blue); }
+.btn-link, .pay-banner button, .eco-link, .ov-detail-link, .ov-callout-link { color: var(--c-blue); }
 .btn-change { border-color: var(--c-blue); color: var(--c-blue); }
 .banner-note .btn-mini { background: var(--c-yellow); color: var(--c-navy); }
 
@@ -1492,9 +1495,10 @@ img { max-width: 100%; display: block; }
 .eco-balance-link { color: var(--c-blue); }
 
 /* Hóa đơn — Tổng quan */
-.ov-stat:first-child .ov-stat-box { background: var(--c-blue-50); border-color: var(--c-blue-200); }
-.ov-stat:last-child .ov-stat-box { background: var(--c-yellow-50); border-color: var(--c-yellow); }
-.ov-stat-num { color: var(--c-navy); }
+.ov-kpi { background: var(--c-blue-50); border-color: var(--c-blue-200); }
+.ov-kpi-count { background: var(--c-yellow-50); border-color: var(--c-yellow); }
+.ov-kpi-value { color: var(--c-navy); }
+.ov-detail-link { color: var(--c-blue); }
 .ov-callout { border-color: var(--c-blue); background: var(--c-blue-50); }
 .ov-bar { background: var(--c-blue-200); }
 .ov-bar-col.active .ov-bar { background: var(--c-blue); }
@@ -2198,8 +2202,7 @@ img { max-width: 100%; display: block; }
 .ov-card .ov-hint { margin-bottom: 0; }
 
 /* Land the tabs just under the sticky top bar when scrolled into view */
-.tabs { scroll-margin-top: 60px; }
-.ov-stat-link:disabled { color: var(--c-gray-400); }
+.bill-list-title { scroll-margin-top: 60px; }
 
 /* Demo student portraits (boy / girl SVG) replace the initial letter */
 .student-avatar { background: transparent; overflow: hidden; padding: 0; }
@@ -2261,3 +2264,12 @@ img { max-width: 100%; display: block; }
 .year-row-icon { flex: none; color: #F29A1F; }
 .year-row-text { font-size: 15px; font-weight: 800; }
 .year-row-chevron { flex: none; margin-left: 2px; color: var(--c-gray-500); }
+
+/* Hóa đơn — Tổng quan: month chart scrolls sideways, 5 months visible */
+.ov-bars.scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.ov-bars.scroll .ov-bar-col { flex: 0 0 calc((100% - 40px) / 5); }
