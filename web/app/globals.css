@@ -1282,7 +1282,19 @@ img { max-width: 100%; display: block; }
 }
 .ov-hint { margin-top: 10px; font-size: 12px; color: var(--c-gray-500); text-align: center; }
 
-.ov-bars { display: flex; gap: 10px; border: 1px solid var(--c-gray-200); border-radius: var(--radius-md); padding: 12px 10px 8px; }
+.ov-chart { display: flex; border: 1px solid var(--c-gray-200); border-radius: var(--radius-md); padding: 12px 10px 8px 6px; }
+.ov-yaxis { position: relative; flex: none; width: 38px; height: 110px; margin-right: 6px; }
+.ov-ytick {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--c-gray-500);
+  white-space: nowrap;
+}
+.ov-bars { flex: 1; min-width: 0; display: flex; gap: 10px; }
 .ov-bar-col {
   flex: 1;
   display: flex;

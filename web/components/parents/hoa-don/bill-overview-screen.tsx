@@ -25,6 +25,16 @@ function schoolYearMonths(startYear: number, anchor: Date): { year: number; mont
   return out
 }
 
+const BAR_MAX = 0.82
+
+// Smallest 1 / 2 / 2.5 / 5 x 10^k that is >= n (n > 0), else 1.
+function niceCeil(n: number): number {
+  if (n <= 0) return 1
+  const pow = 10 ** Math.floor(Math.log10(n))
+  const step = [1, 2, 2.5, 5, 10].find((f) => f * pow >= n)!
+  return step * pow
+}
+
 // Bars visible at once; the chart scrolls sideways through the rest of the year.
 const VISIBLE_MONTHS = 5
 
@@ -88,6 +98,10 @@ export function BillOverviewScreen({
     if (el) el.scrollLeft = el.scrollWidth
   }, [])
   const maxAmount = Math.max(...months.map((m) => m.amount), 0)
+  // Y axis: 0, half and top. The top is a round number that keeps the tallest
+  // bar at or below BAR_MAX of the track, so its value label stays inside.
+  const axisTop = niceCeil(maxAmount / BAR_MAX)
+  const ticks = [0, axisTop / 2, axisTop]
   // No month is preselected: the detail list appears once a bar is tapped.
   const active = months.find((m) => m.key === monthKey)
 
@@ -122,26 +136,37 @@ export function BillOverviewScreen({
         <div className="ov-heading">Thanh toán theo tháng</div>
         {yearMonths.length ? (
           <>
-            <div
-              ref={barsRef}
-              className={`ov-bars ${months.length > VISIBLE_MONTHS ? 'scroll' : ''}`}
-              role="group" aria-label="Số tiền đã thanh toán theo tháng">
-              {months.map((m) => (
-                <button
-                  key={m.key}
-                  className={`ov-bar-col ${m.key === active?.key ? 'active' : ''}`}
-                  aria-pressed={m.key === active?.key}
-                  aria-label={`Tháng ${m.month}/${m.year}: ${fmtMoney(m.amount)}`}
-                  onClick={() => setMonthKey(m.key)}
-                >
-                  <div className="ov-bar-track">
-                    <div className="ov-bar" style={{ height: m.amount > 0 ? `${Math.max((m.amount / maxAmount) * 82, 3)}%` : 0 }}>
-                      <span className="ov-bar-value">{fmtCompact(m.amount)}</span>
+            <div className="ov-chart">
+              <div className="ov-yaxis" aria-hidden>
+                {ticks.map((t) => (
+                  <span key={t} className="ov-ytick" style={{ bottom: `${(t / axisTop) * 100}%` }}>
+                    {fmtCompact(t)}
+                  </span>
+                ))}
+              </div>
+              <div
+                ref={barsRef}
+                className={`ov-bars ${months.length > VISIBLE_MONTHS ? 'scroll' : ''}`}
+                role="group"
+                aria-label="Số tiền đã thanh toán theo tháng"
+              >
+                {months.map((m) => (
+                  <button
+                    key={m.key}
+                    className={`ov-bar-col ${m.key === active?.key ? 'active' : ''}`}
+                    aria-pressed={m.key === active?.key}
+                    aria-label={`Tháng ${m.month}/${m.year}: ${fmtMoney(m.amount)}`}
+                    onClick={() => setMonthKey(m.key)}
+                  >
+                    <div className="ov-bar-track">
+                      <div className="ov-bar" style={{ height: m.amount > 0 ? `${Math.max((m.amount / axisTop) * 100, 3)}%` : 0 }}>
+                        <span className="ov-bar-value">{fmtCompact(m.amount)}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="ov-bar-label">T{m.month}</div>
-                </button>
-              ))}
+                    <div className="ov-bar-label">T{m.month}</div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {active ? (
