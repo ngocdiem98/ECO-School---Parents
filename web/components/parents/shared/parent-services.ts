@@ -3,7 +3,7 @@ import type { ServiceIntent } from '@/components/parents/shared/use-service-laun
 // Glyph-icon catalogue of the ECO Phụ huynh app (Home grid and Học sinh page),
 // in display order. Same glyph-character icon system as the vanilla app
 // (scripts/app.js ICONS), extended with the services built later. An entry
-// without `intent` is an inert placeholder (Học bạ số: its PRD is empty).
+// without `intent` is an inert placeholder (none today).
 export interface ParentService {
   id: string
   icon: string
@@ -21,7 +21,7 @@ export const PARENT_SERVICES: ParentService[] = [
   { id: 'absence', icon: '✎', label: 'Báo vắng', intent: 'absence' },
   { id: 'homework', icon: '▧', label: 'Bài tập', intent: 'homework' },
   { id: 'results', icon: '▨', label: 'Kết quả học tập', intent: 'results' },
-  { id: 'hocba', icon: '▩', label: 'Học bạ số' },
+  { id: 'hocba', icon: '▩', label: 'Học bạ số', intent: 'digitalreport' },
   { id: 'thucdon', icon: '▥', label: 'Thực đơn', intent: 'menu' },
   { id: 'hoatdong', icon: '◐', label: 'Hoạt động', intent: 'activity' },
   { id: 'hoadon', icon: '▤', label: 'Hóa đơn', intent: 'hoadon' },

@@ -24,7 +24,7 @@ export function HomeworkListScreen({
   filter: 'all' | HomeworkStatus
   onFilterChange: (value: 'all' | HomeworkStatus) => void
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onOpen: (hw: Homework) => void
 }) {
   const items = homework.filter((h) => filter === 'all' || h.status === filter)
@@ -53,15 +53,17 @@ export function HomeworkListScreen({
           <div className="hw-student-meta">{student.className}</div>
           <div className="hw-student-meta">{student.school}</div>
         </div>
-        <button type="button" className="hw-btn-change" onClick={onChangeStudent}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="8.5" cy="7" r="4" />
-            <polyline points="17 8 20 11 23 8" />
-            <line x1="20" y1="11" x2="20" y2="17" />
-          </svg>
-          <span>Đổi</span>
-        </button>
+        {onChangeStudent && (
+          <button type="button" className="hw-btn-change" onClick={onChangeStudent}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <polyline points="17 8 20 11 23 8" />
+              <line x1="20" y1="11" x2="20" y2="17" />
+            </svg>
+            <span>Đổi</span>
+          </button>
+        )}
       </div>
 
       {/* 3. Filter Tabs */}
@@ -138,8 +140,8 @@ export function HomeworkListScreen({
             }}
           >
             <div style={{ fontSize: 32 }}>📝</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#374151' }}>Chưa có bài tập nào</div>
-            <div style={{ fontSize: 13 }}>Danh sách bài tập trống trong mục này</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#374151' }}>Chưa có bài tập nào</div>
+            <div style={{ fontSize: 14 }}>Danh sách bài tập trống trong mục này</div>
           </div>
         )}
       </div>

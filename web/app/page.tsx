@@ -33,6 +33,7 @@ import { PostpaidFeeApp } from '@/components/parents/postpaid-fee'
 import { ChildDevelopmentScreen } from '@/components/parents/development'
 import { PickupApp } from '@/components/parents/pickup'
 import { SurveyScreen } from '@/components/parents/survey'
+import { DigitalReportApp } from '@/components/parents/digital-report'
 import { HealthAdviceScreen } from '@/components/parents/health-advice'
 import { TransferMoneyFlow } from '@/components/parents/transfer'
 import { TopupWalletFlow } from '@/components/parents/topup-wallet'
@@ -84,6 +85,7 @@ type Screen =
   | 'development'
   | 'pickup'
   | 'survey'
+  | 'digital-report'
   | 'health-advice'
   | 'transfer'
   | 'topup-wallet'
@@ -116,6 +118,7 @@ const INTENT_SCREEN: Record<ServiceIntent, Screen> = {
   pickup: 'pickup',
   healthadvice: 'health-advice',
   survey: 'survey',
+  digitalreport: 'digital-report',
 }
 
 export default function Page() {
@@ -425,6 +428,10 @@ export default function Page() {
                   onBack={() => setScreen(returnScreen)}
                   onSelectStudent={setActiveStudentId}
                 />
+              )}
+
+              {screen === 'digital-report' && activeStudentId && (
+                <DigitalReportApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
               )}
 
               {screen === 'survey' && (

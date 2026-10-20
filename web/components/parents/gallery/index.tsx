@@ -5,6 +5,7 @@ import { CalendarDays, ImageOff, Loader2, Play } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
@@ -28,6 +29,8 @@ export function GalleryApp({ studentId, openAlbumId, onBack }: GalleryAppProps) 
   const [selectedId, setSelectedId] = useState(studentId)
   const [albumId, setAlbumId] = useState<string | null>(openAlbumId ?? null)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('gallery')
+  const canSwitch = switchable.length > 1
   const [viewerIndex, setViewerIndex] = useState<number | null>(null)
   const [expanded, setExpanded] = useState(false)
   const [shown, setShown] = useState(PAGE)
@@ -149,7 +152,7 @@ export function GalleryApp({ studentId, openAlbumId, onBack }: GalleryAppProps) 
   return (
     <div className="screen">
       <TopBar title="Thư viện ảnh" onBack={onBack} />
-      <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+      <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
       {albums.length ? (
         <div className="album-list">
           {albums.map((a) => {
@@ -173,7 +176,7 @@ export function GalleryApp({ studentId, openAlbumId, onBack }: GalleryAppProps) 
       )}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

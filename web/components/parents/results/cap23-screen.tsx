@@ -71,7 +71,7 @@ function TongKetTable({
                 style={{
                   flex: 1,
                   padding: '14px 8px',
-                  fontWeight: v !== '—' ? 600 : 400,
+                  fontWeight: v !== '—' ? 700 : 400,
                   borderLeft: i > 0 ? '1px solid #F0F0F0' : undefined,
                 }}
               >
@@ -98,7 +98,7 @@ function BangDiemHeader() {
         gridTemplateColumns: GRID_COLS,
         background: '#FFF0C2',
         color: '#3B3E40',
-        fontSize: 13.5,
+        fontSize: 14,
         fontWeight: 700,
         borderBottom: '1px solid #F3E0A8',
       }}
@@ -261,7 +261,7 @@ function BangDiemTable({ hocKyData }: { hocKyData: Cap23HocKyData }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: row.ddggk !== '—' ? 600 : 400,
+                  fontWeight: row.ddggk !== '—' ? 700 : 400,
                   borderRight: '1px solid #F0F0F0',
                 }}
               >
@@ -274,7 +274,7 @@ function BangDiemTable({ hocKyData }: { hocKyData: Cap23HocKyData }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: row.ddgck !== '—' ? 600 : 400,
+                  fontWeight: row.ddgck !== '—' ? 700 : 400,
                   borderRight: '1px solid #F0F0F0',
                 }}
               >
@@ -287,7 +287,7 @@ function BangDiemTable({ hocKyData }: { hocKyData: Cap23HocKyData }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: row.tbhk !== '—' ? 600 : 400,
+                  fontWeight: row.tbhk !== '—' ? 700 : 400,
                 }}
               >
                 {row.tbhk}

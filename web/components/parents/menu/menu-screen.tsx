@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { getStudent, MOCK_STUDENTS } from '@/lib/mock-data'
 import { StudentPickerSheet, getStudentDsAvatar } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { WeekPickerSheet } from '@/components/parents/shared/week-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import {
@@ -42,6 +43,8 @@ export function MenuScreen({
   const [selectedWeek, setSelectedWeek] = useState<WeekMenu>(MENU_WEEKS[0])
   const [selectedDayKey, setSelectedDayKey] = useState<string>('T2')
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('menu')
+  const canSwitch = switchable.length > 1
   const [showWeekPicker, setShowWeekPicker] = useState(false)
   const [showGreenTickModal, setShowGreenTickModal] = useState(false)
   const [showIngredientsSheet, setShowIngredientsSheet] = useState(false)
@@ -104,12 +107,7 @@ export function MenuScreen({
             </svg>
           </button>
         </div>
-        <div
-          className="eco-navbar__title"
-          style={{ font: 'var(--text-subtitle-l)', fontWeight: 500, color: '#141414' }}
-        >
-          Thực đơn
-        </div>
+        <div className="eco-navbar__title">Thực đơn</div>
         <div className="eco-navbar__side eco-navbar__side--right" />
       </header>
 
@@ -143,23 +141,25 @@ export function MenuScreen({
               {student.school}
             </span>
           </div>
-          <button
-            type="button"
-            className="eco-stuhead__action"
-            onClick={() => setShowPicker(true)}
-            aria-label="Đổi học sinh"
-          >
-            <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
-              <img
-                src="/ds/payment/student-switch.svg"
-                alt=""
-                width={20}
-                height={20}
-                style={{ display: 'block' }}
-              />
-            </span>
-            <span style={{ font: 'var(--text-body-s)', fontWeight: 500 }}>Đổi</span>
-          </button>
+          {canSwitch && (
+            <button
+              type="button"
+              className="eco-stuhead__action"
+              onClick={() => setShowPicker(true)}
+              aria-label="Đổi học sinh"
+            >
+              <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
+                <img
+                  src="/ds/payment/student-switch.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  style={{ display: 'block' }}
+                />
+              </span>
+              <span style={{ font: 'var(--text-body-s)', fontWeight: 500 }}>Đổi</span>
+            </button>
+          )}
         </section>
 
         {/* Part 3 of 3-Part White Header Standard: ECO.WeekBar (size='s') */}
@@ -214,7 +214,7 @@ export function MenuScreen({
                 >
                   <span
                     className="eco-daystrip__dow"
-                    style={{ fontSize: 12, lineHeight: '16px', fontWeight: isActive ? 600 : 400 }}
+                    style={{ fontSize: 12, lineHeight: '16px', fontWeight: isActive ? 700 : 400 }}
                   >
                     {d.key}
                   </span>
@@ -248,7 +248,7 @@ export function MenuScreen({
                       height={24}
                       style={{ display: 'block', flexShrink: 0 }}
                     />
-                    <span style={{ font: 'var(--text-body-m)', fontWeight: 600, color: '#141414' }}>
+                    <span style={{ font: 'var(--text-body-m)', fontWeight: 700, color: '#141414' }}>
                       {meal.label}
                     </span>
                   </span>
@@ -295,7 +295,7 @@ export function MenuScreen({
                         }}
                         title="Xem danh sách nguyên liệu"
                       >
-                        <span style={{ font: 'var(--text-body-xs)', fontWeight: 600 }}>
+                        <span style={{ font: 'var(--text-body-xs)', fontWeight: 700 }}>
                           {meal.ingredientsCount} nguyên liệu
                         </span>
                       </button>
@@ -357,7 +357,7 @@ export function MenuScreen({
       {/* Student Picker Sheet */}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={student.id}
           onSelect={(s) => {
             setShowPicker(false)

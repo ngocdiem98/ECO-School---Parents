@@ -5,6 +5,7 @@ import { ArrowUp, Heart } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
 import { MediaGrid } from '@/components/parents/shared/media-grid'
 import { Toast } from '@/components/parents/shared/toast'
@@ -25,6 +26,8 @@ export function ActivityApp({ studentId, onBack }: ActivityAppProps) {
   const [selectedId, setSelectedId] = useState(studentId)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('activity')
+  const canSwitch = switchable.length > 1
   const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null)
   const [showTop, setShowTop] = useState(false)
   const [, setVersion] = useState(0)
@@ -59,7 +62,7 @@ export function ActivityApp({ studentId, onBack }: ActivityAppProps) {
       />
       {!detail && (
         <div className="sticky-head">
-          <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+          <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
         </div>
       )}
 
@@ -108,7 +111,7 @@ export function ActivityApp({ studentId, onBack }: ActivityAppProps) {
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

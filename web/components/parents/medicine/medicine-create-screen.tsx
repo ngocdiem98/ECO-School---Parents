@@ -36,7 +36,7 @@ export function MedicineCreateScreen({
 }: {
   student: Student
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onSubmit: (order: MedicineSubmit) => void
   onWarn: (message: string) => void
 }) {

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
 import { FEEDBACKS, feedbackFor, type FeedbackFile } from '@/lib/school-data'
@@ -27,6 +28,8 @@ export function FeedbackApp({ studentId, onBack }: FeedbackAppProps) {
   const [screen, setScreen] = useState<Screen>('list')
   const [feedbackId, setFeedbackId] = useState<string | null>(null)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('feedback')
+  const canSwitch = switchable.length > 1
   const [, setVersion] = useState(0)
   const { toast, toastSuccess, show } = useToast()
 
@@ -57,7 +60,7 @@ export function FeedbackApp({ studentId, onBack }: FeedbackAppProps) {
           student={student}
           items={feedbackFor(student.id)}
           onBack={onBack}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onCreate={() => setScreen('create')}
           onOpen={(id) => {
             setFeedbackId(id)
@@ -79,7 +82,7 @@ export function FeedbackApp({ studentId, onBack }: FeedbackAppProps) {
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

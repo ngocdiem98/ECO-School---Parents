@@ -34,7 +34,7 @@ export function MedicineListScreen({
   filter: 'all' | MedicineStatus
   onFilterChange: (value: 'all' | MedicineStatus) => void
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onOpen: (orderId: string) => void
   onCreate: () => void
 }) {

@@ -10,6 +10,7 @@ import {
 } from './pickup-data'
 import { getStudent, MOCK_STUDENTS } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 
 interface PickupMainScreenProps {
   studentId: string
@@ -35,6 +36,8 @@ export function PickupMainScreen({
   onViewQR,
 }: PickupMainScreenProps) {
   const [showStudentPicker, setShowStudentPicker] = useState(false)
+  const switchable = eligibleStudents('pickup')
+  const canSwitch = !!onSelectStudent && switchable.length > 1
   const student = getStudent(studentId)
   const avatarSrc = student ? dsStudentAvatar(student) : '/ds/avatars/tieu-hoc-nu.svg'
 
@@ -64,7 +67,7 @@ export function PickupMainScreen({
       <div className="absence-student-header-card">
         <div
           className="absence-student-header-main"
-          onClick={() => onSelectStudent && setShowStudentPicker(true)}
+          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
           role="button"
           tabIndex={0}
           aria-label="Đổi học sinh"
@@ -81,7 +84,7 @@ export function PickupMainScreen({
             <div className="absence-student-meta">{student?.school}</div>
           </div>
         </div>
-        {onSelectStudent && (
+        {canSwitch && (
           <button
             type="button"
             className="btn-change absence-btn-change"
@@ -327,7 +330,7 @@ export function PickupMainScreen({
 
       {showStudentPicker && onSelectStudent && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={studentId}
           onSelect={(st) => {
             onSelectStudent(st.id)

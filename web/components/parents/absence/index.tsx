@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type AbsenceRequest, type AbsenceStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { Dialog } from '@/components/parents/shared/dialog'
 import { AbsenceListScreen } from './absence-list-screen'
 import { AbsenceDetailScreen } from './absence-detail-screen'
@@ -29,6 +30,8 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
   const [filter, setFilter] = useState<'all' | AbsenceStatus>('all')
   const [form, setForm] = useState<AbsenceFormState>(DEFAULT_ABSENCE_FORM)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('absence')
+  const canSwitch = switchable.length > 1
   const [showSuccess, setShowSuccess] = useState(false)
   const [, setVersion] = useState(0)
 
@@ -104,7 +107,7 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
             setScreen('detail')
           }}
           onBack={onBack}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onCreate={() => setScreen('create')}
         />
       ) : (
@@ -114,14 +117,14 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
           onFieldChange={handleFieldChange}
           onAddPhotos={handleAddPhotos}
           onBack={() => (startOnCreate ? onBack() : setScreen('list'))}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onSubmit={handleSubmit}
         />
       )}
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)

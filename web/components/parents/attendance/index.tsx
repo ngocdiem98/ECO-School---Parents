@@ -12,6 +12,7 @@ import {
 } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
@@ -43,6 +44,8 @@ export function AttendanceApp({ studentId, onBack, onCreateAbsence }: Attendance
   const [statSession, setStatSession] = useState<'morning' | 'afternoon'>('morning')
   const [month, setMonth] = useState({ y: now.getFullYear(), m: now.getMonth() })
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('attendance')
+  const canSwitch = switchable.length > 1
   const [photo, setPhoto] = useState<string | null>(null)
   const { toast, show } = useToast()
 
@@ -54,7 +57,7 @@ export function AttendanceApp({ studentId, onBack, onCreateAbsence }: Attendance
   return (
     <div className="screen">
       <TopBar title="Theo dõi điểm danh" onBack={onBack} />
-      <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+      <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
       <div className="subtabs">
         <button className={tab === 'log' ? 'active' : ''} onClick={() => setTab('log')}>
           Nhật ký
@@ -80,7 +83,7 @@ export function AttendanceApp({ studentId, onBack, onCreateAbsence }: Attendance
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

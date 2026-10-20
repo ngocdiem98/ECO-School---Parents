@@ -50,7 +50,7 @@ export function BillListScreen({
   scrollToList?: boolean
   onTabChange: (tab: BillTab) => void
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onPay: () => void
   onViewInvoice: (bill: Bill) => void
   onOpenOverview: () => void

@@ -32,6 +32,7 @@ export type ServiceIntent =
   | 'pickup'
   | 'healthadvice'
   | 'survey'
+  | 'digitalreport'
 
 // One handler for every service: page.tsx maps the intent to a screen.
 export interface ServiceNav {

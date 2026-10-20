@@ -33,7 +33,7 @@ export const EDU_SERVICES: EcoService[] = [
   { id: 'gallery', icon: 'gallery', tint: ['#F57AB6', '#D9308A'], label: 'Thư viện ảnh', intent: 'gallery' },
   { id: 'goodbehavior', icon: 'star', tint: ['#FFD24A', '#F0A800'], label: 'Phiếu bé ngoan', intent: 'goodbehavior' },
   { id: 'results', icon: 'library', tint: ['#6E7BF2', '#4553D6'], label: 'Kết quả học tập', intent: 'results' },
-  { id: 'hocba', icon: 'notebook', tint: ['#FFAA5C', '#F57C2E'], label: 'Học bạ số' },
+  { id: 'hocba', icon: 'notebook', tint: ['#FFAA5C', '#F57C2E'], label: 'Học bạ số', intent: 'digitalreport' },
   { id: 'feedback', icon: 'feedback', tint: ['#FF9466', '#E5532D'], label: 'Góp ý', intent: 'feedback' },
   { id: 'eco-school', icon: 'id-card', tint: ['#6E86F5', '#4A62DB'], label: 'ECO School', ecoParent: true },
 ]

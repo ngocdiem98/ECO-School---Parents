@@ -32,3 +32,6 @@ export function groupByMonth(weeks: GoodBehaviorWeek[]): MonthGroup[] {
     .sort((a, b) => b[0].localeCompare(a[0]))
     .map(([key, ws]) => ({ key, label: `Tháng ${Number(key.slice(5))}/${key.slice(0, 4)}`, weeks: ws }))
 }
+
+// 'YYYY-MM-DDTHH:mm' → '16:20 13/09/2026'
+export const fmtSent = (iso: string) => `${iso.slice(11, 16)} ${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`

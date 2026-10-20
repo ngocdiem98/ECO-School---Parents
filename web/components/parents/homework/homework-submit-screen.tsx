@@ -36,7 +36,7 @@ export function HomeworkSubmitScreen({
       {/* 2. Scrollable Body with Doodle Graph Paper Background */}
       <div className="hw-scroll-body" style={{ paddingBottom: 160 }}>
         <div className="hw-card" style={{ padding: 16, cursor: 'default' }}>
-          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#181D27', marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#181D27', marginBottom: 12 }}>
             Tài liệu đính kèm
           </div>
 
@@ -64,7 +64,7 @@ export function HomeworkSubmitScreen({
             ))}
 
             {files.length === 0 && (
-              <div style={{ color: '#9CA3AF', fontSize: 13, padding: '12px 0' }}>
+              <div style={{ color: '#9CA3AF', fontSize: 14, padding: '12px 0' }}>
                 Chưa có tệp nào được chọn
               </div>
             )}

@@ -4,6 +4,7 @@ import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState, useRef, useEffect } from 'react'
 import { MOCK_STUDENTS, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '../shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import {
   BULLETIN_TABS,
   BULLETIN_STUDENT_PROFILES,
@@ -40,6 +41,8 @@ export function BulletinScreen({
   )
   const [activeCategory, setActiveCategory] = useState<BulletinCategory>('all')
   const [showStudentPicker, setShowStudentPicker] = useState(false)
+  const switchable = eligibleStudents('bulletin')
+  const canSwitch = switchable.length > 1
   const [activePost, setActivePost] = useState<BulletinPost | null>(null)
 
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
@@ -209,7 +212,7 @@ export function BulletinScreen({
       <div className="absence-student-header-card bulletin-student-header eco-stuhead">
         <div
           className="absence-student-header-main bulletin-student-main"
-          onClick={() => setShowStudentPicker(true)}
+          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
           role="button"
           tabIndex={0}
           aria-label="Đổi học sinh"
@@ -237,23 +240,25 @@ export function BulletinScreen({
           </div>
         </div>
 
-        <button
-          type="button"
-          className="eco-stuhead__action bulletin-change-btn"
-          onClick={() => setShowStudentPicker(true)}
-          aria-label="Đổi học sinh"
-        >
-          <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
-            <img
-              src="/ds/payment/student-switch.svg"
-              alt=""
-              width={20}
-              height={20}
-              style={{ display: 'block' }}
-            />
-          </span>
-          <span>Đổi</span>
-        </button>
+        {canSwitch && (
+          <button
+            type="button"
+            className="eco-stuhead__action bulletin-change-btn"
+            onClick={() => setShowStudentPicker(true)}
+            aria-label="Đổi học sinh"
+          >
+            <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
+              <img
+                src="/ds/payment/student-switch.svg"
+                alt=""
+                width={20}
+                height={20}
+                style={{ display: 'block' }}
+              />
+            </span>
+            <span>Đổi</span>
+          </button>
+        )}
       </div>
 
       {/* Horizontal Filter Tabs Bar */}
@@ -321,7 +326,7 @@ export function BulletinScreen({
       {/* Student Switcher Bottom Sheet */}
       {showStudentPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={handlePickStudent}
           onClose={() => setShowStudentPicker(false)}

@@ -5,6 +5,7 @@ import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import { STUDENT_TIMETABLES, type TimetablePeriod } from './timetable-data'
 import { StudentPickerSheet } from '../shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { MOCK_STUDENTS, getStudent, type Student } from '@/lib/mock-data'
 
 interface TimetableScreenProps {
@@ -18,6 +19,8 @@ export function TimetableScreen({
 }: TimetableScreenProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(initialStudentId)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('timetable')
+  const canSwitch = switchable.length > 1
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isImageZoomed, setIsImageZoomed] = useState(false)
 
@@ -109,26 +112,28 @@ export function TimetableScreen({
           </div>
 
           {/* Switch Student Button */}
-          <button
-            type="button"
-            className="timetable-btn-change"
-            onClick={() => setShowPicker(true)}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#2563EB"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {canSwitch && (
+            <button
+              type="button"
+              className="timetable-btn-change"
+              onClick={() => setShowPicker(true)}
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <span>Đổi</span>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#2563EB"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Đổi</span>
+            </button>
+          )}
         </div>
 
         {/* Time Period Subtitle */}
@@ -261,7 +266,7 @@ export function TimetableScreen({
       {/* Student Switcher Sheet */}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={handleSelectStudent}
           onClose={() => setShowPicker(false)}

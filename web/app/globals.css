@@ -1652,8 +1652,8 @@ img { max-width: 100%; display: block; }
 .noti-card.unread { box-shadow: inset 3px 0 0 var(--c-yellow), 0 1px 4px rgba(0, 0, 0, .04); }
 .noti-icon { flex: none; color: var(--c-navy); padding-top: 2px; }
 .noti-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.noti-card-title { font-size: 14px; font-weight: 700; }
-.noti-card-text { font-size: 14px; color: var(--c-gray-600); line-height: 1.4; }
+.noti-card-title { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.noti-card-text { font-size: 14px; color: var(--c-gray-600); line-height: 1.2; }
 .noti-time { font-size: 12px; font-style: italic; color: var(--c-blue); }
 .noti-dot { position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: #D92D20; }
 
@@ -2018,50 +2018,70 @@ img { max-width: 100%; display: block; }
   background-size: 26px 26px;
 }
 .med-detail .student-header { background: var(--c-white); }
-.md-card { margin: 12px 16px; padding: 18px 16px; background: var(--c-white); border-radius: 22px; box-shadow: 0 1px 0 rgba(0, 44, 84, .04); }
-.md-card h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.md-card { margin: 12px; padding: 16px; background: var(--c-white); border-radius: var(--radius-20); box-shadow: 0 1px 0 rgba(0, 44, 84, .04); }
+.md-card h3 { margin: 0; font-size: 16px; font-weight: 700; }
 .md-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .md-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 14px; color: var(--c-gray-500); }
 .md-row b { color: var(--c-ink); font-weight: 500; }
 .md-label { display: flex; align-items: center; gap: 6px; margin-top: 6px; padding: 5px 0; font-size: 14px; color: var(--c-gray-500); }
-.md-text { margin: 4px 0 0; font-size: 16px; line-height: 1.5; }
+.md-text { margin: 4px 0 0; font-size: 14px; line-height: 1.43; }
 .md-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
 .md-photos button { padding: 0; border: none; background: var(--c-gray-100); border-radius: 4px; overflow: hidden; aspect-ratio: 1; }
 .md-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .md-day { margin-top: 14px; }
-.md-day-head { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 6px 0; border: none; background: none; font-size: 18px; text-align: left; }
+.md-day-head { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 6px 0; border: none; background: none; font-size: 16px; font-weight: 700; text-align: left; }
+.md-day-head b { font-weight: 700; }
 .md-chevron { width: 38px; height: 38px; border-radius: 50%; background: var(--c-gray-100); display: flex; align-items: center; justify-content: center; flex: none; color: var(--c-gray-700); }
 .md-doses { margin-top: 10px; }
 .md-dose { display: flex; gap: 12px; padding-bottom: 14px; position: relative; }
 .md-dose:not(:last-child)::before { content: ''; position: absolute; left: 12px; top: 32px; bottom: 4px; width: 1px; background: var(--c-gray-200); }
-.md-dose-time { display: flex; align-items: flex-start; gap: 10px; flex: none; width: 82px; font-size: 16px; font-weight: 500; padding-top: 2px; }
+.md-dose-time { display: flex; align-items: flex-start; gap: 10px; flex: none; width: 82px; font-size: 14px; font-weight: 500; padding-top: 2px; }
 .md-check { width: 26px; height: 26px; border-radius: 7px; border: 1.5px solid var(--c-gray-300); background: var(--c-white); display: flex; align-items: center; justify-content: center; flex: none; color: #fff; }
 .md-check.on { background: var(--c-yellow); border-color: var(--c-yellow); color: var(--c-navy); }
 .md-dose-body { flex: 1; min-width: 0; }
-.md-note { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--c-gray-100); font-size: 16px; line-height: 1.45; color: var(--c-ink); }
+.md-note { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--c-gray-100); font-size: 14px; line-height: 1.43; color: var(--c-ink); }
 .md-note svg { flex: none; margin-top: 1px; color: var(--c-gray-500); }
 .md-note.empty { background: #F4F5F7; color: var(--c-gray-400); }
 .md-confirm { margin-top: 8px; font-size: 14px; line-height: 1.4; font-weight: 500; color: #1B9E4B; }
 
-/* Phiếu bé ngoan (PH-17) */
-.gb-total { margin: 16px 16px 4px; font-size: 14px; line-height: 1.45; }
-.gb-current { display: block; width: calc(100% - 32px); margin: 12px 16px 0; padding: 16px; border: 1px solid var(--c-yellow); border-radius: 22px; background: linear-gradient(180deg, #FFF8E1, #FFFFFF); text-align: center; }
-.gb-result { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 6px 0; }
-.gb-result.big { margin: 12px 16px 0; padding: 20px 12px; border-radius: 22px; background: linear-gradient(180deg, #FFF8E1, #FFFFFF); border: 1px solid var(--c-gray-150); }
-.gb-result-title { font-weight: 700; font-size: 16px; color: var(--c-navy); }
-.gb-result-time { font-size: 14px; color: var(--c-gray-600); }
-.gb-cta { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 700; color: var(--c-blue); }
-.gb-month { display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); margin: 0 16px 10px; padding: 14px; text-align: left; border: 1px solid var(--c-gray-150); border-radius: var(--radius-20); background: var(--c-white); font-size: 14px; }
-.gb-month b { flex: 1; }
-.gb-dots { display: inline-flex; gap: 6px; }
-.gb-dots i, .gb-week i { width: 10px; height: 10px; border-radius: 50%; background: var(--c-gray-200); display: inline-block; }
-.gb-dots i.got, .gb-week i.got { background: #12A05C; }
-.gb-weeks { display: flex; gap: 10px; justify-content: center; margin: 14px 16px 0; }
-.gb-week { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 46px; padding: 8px 0 8px; border: 2px solid transparent; border-radius: 14px; background: var(--c-white); font-size: 14px; font-weight: 700; }
-.gb-week.sel { border-color: var(--c-blue); background: var(--c-blue-50); }
-.gb-comment { display: flex; gap: 12px; margin: 14px 16px; padding: 14px; border: 1px solid var(--c-gray-150); border-radius: var(--radius-20); background: var(--c-white); }
-.gb-comment b { font-size: 14px; }
-.gb-comment p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--c-gray-700); }
+/* Phiếu bé ngoan (PH-17), laid out from the Figma "[PH] Phiếu bé ngoan" frames */
+.pbn-screen { background: #FFFCF1 url(/phieu-be-ngoan/bg-tile.png) repeat-y center top / 100% auto; }
+.pbn-screen .topbar, .pbn-screen .student-header { background: var(--bg-surface); }
+.pbn-screen .student-header { border-bottom: 1px solid var(--border-soft); }
+.pbn-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.pbn-total { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-body); }
+.pbn-total .n { font-size: 16px; font-weight: 700; color: var(--text-link); }
+.pbn-total b { font-weight: 700; }
+.pbn-current { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 4px 12px 8px; border: 2px solid #FED979; border-radius: 16px; background: #FFF9E9; text-align: center; }
+.pbn-current img { width: 120px; height: 120px; display: block; }
+.pbn-current-title { font-size: 16px; font-weight: 700; line-height: 1.5; color: var(--text-body); }
+.pbn-date { display: inline-flex; align-items: baseline; gap: 6px; font-size: 14px; font-weight: 700; line-height: 1.5; color: #BF9218; }
+.pbn-date .dot { font-size: 12px; font-weight: 400; }
+.pbn-date.is-chip { padding: 4px 8px; border: 2px solid #FFE6A6; border-radius: 12px; background: #FFF9E9; }
+.pbn-link { font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--text-link); }
+.pbn-months { display: flex; flex-direction: column; gap: 8px; }
+.pbn-month { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 12px; text-align: left; border-radius: 16px; background: var(--bg-surface); box-shadow: 0 0 1px rgba(0, 0, 0, .2); }
+.pbn-month-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pbn-month-title { font-size: 16px; font-weight: 500; line-height: 1.5; color: var(--text-body); }
+.pbn-month-status { display: flex; align-items: center; gap: 4px; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+.pbn-dots { display: inline-flex; gap: 8px; padding-top: 2px; }
+.pbn-dot { width: 16px; height: 16px; border-radius: 50%; box-sizing: border-box; background: #fff; border: 1px solid #D6D6D6; display: inline-block; flex: none; }
+.pbn-dot.got { background: #2DC26D; border-color: #2DC26D; }
+.pbn-month > svg { flex: none; color: var(--text-muted); }
+.pbn-weeks { display: flex; gap: 8px; }
+.pbn-week { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 0; border: 1px solid transparent; border-radius: 12px; background: #fff; box-shadow: 0 0 .5px rgba(0, 0, 0, .2); font-size: 16px; font-weight: 700; color: var(--text-body); }
+.pbn-week .num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1.5; }
+.pbn-week.sel { border-color: var(--text-link); background: #F0F8FF; }
+.pbn-week.sel .num { background: var(--text-link); color: #fff; }
+.pbn-reward { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 4px; text-align: center; }
+.pbn-reward img { width: 200px; height: 200px; display: block; }
+.pbn-reward-title { font-size: 18px; font-weight: 700; line-height: 1.5; color: var(--text-body); }
+.pbn-sent { font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+.pbn-sent b { font-weight: 500; }
+.pbn-comment { padding: 12px; border-radius: 16px; background: var(--bg-surface); box-shadow: 0 0 1px rgba(0, 0, 0, .2); font-size: 16px; line-height: 1.5; color: var(--text-body); }
+.pbn-comment-by { font-size: 16px; line-height: 1.5; color: var(--text-muted); }
+.pbn-comment-by b { font-weight: 700; color: var(--text-link); }
+.pbn-comment p { margin: 4px 0 0; }
 .photo-viewer-actions { display: inline-flex; gap: 4px; }
 .photo-viewer-slide { position: relative; }
 .pv-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; border: none; background: rgba(0, 0, 0, .55); display: flex; align-items: center; justify-content: center; }

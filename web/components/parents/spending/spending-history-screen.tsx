@@ -69,6 +69,7 @@ export function SpendingHistoryScreen({
   const [customDate, setCustomDate] = useState<string | null>(null)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showStudentPicker, setShowStudentPicker] = useState(false)
+  const canSwitch = getSpendingStudents().length > 1
 
   const student = getStudent(selectedStudent.id)
   const all = student ? getSpendingTransactions(student) : []
@@ -124,23 +125,23 @@ export function SpendingHistoryScreen({
         <div className="spending-top-controls-band">
           <div
             className="spending-student-banner-card"
-            onClick={() => setShowStudentPicker(true)}
-            role="button"
-            tabIndex={0}
+            onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
+            role={canSwitch ? 'button' : undefined}
+            tabIndex={canSwitch ? 0 : undefined}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setShowStudentPicker(true)
+              if (canSwitch && (e.key === 'Enter' || e.key === ' ')) setShowStudentPicker(true)
             }}
-            title="Bấm để chọn học sinh khác"
+            title={canSwitch ? 'Bấm để chọn học sinh khác' : undefined}
           >
             <div className="spending-banner-left">
               <div className="spending-banner-name">{selectedStudent.name}</div>
               <div className="spending-banner-code">{selectedStudent.code}</div>
             </div>
-            <div className="spending-banner-chevron">
+            {canSwitch && <div className="spending-banner-chevron">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
-            </div>
+            </div>}
           </div>
 
           {/* Filter Section: Lọc theo */}

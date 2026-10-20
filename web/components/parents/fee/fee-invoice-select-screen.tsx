@@ -157,7 +157,7 @@ export function FeeInvoiceSelectScreen({
         {/* Top Info Card: ECO.InfoSection + ECO.IconInfoRow + ECO.KeyValueRow */}
         <section className="eco-seccard" style={{ borderRadius: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-16)' }}>
           <div className="eco-infosec">
-            <h4 className="eco-infosec__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+            <h4 className="eco-infosec__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
               Thông tin học sinh
             </h4>
             <div className="eco-infosec__body">
@@ -181,7 +181,7 @@ export function FeeInvoiceSelectScreen({
           </div>
 
           <div className="eco-infosec eco-infosec--divider">
-            <h4 className="eco-infosec__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+            <h4 className="eco-infosec__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
               Thông tin hoá đơn
             </h4>
             <div className="eco-infosec__body">
@@ -199,7 +199,7 @@ export function FeeInvoiceSelectScreen({
 
         {/* Section: Hoá đơn chưa thanh toán (9) — ECO.BillGroup + ECO.PayCheckbox */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500, marginBottom: 'var(--space-4)' }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700, marginBottom: 'var(--space-4)' }}>
             Hoá đơn chưa thanh toán (9)
           </h4>
           <p style={{ font: 'var(--text-body-xs)', color: 'var(--text-secondary)', margin: '0 0 var(--space-12)' }}>

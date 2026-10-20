@@ -1,0 +1,40 @@
+/* Type scale unification (loaded after features-imported.css so it wins over the
+   reference app's per-screen rules). Real-app measurements: page title 18/500,
+   student name 18/700, student meta 14/400, card / section title 16/700,
+   body 14, caption 12. Add new shared type rules here, not per screen. */
+
+/* Page title */
+.topbar-title,
+.hw-topbar-title,
+.timetable-topbar-title,
+.eco-navbar__title { font-size: 18px; font-weight: 500; line-height: 24px; color: var(--text-label); margin: 0; }
+
+/* Student header (shared one + the hand-made copies in imported screens) */
+.student-header .student-name,
+.hw-student-name,
+.absence-student-name,
+.timetable-student-name,
+.eco-stuhead__name { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--text-label); }
+.student-header .meta,
+.hw-student-meta,
+.absence-student-code,
+.absence-student-meta,
+.timetable-student-code,
+.timetable-student-class,
+.timetable-student-school,
+.eco-stuhead__line { font-size: 14px; font-weight: 400; line-height: 20px; color: var(--text-body); }
+
+/* "Đổi" pill */
+.btn-change, .hw-btn-change, .timetable-btn-change, .eco-stuhead__action, .bulletin-change-btn { font-size: 14px; font-weight: 500; color: var(--text-link); }
+.hw-btn-change span, .timetable-btn-change span, .eco-stuhead__action span { font-size: 14px; font-weight: 500; color: var(--text-link); }
+
+/* Filter tabs: active bold, others medium */
+.hw-tab-pill, .bulletin-tab-pill, .eco-periodtabs__tab { font-size: 14px; font-weight: 500; }
+.hw-tab-pill.active, .bulletin-tab-pill.active, .eco-periodtabs__tab.is-active, .eco-periodtabs__tab[aria-selected='true'] { font-weight: 700; }
+.tab-pill:not(.active) { font-weight: 500; }
+
+/* Card / section titles */
+.card-title, .section-heading, .eco-seccard__title, .bill-section-title, .bill-ds-heading, .ov-heading,
+.bill-seccard .bill-section-title, .bill-paid-list > .bill-section-title, .bill-ds .ov-heading,
+.profile-card-title, .spending-log-heading, .md-card h3 { font-size: 16px; font-weight: 700; }
+

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, sumItems, type Bill } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { BillOverviewScreen } from './bill-overview-screen'
 import { availableYears, billsInYear, schoolYearStart } from './bill-year'
 import { BillInvoicePdfScreen } from './bill-invoice-pdf-screen'
@@ -44,6 +45,8 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
   const [invoiceBill, setInvoiceBill] = useState<Bill | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('hoadon')
+  const canSwitch = switchable.length > 1
   const [result, setResult] = useState<BillPaymentResult | null>(null)
   const [, setVersion] = useState(0)
 
@@ -121,7 +124,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
           }}
           onBack={onBack}
           onOpenOverview={() => setScreen('overview')}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onPay={() => {
             setSelected(new Set())
             setSelectOrigin('list')
@@ -169,7 +172,7 @@ export function HoaDonApp({ studentId, onBack, onGoHome }: HoaDonAppProps) {
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS.filter((s) => s.bills.length > 0)}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)

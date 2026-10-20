@@ -40,7 +40,7 @@ export function FeedbackListScreen({
   student: Student
   items: Feedback[]
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onCreate: () => void
   onOpen: (id: string) => void
 }) {

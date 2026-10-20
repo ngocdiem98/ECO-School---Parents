@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, ListFilter } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent, isMamNonStudent } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { CARE_DIARY, fmtDay, weekdayName, type CareDay } from '@/lib/school-data'
 
@@ -28,6 +29,8 @@ export function DiaryApp({ studentId, onBack }: DiaryAppProps) {
   const [filter, setFilter] = useState<Filter>({ mode: 'all' })
   const [showFilter, setShowFilter] = useState(false)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('diary')
+  const canSwitch = switchable.length > 1
   const [closed, setClosed] = useState<Set<string>>(new Set())
   const [opened, setOpened] = useState<Set<string>>(new Set())
 
@@ -65,7 +68,7 @@ export function DiaryApp({ studentId, onBack }: DiaryAppProps) {
     <div className="screen">
       <TopBar title="Nhật ký chăm sóc" onBack={onBack} />
       <div className="sticky-head">
-        <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+        <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
       </div>
       <div className="diary-filter">
         <span>Lọc theo</span>
@@ -126,7 +129,7 @@ export function DiaryApp({ studentId, onBack }: DiaryAppProps) {
       {showFilter && <FilterSheet filter={filter} onApply={(f) => { setFilter(f); setShowFilter(false) }} onClose={() => setShowFilter(false)} />}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS.filter(isMamNonStudent)}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

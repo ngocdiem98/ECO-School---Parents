@@ -62,7 +62,7 @@ export function DevelopmentRadarCard({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <div>
-          <div style={{ fontSize: '15px', fontWeight: '700', color: '#1F2937' }}>
+          <div style={{ fontSize: '16px', fontWeight: '700', color: '#1F2937' }}>
             La bàn phát triển toàn diện
           </div>
           <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
@@ -74,8 +74,8 @@ export function DevelopmentRadarCard({
           color: statusColor,
           padding: '4px 10px',
           borderRadius: '20px',
-          fontSize: '11.5px',
-          fontWeight: '600',
+          fontSize: '12px',
+          fontWeight: 700,
         }}>
           {statusText}
         </div>
@@ -186,7 +186,7 @@ export function DevelopmentRadarCard({
       }}>
         {points.map((pt) => (
           <div key={pt.domain} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '10px', color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '12px', color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {pt.label}
             </div>
             <div style={{ fontSize: '12px', fontWeight: '700', color: pt.color }}>
@@ -209,7 +209,7 @@ export function DevelopmentRadarCard({
             borderRadius: '10px',
             fontSize: '12px',
             color: '#374151',
-            fontWeight: '600',
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',

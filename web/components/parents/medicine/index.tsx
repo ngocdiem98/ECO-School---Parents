@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type MedicineStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { Dialog } from '@/components/parents/shared/dialog'
 import { MedicineListScreen } from './medicine-list-screen'
 import { MedicineCreateScreen, type MedicineSubmit } from './medicine-create-screen'
@@ -31,6 +32,8 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
   const [filter, setFilter] = useState<'all' | MedicineStatus>('all')
   const [orderId, setOrderId] = useState<string | null>(openOrderId ?? null)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('medicine')
+  const canSwitch = switchable.length > 1
   const [showCancelled, setShowCancelled] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [, setVersion] = useState(0)
@@ -69,7 +72,7 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
           filter={filter}
           onFilterChange={setFilter}
           onBack={onBack}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onOpen={(id) => {
             setOrderId(id)
             setScreen('detail')
@@ -81,7 +84,7 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
         <MedicineCreateScreen
           student={student}
           onBack={() => setScreen('list')}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onSubmit={handleSubmit}
           onWarn={setToast}
         />
@@ -98,7 +101,7 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)

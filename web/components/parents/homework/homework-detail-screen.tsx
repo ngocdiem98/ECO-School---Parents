@@ -69,7 +69,7 @@ export function HomeworkDetailScreen({
             {/* Evaluation Grid */}
             <div className="hw-feedback-eval-grid">
               <div className="hw-eval-col-score">
-                <span style={{ fontSize: 13, color: '#4B5563' }}>Điểm</span>
+                <span style={{ fontSize: 14, color: '#4B5563' }}>Điểm</span>
                 {isGraded ? (
                   <span className="hw-eval-col-score-val">{homework.score ?? 9}</span>
                 ) : (
@@ -80,7 +80,7 @@ export function HomeworkDetailScreen({
               <div className="hw-eval-divider-v" />
 
               <div className="hw-eval-col-comment">
-                <span style={{ fontSize: 13, color: '#4B5563' }}>Nhận xét</span>
+                <span style={{ fontSize: 14, color: '#4B5563' }}>Nhận xét</span>
                 <span className="hw-eval-col-comment-val">
                   {isGraded
                     ? homework.comment || 'Con làm bài rất tốt mà dù nộp trễ hạn.'
@@ -139,14 +139,14 @@ export function HomeworkDetailScreen({
 
               {homework.content ? (
                 <>
-                  <div style={{ fontSize: 13.5, color: '#374151', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                  <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
                     {homework.content}
                   </div>
 
                   {homework.attachedFiles && homework.attachedFiles.length > 0 && (
                     <>
                       <div className="hw-card-divider" />
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#181D27', marginBottom: 8 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#181D27', marginBottom: 8 }}>
                         Tài liệu đính kèm:
                       </div>
                       <div
@@ -219,14 +219,14 @@ export function HomeworkDetailScreen({
 
               {isDone ? (
                 <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
                     <span style={{ color: '#6B7280' }}>Thời gian nộp</span>
-                    <span style={{ color: homework.submittedAt?.includes('trễ') ? '#DC2626' : '#181D27', fontWeight: 600 }}>
+                    <span style={{ color: homework.submittedAt?.includes('trễ') ? '#DC2626' : '#181D27', fontWeight: 700 }}>
                       {homework.submittedAt || '14:34 18/10/2026 (Nộp trễ)'}
                     </span>
                   </div>
 
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#181D27', marginBottom: 8 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#181D27', marginBottom: 8 }}>
                     Tài liệu đính kèm:
                   </div>
 

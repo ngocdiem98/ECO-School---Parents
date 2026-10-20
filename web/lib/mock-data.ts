@@ -197,6 +197,7 @@ export interface GoodBehaviorWeek {
   got: boolean // "Có phiếu" / "Chưa có phiếu"
   teacher?: string
   comment?: string
+  sentAt?: string // 'YYYY-MM-DDTHH:mm', when the teacher sent the ticket (only when `got`)
 }
 
 export interface GoodBehavior {
@@ -320,16 +321,25 @@ function seedAttendance(sessions: 'full' | 'two', special: Record<string, Partia
   return { sessions, days }
 }
 
-// Weekly Phiếu bé ngoan for school year 2026-2027: Mondays 03/08 … 12/10/2026.
+// Weekly Phiếu bé ngoan for school year 2026-2027: Mondays 03/08 … 19/10/2026.
 function seedGoodBehavior(teacher: string, got: boolean[], comments: Record<number, string>): GoodBehavior {
-  const starts = weekdaysBetween('2026-08-03', '2026-10-12').filter((d) => new Date(d + 'T00:00:00').getDay() === 1)
+  const starts = weekdaysBetween('2026-08-03', '2026-10-19').filter((d) => new Date(d + 'T00:00:00').getDay() === 1)
   return {
-    weeks: starts.map((weekStart, i) => ({
-      weekStart,
-      got: got[i] ?? false,
-      teacher: comments[i] ? teacher : undefined,
-      comment: comments[i],
-    })),
+    weeks: starts.map((weekStart, i) => {
+      // Teachers send the ticket on the Friday of the week, 16:20 (today, 08:00, when that Friday is still ahead).
+      const fri = new Date(weekStart + 'T16:20:00')
+      fri.setDate(fri.getDate() + 4)
+      const sent = fri > new Date() ? new Date(new Date().setHours(8, 0, 0, 0)) : fri
+      const p2 = (n: number) => String(n).padStart(2, '0')
+      const sentAt = `${sent.getFullYear()}-${p2(sent.getMonth() + 1)}-${p2(sent.getDate())}T${p2(sent.getHours())}:${p2(sent.getMinutes())}`
+      return {
+        weekStart,
+        got: got[i] ?? false,
+        teacher: comments[i] ? teacher : undefined,
+        comment: comments[i],
+        sentAt: got[i] ? sentAt : undefined,
+      }
+    }),
   }
 }
 
@@ -386,12 +396,13 @@ export const MOCK_STUDENTS: Student[] = [
     results: null,
     goodBehavior: seedGoodBehavior(
       'Nguyễn Ngọc Đài Trang',
-      [true, true, false, true, true, true, false, true, true, true, true],
+      [true, true, false, true, true, true, false, true, true, true, true, true],
       {
         1: 'Con ngoan, biết xếp hàng chờ đến lượt.',
         3: 'Con hòa đồng và hay giúp đỡ các bạn.',
         7: 'Con tích cực tham gia hoạt động vẽ tranh.',
         10: 'Con rất ngoan, biết giúp đỡ bạn bè và chào cô khi đến lớp.',
+        11: 'Bé hợp tác tốt trong giờ kể chuyện, biết chờ lượt khi chơi cùng bạn và tự cất đồ dùng sau hoạt động ngoài trời.',
       },
     ),
   },

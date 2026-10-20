@@ -162,7 +162,7 @@ export function LinkStudentApp({
               background: '#FEC020',
               color: '#141414',
               fontSize: 16,
-              fontWeight: 600,
+              fontWeight: 700,
               borderRadius: 10,
               height: 46,
             }}
@@ -176,7 +176,7 @@ export function LinkStudentApp({
 
           <div
             className="eco-divider eco-divider--label"
-            style={{ margin: '10px 36px', color: '#8A93A6', fontSize: 13 }}
+            style={{ margin: '10px 36px', color: '#8A93A6', fontSize: 14 }}
           >
             Hoặc
           </div>
@@ -188,7 +188,7 @@ export function LinkStudentApp({
               background: 'var(--bg-neutral-soft, #F3F4F8)',
               color: '#141414',
               fontSize: 16,
-              fontWeight: 600,
+              fontWeight: 700,
               borderRadius: 10,
               height: 46,
             }}
@@ -198,14 +198,14 @@ export function LinkStudentApp({
           </button>
 
           <div style={{ textAlign: 'center', marginTop: 18 }}>
-            <span style={{ font: 'var(--text-body-m)', fontSize: 15, color: '#141414' }}>
+            <span style={{ font: 'var(--text-body-m)', fontSize: 16, color: '#141414' }}>
               Bạn làm hỏng, mất thẻ,{' '}
             </span>
             <button
               type="button"
               style={{
                 font: 'var(--text-body-m)',
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: 500,
                 color: 'var(--eco-link, #006FDA)',
                 background: 'none',

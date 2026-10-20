@@ -39,7 +39,7 @@ export function AbsenceListScreen({
   onFilterChange: (value: 'all' | AbsenceStatus) => void
   onSelectAbsence: (absence: AbsenceRequest) => void
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onCreate: () => void
 }) {
   const items = absences.filter((a) => filter === 'all' || a.status === filter)

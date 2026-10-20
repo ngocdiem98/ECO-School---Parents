@@ -11,6 +11,7 @@ import {
 } from '@/lib/development-data'
 import { TopBar, StudentHeader } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { DevelopmentRadarCard } from './radar-card'
 import { MilestoneCard } from './milestone-card'
 import { MilestoneObservationSheet } from './observation-sheet'
@@ -34,6 +35,8 @@ export function ChildDevelopmentScreen({
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('development')
+  const canSwitch = switchable.length > 1
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneItem | null>(null)
   const [showTeacherReport, setShowTeacherReport] = useState(false)
   const [studentMilestones, setStudentMilestones] = useState<MilestoneItem[]>(
@@ -49,13 +52,13 @@ export function ChildDevelopmentScreen({
     return (
       <div className="screen">
         <TopBar title="Tiến trình phát triển" onBack={onBack} />
-        <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+        <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
         <div style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎒</div>
+          <div style={{ fontSize: '32px', marginBottom: '16px' }}>🎒</div>
           <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '8px' }}>
             Không áp dụng cho khối phổ thông (K12)
           </div>
-          <p style={{ fontSize: '13.5px', color: '#4B5563', lineHeight: 1.6, marginBottom: '24px' }}>
+          <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, marginBottom: '24px' }}>
             Tính năng <strong>Tiến trình phát triển của trẻ</strong> chỉ áp dụng cho học sinh mầm non (dưới 6 tuổi) theo Thông tư 51/2020/TT-BGDĐT. Đối với học sinh cấp THPT như <strong>{student.name}</strong> ({student.className}), ba mẹ vui lòng theo dõi học lực tại sổ học bạ.
           </p>
           {onNavigateToResults && (
@@ -87,7 +90,7 @@ export function ChildDevelopmentScreen({
               border: '1px solid #D1D5DB',
               borderRadius: '10px',
               fontSize: '14px',
-              fontWeight: '600',
+              fontWeight: 700,
               cursor: 'pointer',
             }}
           >
@@ -97,7 +100,7 @@ export function ChildDevelopmentScreen({
 
         {showPicker && (
           <StudentPickerSheet
-            students={MOCK_STUDENTS}
+            students={switchable}
             selectedStudentId={selectedStudentId}
             onSelect={(s) => {
               setSelectedStudentId(s.id)
@@ -135,7 +138,7 @@ export function ChildDevelopmentScreen({
   return (
     <div className="screen" style={{ paddingBottom: '70px' }}>
       <TopBar title="Tiến trình phát triển" onBack={onBack} />
-      <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+      <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
 
       {/* 5-Axis Pentagon Radar Card */}
       <DevelopmentRadarCard
@@ -162,7 +165,7 @@ export function ChildDevelopmentScreen({
             padding: '6px 14px',
             borderRadius: '20px',
             fontSize: '12px',
-            fontWeight: '600',
+            fontWeight: 700,
             whiteSpace: 'nowrap',
             border: 'none',
             cursor: 'pointer',
@@ -183,7 +186,7 @@ export function ChildDevelopmentScreen({
                 padding: '6px 14px',
                 borderRadius: '20px',
                 fontSize: '12px',
-                fontWeight: '600',
+                fontWeight: 700,
                 whiteSpace: 'nowrap',
                 border: 'none',
                 cursor: 'pointer',
@@ -199,7 +202,7 @@ export function ChildDevelopmentScreen({
 
       {/* Milestones List */}
       <div style={{ padding: '0 16px' }}>
-        <div style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '10px' }}>
+        <div style={{ fontSize: '14px', fontWeight: '700', color: '#374151', marginBottom: '10px' }}>
           Danh mục mốc phát triển chuẩn ({filteredMilestones.length})
         </div>
         {filteredMilestones.map((m) => (
@@ -227,7 +230,7 @@ export function ChildDevelopmentScreen({
       {/* Student Picker Sheet (Restricted to Preschool only) */}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS.filter(isMamNonStudent)}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)

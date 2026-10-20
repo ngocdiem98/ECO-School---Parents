@@ -4,6 +4,7 @@ import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import {
   CAP23_TABS,
   RESULTS_STUDENT_PROFILES,
@@ -89,6 +90,8 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState<string>(studentId)
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0)
   const [showStudentPicker, setShowStudentPicker] = useState<boolean>(false)
+  const switchable = eligibleStudents('results')
+  const canSwitch = switchable.length > 1
 
   // Header data comes from the app's own student; the sample scores (grade level,
   // hasScores) come from RESULTS_STUDENT_PROFILES when this student has an entry.
@@ -144,7 +147,7 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
       <div className="absence-student-header-card eco-stuhead carelog-stuhead">
         <div
           className="absence-student-header-main"
-          onClick={() => setShowStudentPicker(true)}
+          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
           role="button"
           tabIndex={0}
           aria-label="Đổi học sinh"
@@ -162,30 +165,32 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="eco-stuhead__action"
-          onClick={() => setShowStudentPicker(true)}
-          aria-label="Đổi học sinh"
-        >
-          <span
-            style={{
-              width: 20,
-              height: 20,
-              display: 'inline-flex',
-              flexShrink: 0,
-            }}
+        {canSwitch && (
+          <button
+            type="button"
+            className="eco-stuhead__action"
+            onClick={() => setShowStudentPicker(true)}
+            aria-label="Đổi học sinh"
           >
-            <img
-              src="/ds/payment/student-switch.svg"
-              alt=""
-              width={20}
-              height={20}
-              style={{ display: 'block' }}
-            />
-          </span>
-          <span style={{ fontWeight: 600 }}>Đổi</span>
-        </button>
+            <span
+              style={{
+                width: 20,
+                height: 20,
+                display: 'inline-flex',
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src="/ds/payment/student-switch.svg"
+                alt=""
+                width={20}
+                height={20}
+                style={{ display: 'block' }}
+              />
+            </span>
+            <span>Đổi</span>
+          </button>
+        )}
       </div>
 
       {/* 3. Academic Year Bar (ECO.AcademicYearBar) */}
@@ -222,7 +227,7 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
       {/* 5. StudentPickerSheet ("Danh sách học sinh") */}
       {showStudentPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={handleSelectStudent}
           onClose={() => setShowStudentPicker(false)}

@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Search, Users } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { threadsFor, type ChatOrderCard, type ChatThread } from '@/lib/school-data'
 import { ChatThreadScreen } from './chat-thread-screen'
 import { timeAgo, previewOf } from './utils'
@@ -27,6 +28,8 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
   const [query, setQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('chat')
+  const canSwitch = switchable.length > 1
   const [, setVersion] = useState(0)
 
   const student = getStudent(selectedId)
@@ -54,7 +57,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
   return (
     <div className="screen">
       <TopBar title="Trao đổi" onBack={onBack} />
-      <StudentHeader student={student} onChangeStudent={() => setShowPicker(true)} />
+      <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
       <label className="chat-search">
         <Search size={16} />
         <input
@@ -112,7 +115,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)

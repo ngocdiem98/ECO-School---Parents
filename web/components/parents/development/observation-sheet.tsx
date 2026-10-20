@@ -66,10 +66,10 @@ export function MilestoneObservationSheet({
               marginBottom: '14px',
             }}
           >
-            <div style={{ fontSize: '11px', color: '#0369A1', fontWeight: '600', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '12px', color: '#0369A1', fontWeight: 700, textTransform: 'uppercase' }}>
               Mốc kỹ năng cần ghi nhận
             </div>
-            <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#0C4A6E', marginTop: '2px' }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', color: '#0C4A6E', marginTop: '2px' }}>
               {milestone.title}
             </div>
             <div style={{ fontSize: '12px', color: '#0284C7', marginTop: '2px' }}>
@@ -79,7 +79,7 @@ export function MilestoneObservationSheet({
 
           {/* Date Picker */}
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '4px' }}>
               Ngày bé làm được <span style={{ color: '#EF4444' }}>*</span>
             </label>
             <input
@@ -92,7 +92,7 @@ export function MilestoneObservationSheet({
                 padding: '10px 12px',
                 border: '1px solid #D1D5DB',
                 borderRadius: '8px',
-                fontSize: '13px',
+                fontSize: '14px',
                 boxSizing: 'border-box',
               }}
               required
@@ -101,7 +101,7 @@ export function MilestoneObservationSheet({
 
           {/* Parent Notes */}
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '4px' }}>
               Ghi chú của ba mẹ
             </label>
             <textarea
@@ -114,7 +114,7 @@ export function MilestoneObservationSheet({
                 padding: '10px 12px',
                 border: '1px solid #D1D5DB',
                 borderRadius: '8px',
-                fontSize: '13px',
+                fontSize: '14px',
                 lineHeight: 1.5,
                 boxSizing: 'border-box',
                 resize: 'none',
@@ -124,7 +124,7 @@ export function MilestoneObservationSheet({
 
           {/* Photos/Videos */}
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '4px' }}>
               Hình ảnh / Video minh chứng (Tối đa 3 mục)
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
@@ -136,7 +136,7 @@ export function MilestoneObservationSheet({
                     border: '1px solid #E5E7EB',
                     borderRadius: '8px',
                     padding: '6px 10px',
-                    fontSize: '11.5px',
+                    fontSize: '12px',
                     color: '#374151',
                     display: 'flex',
                     alignItems: 'center',
@@ -201,7 +201,7 @@ export function MilestoneObservationSheet({
               </span>
             </label>
             {showError && !consentConfirmed && (
-              <div style={{ color: '#DC2626', fontSize: '11px', marginTop: '6px', fontWeight: '600' }}>
+              <div style={{ color: '#DC2626', fontSize: '12px', marginTop: '6px', fontWeight: 700 }}>
                 ⚠️ Bạn vui lòng tích chọn xác nhận đồng thuận theo quy định trước khi gửi.
               </div>
             )}

@@ -35,7 +35,7 @@ export function AbsenceCreateScreen({
   onFieldChange: <K extends keyof AbsenceFormState>(field: K, value: AbsenceFormState[K]) => void
   onAddPhotos: (count: number) => void
   onBack: () => void
-  onChangeStudent: () => void
+  onChangeStudent?: () => void
   onSubmit: () => void
 }) {
   return (

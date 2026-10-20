@@ -124,7 +124,7 @@ export function FeeEcoScreen({
 
         {/* Section 1: Thông tin học sinh (ECO.SectionCard + ECO.FloatingInput) */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Thông tin học sinh
           </h4>
           <div
@@ -161,7 +161,7 @@ export function FeeEcoScreen({
 
         {/* Section 2: Hóa đơn đã lưu (ECO.SectionCard + ECO.SavedBillCard) */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Hóa đơn đã lưu
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-12)' }}>
@@ -219,7 +219,7 @@ export function FeeEcoScreen({
 
         {/* Section 3: Hoá đơn mẫu */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Hoá đơn mẫu
           </h4>
           <div className="fee-sample-invoice-card">

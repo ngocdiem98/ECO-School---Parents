@@ -37,7 +37,7 @@ function NangLucTable({
             </div>
             <div
               className="eco-gradetbl__cell eco-gradetbl__cell--center eco-gradetbl__cell--bl"
-              style={{ width: 132, flexShrink: 0, fontWeight: 600 }}
+              style={{ width: 132, flexShrink: 0, fontWeight: 700 }}
             >
               {row.mucDatDuoc}
             </div>
@@ -134,13 +134,13 @@ export function Cap1Screen({
                   </div>
                   <div
                     className="eco-gradetbl__cell eco-gradetbl__cell--center eco-gradetbl__cell--bl"
-                    style={{ width: 68, flexShrink: 0, fontWeight: 600 }}
+                    style={{ width: 68, flexShrink: 0, fontWeight: 700 }}
                   >
                     {row.ktdk}
                   </div>
                   <div
                     className="eco-gradetbl__cell eco-gradetbl__cell--center eco-gradetbl__cell--bl"
-                    style={{ width: 116, flexShrink: 0, fontWeight: 600 }}
+                    style={{ width: 116, flexShrink: 0, fontWeight: 700 }}
                   >
                     {row.mucDatDuoc}
                   </div>

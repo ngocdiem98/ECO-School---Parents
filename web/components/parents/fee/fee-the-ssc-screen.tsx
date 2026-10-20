@@ -97,7 +97,7 @@ export function FeeTheSscScreen({
 
         {/* Section: Chọn hình thức tra cứu thông tin */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Chọn hình thức tra cứu thông tin
           </h4>
           <div className="eco-finput is-filled">
@@ -122,7 +122,7 @@ export function FeeTheSscScreen({
 
         {/* Section: Thông tin học sinh */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Thông tin học sinh
           </h4>
           <div className={`eco-finput ${sscCodeInput ? 'is-filled' : ''} ${errorText ? 'is-error' : ''}`}>
@@ -157,7 +157,7 @@ export function FeeTheSscScreen({
 
         {/* Section: Hoá đơn mẫu */}
         <section className="eco-seccard" style={{ borderRadius: 0 }}>
-          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+          <h4 className="eco-seccard__title" style={{ font: 'var(--text-body-m)', fontWeight: 700 }}>
             Hoá đơn mẫu
           </h4>
           <div className="fee-sample-invoice-card">

@@ -3,6 +3,7 @@ import './ds-tokens.css'
 import './eco-ds-bundle.css'
 import './globals.css'
 import './features-imported.css'
+import './type-scale.css'
 import './pwa-mobile.css'
 import { PwaInstaller } from '@/components/pwa/pwa-installer'
 

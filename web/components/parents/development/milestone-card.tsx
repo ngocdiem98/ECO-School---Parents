@@ -35,7 +35,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '18px' }}>{domainMeta?.icon}</span>
-          <span style={{ fontSize: '11.5px', fontWeight: '600', color: domainMeta?.color }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: domainMeta?.color }}>
             {domainMeta?.labelVi}
           </span>
         </div>
@@ -44,7 +44,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
             background: statusBadge.bg,
             color: statusBadge.color,
             border: `1px solid ${statusBadge.border}`,
-            fontSize: '10px',
+            fontSize: '12px',
             fontWeight: '700',
             padding: '2px 8px',
             borderRadius: '12px',
@@ -59,7 +59,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
       <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', lineHeight: 1.4, marginBottom: '4px' }}>
         {milestone.title}
       </div>
-      <div style={{ fontSize: '12.5px', color: '#4B5563', lineHeight: 1.5, marginBottom: '8px' }}>
+      <div style={{ fontSize: '12px', color: '#4B5563', lineHeight: 1.5, marginBottom: '8px' }}>
         {milestone.description}
       </div>
 
@@ -69,7 +69,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
           style={{
             background: '#F3F4F6',
             color: '#4B5563',
-            fontSize: '11px',
+            fontSize: '12px',
             padding: '2px 8px',
             borderRadius: '6px',
           }}
@@ -81,8 +81,8 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
             style={{
               background: '#EFF6FF',
               color: '#1D4ED8',
-              fontSize: '11px',
-              fontWeight: '600',
+              fontSize: '12px',
+              fontWeight: 700,
               padding: '2px 8px',
               borderRadius: '6px',
               border: '1px solid #DBEAFE',
@@ -96,7 +96,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
             style={{
               background: '#ECFDF5',
               color: '#047857',
-              fontSize: '11px',
+              fontSize: '12px',
               padding: '2px 8px',
               borderRadius: '6px',
             }}
@@ -126,7 +126,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
               <li key={i}>{act}</li>
             ))}
           </ul>
-          <div style={{ fontSize: '11px', color: '#991B1B', fontStyle: 'italic', borderTop: '1px dashed #FCA5A5', paddingTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: '#991B1B', fontStyle: 'italic', borderTop: '1px dashed #FCA5A5', paddingTop: '6px' }}>
             * Lưu ý: Các gợi ý mang tính chất sư phạm tham khảo. Để được tư vấn chuyên sâu, ba mẹ nên tham vấn bác sĩ nhi khoa hoặc chuyên gia tâm lý giáo dục.
           </div>
         </div>
@@ -144,7 +144,7 @@ export function MilestoneCard({ milestone, onRecordMilestone }: MilestoneCardPro
             border: 'none',
             borderRadius: '8px',
             fontSize: '12px',
-            fontWeight: '600',
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',

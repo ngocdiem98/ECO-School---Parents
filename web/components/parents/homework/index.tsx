@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type Homework, type HomeworkStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
+import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { HomeworkListScreen } from './homework-list-screen'
 import { HomeworkDetailScreen } from './homework-detail-screen'
 import { HomeworkSubmitScreen } from './homework-submit-screen'
@@ -24,6 +25,8 @@ export function HomeworkApp({ studentId = 'han', onBack }: HomeworkAppProps) {
   const [files, setFiles] = useState<string[]>([])
   const [isEdit, setIsEdit] = useState(false)
   const [showPicker, setShowPicker] = useState(false)
+  const switchable = eligibleStudents('homework')
+  const canSwitch = switchable.length > 1
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [, setVersion] = useState(0)
@@ -94,7 +97,7 @@ export function HomeworkApp({ studentId = 'han', onBack }: HomeworkAppProps) {
           filter={filter}
           onFilterChange={setFilter}
           onBack={onBack}
-          onChangeStudent={() => setShowPicker(true)}
+          onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onOpen={openDetail}
         />
       )}
@@ -128,7 +131,7 @@ export function HomeworkApp({ studentId = 'han', onBack }: HomeworkAppProps) {
       {/* Student Switcher Sheet */}
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={switchable}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)
