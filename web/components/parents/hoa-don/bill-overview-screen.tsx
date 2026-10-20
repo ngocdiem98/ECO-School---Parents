@@ -106,9 +106,9 @@ export function BillOverviewScreen({
   const active = months.find((m) => m.key === monthKey)
 
   return (
-    <div className="screen">
+    <div className="screen bill-ds">
       <TopBar title="Tổng quan hóa đơn" onBack={onBack} />
-      <StudentHeader student={student} />
+      <StudentHeader student={student} detailed />
       <YearFilter year={startYear} years={years} onChange={onYearChange} />
 
       <div className="ov-section">

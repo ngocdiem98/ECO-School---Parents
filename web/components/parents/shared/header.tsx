@@ -24,21 +24,26 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
 export function StudentHeader({
   student,
   onChangeStudent,
+  detailed = true,
 }: {
   student: Student
+  // Show mã học sinh and trường too (DS StudentInfo "lg"); pass false for the compact card.
+  detailed?: boolean
   // Omit to hide the "Đổi" button (screens where switching student makes no sense).
   onChangeStudent?: () => void
 }) {
   return (
-    <div className="student-header">
+    <div className={`student-header ${detailed ? 'is-detailed' : ''}`}>
       <StudentAvatar student={student} />
       <div className="info">
         <div className="student-name">{student.name}</div>
+        {detailed && <div className="meta">{student.code}</div>}
         <div className="meta">{student.className}</div>
+        {detailed && <div className="meta">{student.school}</div>}
       </div>
       {onChangeStudent && (
         <button className="btn-change" onClick={onChangeStudent}>
-          ⇄ Đổi
+          {detailed ? <img src="/ds/payment/student-switch.svg" alt="" width={20} height={20} /> : '⇄ '}Đổi
         </button>
       )}
     </div>

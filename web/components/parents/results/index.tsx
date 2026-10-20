@@ -1,5 +1,6 @@
 'use client'
 
+import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
@@ -149,14 +150,7 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
           aria-label="Đổi học sinh"
         >
           <div className="activity-avatar-circle">
-            <svg width="48" height="48" viewBox="0 0 46 46" fill="none">
-              <circle cx="23" cy="23" r="23" fill="#D5DADF" />
-              <circle cx="23" cy="17" r="7.5" fill="#9CA3AF" />
-              <path
-                d="M9 39.5C11.5 32.5 16.8 29 23 29C29.2 29 34.5 32.5 37 39.5"
-                fill="#9CA3AF"
-              />
-            </svg>
+            <img src={appStudent ? dsStudentAvatar(appStudent) : '/ds/avatars/tieu-hoc-nu.svg'} alt="" style={{ width: '100%', height: '100%' }} />
           </div>
           <div className="absence-student-info-col">
             <div className="absence-student-name">{studentProfile.name}</div>

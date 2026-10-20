@@ -1,5 +1,6 @@
 'use client'
 
+import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState } from 'react'
 import {
   PickupPerson,
@@ -35,7 +36,7 @@ export function PickupMainScreen({
 }: PickupMainScreenProps) {
   const [showStudentPicker, setShowStudentPicker] = useState(false)
   const student = getStudent(studentId)
-  const avatarSrc = student?.avatar?.startsWith('/') ? student.avatar : '/absence/student-avatar.png'
+  const avatarSrc = student ? dsStudentAvatar(student) : '/ds/avatars/tieu-hoc-nu.svg'
 
   // Separate Slot 0 (Main Connector) and auxiliary persons
   const mainConnector = persons.find((p) => p.role === 'main_connector')

@@ -16,7 +16,7 @@ export function inSchoolYear(year: number, month: number, startYear: number): bo
 
 export const fmtDong = (n: number) => `${n.toLocaleString('vi-VN')} đồng`
 
-export const yearLabel = (startYear: number) => `${startYear} - ${startYear + 1}`
+export const yearLabel = (startYear: number) => `${startYear} – ${startYear + 1}`
 
 export function billsInYear(student: Student, startYear: number) {
   return student.bills.filter((b) => inSchoolYear(b.year, b.month, startYear))

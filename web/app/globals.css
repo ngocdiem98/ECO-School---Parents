@@ -2483,3 +2483,114 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
 .absence-item { cursor: pointer; }
 .eco-banner { background: url('/ds/home/home-hero-bg.png') top center / 100% auto no-repeat, var(--hero-gradient); }
 .app-shell--mobile .eco-banner { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+
+/* ============================================================
+   Hóa đơn = DS screens (SegmentedControl, BillGroup, PaidBillCard,
+   TransactionSummary, PaymentMethodList, ActionFooter / TotalFooter)
+   ============================================================ */
+.bill-ds { background: var(--bg-canvas); padding-bottom: 0; }
+.bill-ds > .topbar, .bill-ds > .student-header, .bill-ds > .year-row { background: var(--bg-surface); }
+.bill-segment { border-bottom: 1px solid var(--border-subtle); margin-bottom: var(--space-8); }
+.bill-segment .eco-segment__item { font: var(--text-body-s); font-weight: 400; }
+.bill-segment .eco-segment__item.is-active { font-weight: 500; }
+.bill-seccard { border-radius: 0; margin-bottom: var(--space-8); }
+.bill-unpaid { flex: 1; }
+.bill-group-list { display: flex; flex-direction: column; gap: var(--space-12); }
+.bill-ds-title { font: var(--text-body-s); font-weight: 500; letter-spacing: .2px; }
+.bill-ds-amt { font: var(--text-body-s); font-weight: 700; letter-spacing: .2px; }
+.bill-ds-row-label { font: var(--text-body-s); letter-spacing: .2px; }
+.bill-ds-row-text { font: var(--text-body-s); letter-spacing: .2px; }
+.bill-ds-xs { font: var(--text-body-xs); letter-spacing: .2px; }
+.bill-ds-heading { font: var(--text-body-m); font-weight: 500; margin: 0; }
+.bill-ds-hint { font: var(--text-body-xs); color: var(--text-secondary); margin: var(--space-4) 0 var(--space-12); }
+.bill-ds-total { font: var(--text-body-l); font-weight: 700; }
+.bill-ds-cta { font: var(--text-body-m); font-weight: 500; padding: 0 var(--space-16); white-space: nowrap; }
+.bill-seccard .bill-section-title { padding: 0; margin: 0 0 var(--space-12); font: var(--text-body-m); font-weight: 500; color: var(--text-body); }
+.bill-seccard .bill-section-title--row { display: flex; justify-content: space-between; align-items: center; }
+.bill-info { display: flex; flex-direction: column; gap: var(--space-16); }
+.bill-paid-list { display: flex; flex-direction: column; gap: var(--space-12); padding: var(--space-12) var(--space-16) var(--space-24); }
+.bill-paid-list > .bill-section-title { padding: 0; margin: 0; font: var(--text-body-m); font-weight: 500; }
+.eco-paidbill.focused, .eco-billgrp.focused { animation: bill-focus-fade 2.4s ease-out; }
+.eco-paidbill .bill-remaining { border-radius: var(--radius-8); margin: 0; }
+.bill-ds .eco-paidbill__row .bill-ds-row-label { color: var(--text-secondary); }
+.bill-footer { position: sticky; bottom: 0; z-index: 20; margin-top: auto; background: var(--bg-surface); }
+.bill-empty { padding: var(--space-32) 0; display: flex; flex-direction: column; align-items: center; gap: var(--space-8); text-align: center; }
+.bill-empty p { font: var(--text-body-s); color: var(--text-neutral); margin: 0; }
+.bill-confirm-body { display: flex; flex-direction: column; gap: var(--space-12); padding: var(--space-12) var(--space-16); flex: 1; }
+.bill-confirm .eco-btn--sm { height: 32px; }
+.bill-ds-row-value { font: var(--text-body-s); letter-spacing: .2px; color: var(--text-primary); }
+.bill-seccard .ov-card { margin: 0; }
+.bill-ds .eco-paidbill .bill-remaining { flex-wrap: wrap; }
+.bill-result-nav { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--border-subtle); }
+.bill-result-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-16); padding: var(--space-12) var(--space-16); }
+.bill-offer-title { margin: 0 0 var(--space-8); color: var(--text-label); }
+.bill-offers { display: flex; gap: var(--space-12); overflow-x: auto; padding-bottom: var(--space-4); }
+
+/* Tổng quan hóa đơn: white section cards on the grey DS page */
+.bill-ds .ov-section { background: var(--bg-surface); padding: var(--space-16); margin-bottom: var(--space-8); }
+.bill-ds .ov-section:first-of-type { margin-top: var(--space-8); }
+.bill-ds .ov-heading { font: var(--text-body-m); font-weight: 500; color: var(--text-body); margin-bottom: var(--space-12); }
+.bill-ds .ov-chart { border: 1px solid var(--border-soft); border-radius: var(--radius-8); }
+.bill-ds .ov-month-list { margin: var(--space-12) 0 0; border: 0; border-radius: var(--radius-8); background: var(--bg-input-soft); padding: var(--space-12); }
+.bill-ds .ov-month-head { background: transparent; padding: 0 0 var(--space-8); border: 0; font: var(--text-body-s); font-weight: 500; }
+.bill-ds .ov-month-list .invoice-line { border: 0; padding: var(--space-4) 0 var(--space-4) var(--space-24); font: var(--text-body-s); color: var(--text-caption); }
+.bill-ds .ov-bill-head { font: var(--text-body-s); font-weight: 500; }
+
+/* ---- Hóa đơn (Figma): student block, year row, summary card, paid cards ---- */
+.student-avatar { background: transparent; border-radius: 50%; overflow: hidden; padding: 0; display: inline-flex; }
+.student-avatar img { display: block; width: 100%; height: 100%; }
+.student-header.is-detailed { align-items: flex-start; }
+.student-header.is-detailed .avatar { width: 48px; height: 48px; }
+.student-header.is-detailed .student-name { font: var(--text-body-l); font-weight: 700; }
+.student-header.is-detailed .meta { font: var(--text-body-s); letter-spacing: .2px; color: var(--text-body); line-height: 22px; }
+.student-header.is-detailed .btn-change { display: inline-flex; align-items: center; gap: 4px; }
+.year-row { border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); gap: var(--space-8); }
+.year-row-icon { color: #F7B500; }
+.year-row-text { flex: 1; font: var(--text-body-m); font-weight: 400; }
+.year-row-text b { font-weight: 700; }
+.year-row-chevron { margin-left: auto; color: var(--text-label); }
+
+.bill-summary { margin: var(--space-16) var(--space-16) 0; padding: var(--space-16); border: 1px solid var(--border-input); border-radius: var(--radius-8); background: var(--bg-surface); }
+.bill-summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); font: var(--text-body-m); color: var(--text-body); }
+.bill-summary-link { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; color: var(--text-link); font: var(--text-body-s); font-weight: 500; letter-spacing: .2px; }
+.bill-summary-total { margin: var(--space-12) 0; font: var(--text-h4); font-weight: 700; color: var(--text-label); }
+.bill-summary-body { display: flex; align-items: center; gap: var(--space-16); }
+.bill-summary-donut { flex: none; width: 68px; height: 68px; }
+.bill-summary-legend { flex: 1; min-width: 0; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-8); }
+.bill-summary-legend li { display: flex; align-items: center; gap: var(--space-8); font: var(--text-body-s); letter-spacing: .2px; }
+.bill-summary-legend .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.bill-summary-legend .name { flex: 1; min-width: 0; }
+.bill-summary-legend b { font-weight: 700; }
+
+.bill-segment { border-bottom: 0; margin: var(--space-16) 0 0; padding: var(--space-8) var(--space-16); }
+.bill-segment .eco-segment__item.is-active { background: #FFC20E; }
+.bill-paid-list { background: #FFFDF5 url('/timetable/doodle-bg.png') repeat-y top / 100% auto; padding-top: var(--space-16); flex: 1; }
+.bill-paid-list > .bill-section-title { font: var(--text-body-s); color: var(--text-secondary); }
+.bill-ds .eco-paidbill { padding: var(--space-16); border-radius: var(--radius-8); }
+.bill-ds .eco-paidbill__head .bill-ds-title { font: var(--text-body-m); font-weight: 700; }
+.bill-ds .eco-paidbill__head .bill-ds-amt { font: var(--text-body-m); }
+.bill-ds .eco-paidbill__row .bill-ds-row-label, .bill-ds .eco-paidbill__row .bill-ds-row-value { font: var(--text-body-m); color: var(--text-label); }
+.bill-ds .eco-paidbill__vat .bill-ds-title { font: var(--text-body-m); font-weight: 400; }
+.bill-ds .eco-paidbill__vatlink { color: var(--text-link); }
+.bill-ds .eco-paidbill .bill-remaining {
+  display: flex; align-items: center; gap: var(--space-8); margin: 0; padding: var(--space-12) 0 0;
+  border-top: 1px solid var(--border-subtle); background: transparent; color: var(--color-warning); font: var(--text-body-m); font-weight: 500;
+}
+.bill-ds .eco-paidbill .bill-remaining svg { flex: none; color: var(--color-warning); }
+.bill-paid-list { padding-left: var(--space-12); padding-right: var(--space-12); }
+.bill-ds .eco-paidbill { padding: var(--space-12) var(--space-16); }
+.bill-ds .eco-paidbill__head .bill-ds-title { white-space: nowrap; }
+.bill-ds .eco-paidbill__row .bill-ds-row-label, .bill-ds .eco-paidbill__row .bill-ds-row-value { font: var(--text-body-s); letter-spacing: .2px; }
+.bill-ds .eco-paidbill__vat .bill-ds-title { font: var(--text-body-s); letter-spacing: .2px; white-space: nowrap; }
+.bill-ds .eco-paidbill .bill-remaining { font: var(--text-body-s); letter-spacing: .2px; }
+.bill-ds .eco-paidbill__head .bill-ds-amt { font: var(--text-body-m); font-weight: 700; }
+.bill-ds .eco-paidbill__head .bill-ds-title { font: var(--text-body-s); font-weight: 700; letter-spacing: .2px; white-space: normal; min-width: 0; }
+.bill-ds .eco-paidbill__head .bill-ds-amt { font: var(--text-body-s); font-weight: 700; flex: none; }
+.bill-ds .eco-paidbill .bill-remaining { border-radius: 0; border-width: 1px 0 0; border-style: solid; border-color: var(--border-subtle); box-shadow: none; font-weight: 500; }
+
+/* Học sinh (expected DS look): balance row, health numbers */
+.balance-row { margin: 0; border-radius: 0; background: var(--bg-surface); border-bottom: 1px solid var(--border-soft); padding: var(--space-12) var(--space-16); font: var(--text-body-s); letter-spacing: .2px; font-weight: 400; color: var(--text-secondary); }
+.balance-row .value { font: var(--text-body-s); font-weight: 700; color: var(--text-link); }
+.balance-row .value small { font: var(--text-body-xs); font-weight: 400; margin-left: 2px; }
+.health-stat .val { font: var(--text-h4); font-weight: 700; }
+.bmi-value { font-size: 36px; }

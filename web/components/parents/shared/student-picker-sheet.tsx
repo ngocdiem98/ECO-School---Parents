@@ -2,14 +2,10 @@
 
 import type { Student } from '@/lib/mock-data'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
+import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 
-// Default DS avatar illustration for a student (by school level / gender), used
-// by screens drawn from the reference app.
-export function getStudentDsAvatar(student: Student): string {
-  if (student.id === 'vy' || student.gender === 'Nữ') return '/ds/avatars/tieu-hoc-nu.svg'
-  if (student.id === 'khoa') return '/ds/avatars/trung-hoc-nam.svg'
-  return '/ds/avatars/pho-thong-nam.svg'
-}
+// Kept for screens drawn from the reference app.
+export const getStudentDsAvatar = dsStudentAvatar
 
 // Mirrors SHEETS['student-picker'] in ../../../scripts/app.js (vanilla app) —
 // same interaction contract as eduteachers' ClassPickerSheet (scrim closes on

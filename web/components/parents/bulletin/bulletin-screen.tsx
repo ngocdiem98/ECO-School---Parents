@@ -1,5 +1,6 @@
 'use client'
 
+import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState, useRef, useEffect } from 'react'
 import { MOCK_STUDENTS, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '../shared/student-picker-sheet'
@@ -214,22 +215,11 @@ export function BulletinScreen({
           aria-label="Đổi học sinh"
         >
           <div className="bulletin-avatar-circle">
-            {matchedStudent?.avatar?.startsWith('/') ? (
-              <img
-                src={matchedStudent.avatar}
-                alt={studentProfile.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <svg width="48" height="48" viewBox="0 0 46 46" fill="none">
-                <circle cx="23" cy="23" r="23" fill="#E5E7EB" />
-                <circle cx="23" cy="17" r="7.5" fill="#9CA3AF" />
-                <path
-                  d="M9 39.5C11.5 32.5 16.8 29 23 29C29.2 29 34.5 32.5 37 39.5"
-                  fill="#9CA3AF"
-                />
-              </svg>
-            )}
+            <img
+              src={appStudent ? dsStudentAvatar(appStudent) : '/ds/avatars/tieu-hoc-nu.svg'}
+              alt={studentProfile.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
           <div className="absence-student-info-col bulletin-student-meta">
             <div className="absence-student-name bulletin-student-name">

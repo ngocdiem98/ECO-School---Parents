@@ -446,7 +446,7 @@ export const MOCK_STUDENTS: Student[] = [
       linked: true,
       months: [
         {
-          label: 'Hóa đơn tháng 6/2026',
+          label: 'Hoá đơn tháng 6/2026',
           total: 1355000,
           items: [
             { name: 'Học phí 06/2026', amount: 200000 },
@@ -455,7 +455,7 @@ export const MOCK_STUDENTS: Student[] = [
           ],
         },
         {
-          label: 'Hóa đơn tháng 7/2026',
+          label: 'Hoá đơn tháng 7/2026',
           total: 1426000,
           items: [
             { name: 'Học phí 07/2026', amount: 200000 },
@@ -475,7 +475,7 @@ export const MOCK_STUDENTS: Student[] = [
       // Sep has two paid bills so the month detail on Tổng quan can group them.
       {
         id: 'bill-2026-10b',
-        label: 'Hóa đơn bổ sung tháng 10/2026',
+        label: 'Hoá đơn bổ sung tháng 10/2026',
         year: 2026,
         month: 10,
         items: [
@@ -486,7 +486,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-10a',
-        label: 'Hóa đơn tháng 10/2026',
+        label: 'Hoá đơn tháng 10/2026',
         year: 2026,
         month: 10,
         items: [
@@ -498,7 +498,7 @@ export const MOCK_STUDENTS: Student[] = [
       // Fully paid but no e-invoice (VAT) issued.
       {
         id: 'bill-2026-09b',
-        label: 'Hóa đơn bổ sung tháng 9/2026',
+        label: 'Hoá đơn bổ sung tháng 9/2026',
         year: 2026,
         month: 9,
         items: [
@@ -509,7 +509,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-09a',
-        label: 'Hóa đơn tháng 9/2026',
+        label: 'Hoá đơn tháng 9/2026',
         year: 2026,
         month: 9,
         hasVat: true,
@@ -522,7 +522,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-08',
-        label: 'Hóa đơn tháng 8/2026',
+        label: 'Hoá đơn tháng 8/2026',
         year: 2026,
         month: 8,
         hasVat: true,
@@ -535,7 +535,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-07',
-        label: 'Hóa đơn tháng 7/2026',
+        label: 'Hoá đơn tháng 7/2026',
         year: 2026,
         month: 7,
         hasVat: true,
@@ -548,7 +548,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-06',
-        label: 'Hóa đơn tháng 6/2026',
+        label: 'Hoá đơn tháng 6/2026',
         year: 2026,
         month: 6,
         hasVat: true,
@@ -561,7 +561,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-05',
-        label: 'Hóa đơn tháng 5/2026',
+        label: 'Hoá đơn tháng 5/2026',
         year: 2026,
         month: 5,
         items: [
@@ -573,7 +573,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-04a',
-        label: 'Hóa đơn tháng 4/2026',
+        label: 'Hoá đơn tháng 4/2026',
         year: 2026,
         month: 4,
         hasVat: true,
@@ -585,7 +585,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-04b',
-        label: 'Hóa đơn tháng 4/2026',
+        label: 'Hoá đơn tháng 4/2026',
         year: 2026,
         month: 4,
         items: [
@@ -598,7 +598,7 @@ export const MOCK_STUDENTS: Student[] = [
       // case the "Thanh toán tiếp" CTA on the Đã thanh toán tab exists for.
       {
         id: 'bill-2026-03',
-        label: 'Hóa đơn tháng 3/2026',
+        label: 'Hoá đơn tháng 3/2026',
         year: 2026,
         month: 3,
         hasVat: true,
@@ -610,7 +610,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-02',
-        label: 'Hóa đơn tháng 2/2026',
+        label: 'Hoá đơn tháng 2/2026',
         year: 2026,
         month: 2,
         hasVat: true,
@@ -621,7 +621,7 @@ export const MOCK_STUDENTS: Student[] = [
       },
       {
         id: 'bill-2026-01',
-        label: 'Hóa đơn tháng 1/2026',
+        label: 'Hoá đơn tháng 1/2026',
         year: 2026,
         month: 1,
         items: [

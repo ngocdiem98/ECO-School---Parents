@@ -21,9 +21,9 @@ const MIN_SEGMENT_SHARE = 0.05
 const OTHER_ID = '__other'
 // Brand palette (blue, yellow, dark blue); "Khác" always takes the last,
 // lightest shade.
-const SEGMENT_COLORS = ['#0070ce', '#ffcc33', '#002c54', '#b8d4ee']
+const SEGMENT_COLORS = ['#0070ce', '#e36301', '#00305e', '#595959']
 
-interface Segment {
+export interface Segment {
   id: string
   label: string
   color: string
@@ -36,7 +36,7 @@ interface Segment {
 // Categories under MIN_SEGMENT_SHARE of the total are folded into one "Khác"
 // (its own total may exceed that share). At most MAX_SEGMENTS segments: if more
 // remain, the smallest ones are folded into "Khác" as well.
-function buildSegments(items: BillItem[]): Segment[] {
+export function buildSegments(items: BillItem[]): Segment[] {
   const byCat = new Map<string, number>()
   items.forEach((it) => byCat.set(categoryOf(it), (byCat.get(categoryOf(it)) ?? 0) + it.amount))
   const cats = [...byCat.entries()]

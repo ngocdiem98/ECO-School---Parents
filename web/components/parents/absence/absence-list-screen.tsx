@@ -1,5 +1,6 @@
 'use client'
 
+import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import { StudentHeader } from '@/components/parents/shared/header'
 import type { AbsenceRequest, AbsenceStatus, Student } from '@/lib/mock-data'
 

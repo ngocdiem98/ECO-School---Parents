@@ -1,18 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, NotebookText } from 'lucide-react'
+import { ChevronRight, NotebookText } from 'lucide-react'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { yearLabel } from './bill-year'
 
-// "Năm học 2026 - 2027" row under the student card (notebook icon + bold
+// "Năm học: 2026 – 2027" row under the student card (notebook icon + bold
 // label, divider below). Tappable when given `onClick`, read-only otherwise.
 export function YearRow({ year, onClick }: { year: number; onClick?: () => void }) {
   const content = (
     <>
-      <NotebookText size={22} strokeWidth={2} className="year-row-icon" />
-      <span className="year-row-text">Năm học {yearLabel(year)}</span>
-      {onClick && <ChevronDown size={18} className="year-row-chevron" />}
+      <NotebookText size={24} strokeWidth={1.8} className="year-row-icon" />
+      <span className="year-row-text">
+        <b>Năm học:</b> {yearLabel(year)}
+      </span>
+      {onClick && <ChevronRight size={20} className="year-row-chevron" />}
     </>
   )
   return onClick ? (

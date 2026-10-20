@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Chevron } from './bill-ds'
 import { TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Bill, type Student } from '@/lib/mock-data'
 
@@ -29,6 +30,7 @@ export function BillConfirmScreen({
   onContinue: () => void
 }) {
   const [method, setMethod] = useState<Method>('bank')
+  const [open, setOpen] = useState(true)
   const walletOk = WALLET_BALANCE >= total
   const effective: Method = method === 'wallet' && !walletOk ? 'bank' : method
 
@@ -36,112 +38,149 @@ export function BillConfirmScreen({
     .map((b) => ({ bill: b, items: b.items.filter((it) => selected.has(it.id)) }))
     .filter((g) => g.items.length > 0)
 
+  const totalSelected = sumItems(groups.flatMap((g) => g.items))
+
   return (
-    <div className="screen">
+    <div className="screen bill-ds bill-confirm">
       <TopBar title="Xác nhận giao dịch" onBack={onBack} />
-      <div className="result-hero">
-        <div style={{ fontSize: 24 }}>▣</div>
-        <div className="total-label">Tổng thanh toán</div>
-        <div className="result-amount">{fmtMoney(total)}</div>
-        <span className="badge badge--outline">Thanh toán học phí</span>
-      </div>
-      <div className="card">
-        <div className="feedback-row">
-          <span className="text-muted">Nhà cung cấp</span>
-          <span>ECO School</span>
-        </div>
-        <div className="feedback-row">
-          <span className="text-muted">Mã học sinh</span>
-          <span>{student.code}</span>
-        </div>
-        <div className="feedback-row">
-          <span className="text-muted">Tên học sinh</span>
-          <span>{student.name}</span>
-        </div>
-        {groups.map(({ bill, items }) => (
-          <div key={bill.id}>
-            <div className="divider" />
-            <div className="feedback-row">
-              <span className="text-muted">Kỳ thanh toán</span>
-              <span style={{ fontWeight: 700 }}>{bill.label}</span>
+      <div className="bill-confirm-body">
+        {/* TransactionSummary (confirm) */}
+        <div className="eco-txn eco-txn--confirm">
+          <div className="eco-txn__ticket">
+            <div className="eco-txn__strip" style={{ backgroundImage: 'url(/ds/payment/ticket-strip.png)' }} />
+            <span className="eco-txn__svcicon">
+              <img src="/ds/payment/service-tuition.svg" alt="" width={48} height={48} style={{ display: 'block', width: 48, height: 48 }} />
+            </span>
+          </div>
+          <span className="eco-txn__label bill-ds-row-text">Tổng thanh toán</span>
+          <strong className="eco-txn__amount" style={{ font: 'var(--text-amount)' }}>
+            {fmtMoney(total)}
+          </strong>
+          <span className="eco-txn__chip bill-ds-row-text">Thanh toán học phí</span>
+
+          <div className="eco-txn__body">
+            <div className="eco-dashdiv" />
+            <div className="eco-drow">
+              <span className="eco-drow__label bill-ds-row-text">Nhà cung cấp</span>
+              <span className="eco-drow__value bill-ds-row-text">ECO School</span>
             </div>
-            {items.map((it) => (
-              <div className="feedback-row" key={it.id}>
-                <span className="text-muted">{it.name}</span>
-                <span>{fmtMoney(it.amount)}</span>
+            <div className="eco-drow">
+              <span className="eco-drow__label bill-ds-row-text">Mã học sinh</span>
+              <span className="eco-drow__value bill-ds-row-text">{student.code}</span>
+            </div>
+            <div className="eco-drow">
+              <span className="eco-drow__label bill-ds-row-text">Tên học sinh</span>
+              <span className="eco-drow__value bill-ds-row-text">{student.name}</span>
+            </div>
+            {groups.map(({ bill, items }, gi) => (
+              <div key={bill.id}>
+                <div
+                  className="eco-drow"
+                  onClick={() => gi === 0 && setOpen((v) => !v)}
+                  style={{ cursor: gi === 0 ? 'pointer' : undefined }}
+                >
+                  <span className="eco-drow__label bill-ds-row-text">Kỳ thanh toán</span>
+                  <span className="eco-drow__value bill-ds-row-text">{bill.label}</span>
+                  {gi === 0 && (
+                    <button type="button" className="eco-drow__chev" aria-label="Chi tiết">
+                      <Chevron open={open} />
+                    </button>
+                  )}
+                </div>
+                {(open || gi > 0) &&
+                  items.map((it) => (
+                    <div className="eco-drow eco-drow--sub" key={it.id}>
+                      <span className="eco-drow__label bill-ds-xs">{it.name}</span>
+                      <span className="eco-drow__value bill-ds-xs">{fmtMoney(it.amount)}</span>
+                    </div>
+                  ))}
               </div>
             ))}
-          </div>
-        ))}
-        <div className="divider" />
-        <div className="feedback-row">
-          <span className="text-muted">Số tiền</span>
-          <span style={{ fontWeight: 700 }}>{fmtMoney(sumItems(groups.flatMap((g) => g.items)))}</span>
-        </div>
-      </div>
-
-      <div
-        className="card"
-        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span>Ưu đãi ECO Me</span>
-        <span className="btn-link">Chọn ưu đãi</span>
-      </div>
-
-      <div
-        className="section-heading"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span>Chọn phương thức thanh toán</span>
-        <button className="btn-link">Xem thêm</button>
-      </div>
-      <div
-        className={`pick-row ${effective === 'wallet' ? 'selected' : ''}`}
-        onClick={() => walletOk && setMethod('wallet')}
-        style={walletOk ? undefined : { opacity: 0.7 }}
-      >
-        <div>
-          <div className="student-name">Ví ECO</div>
-          <div className="meta text-muted" style={{ fontSize: 12 }}>
-            {fmtMoney(WALLET_BALANCE)}
-            {walletOk ? '' : ' · Số dư ví không đủ'}
+            <div className="eco-dashdiv" />
+            <div className="eco-drow">
+              <span className="eco-drow__label bill-ds-row-text">Số tiền</span>
+              <span className="eco-drow__value bill-ds-row-text" style={{ fontWeight: 700 }}>
+                {fmtMoney(totalSelected)}
+              </span>
+            </div>
           </div>
         </div>
-        {walletOk ? (
-          <span className={`checkbox ${effective === 'wallet' ? 'checked' : ''}`} style={{ borderRadius: '50%' }}>
-            {effective === 'wallet' ? '✓' : ''}
-          </span>
-        ) : (
-          <button
-            className="btn-mini"
-            style={{
-              border: 'none',
-              background: 'var(--c-black)',
-              color: '#fff',
-              padding: '8px 12px',
-              borderRadius: 999,
-              fontSize: 12,
-              fontWeight: 700,
-            }}
-          >
-            Nạp tiền
+
+        {/* PromoRow (inert) */}
+        <div className="eco-promorow">
+          <img src="/ds/payment/promo-tag.svg" alt="" width={24} height={24} className="eco-promorow__icon" />
+          <span className="eco-promorow__title bill-ds-title">Ưu đãi ECO Me</span>
+          <button type="button" className="eco-promorow__action bill-ds-title">
+            Chọn ưu đãi
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
-        )}
-      </div>
-      <div className={`pick-row ${effective === 'bank' ? 'selected' : ''}`} onClick={() => setMethod('bank')}>
-        <div>
-          <div className="student-name">Techcombank •••• 2939</div>
         </div>
-        <span className={`checkbox ${effective === 'bank' ? 'checked' : ''}`} style={{ borderRadius: '50%' }}>
-          {effective === 'bank' ? '✓' : ''}
-        </span>
+
+        {/* PaymentMethodList */}
+        <div className="eco-paylist">
+          <div className="eco-paylist__head">
+            <img src="/ds/payment/pay-method.svg" alt="" width={24} height={24} />
+            <span className="eco-paylist__title" style={{ font: 'var(--text-body-m)', fontWeight: 500 }}>
+              Chọn phương thức thanh toán
+            </span>
+            <button type="button" className="eco-paylist__more bill-ds-row-text">
+              Xem thêm
+            </button>
+          </div>
+          <div className="eco-paylist__opts">
+            <div
+              className={`eco-payopt ${effective === 'wallet' ? 'is-selected' : ''} ${walletOk ? '' : 'is-disabled'}`}
+              onClick={() => walletOk && setMethod('wallet')}
+              role="radio"
+              aria-checked={effective === 'wallet'}
+              aria-disabled={!walletOk}
+              tabIndex={0}
+            >
+              <img src="/ds/payment/logo-eco-wallet.svg" alt="" className="eco-payopt__logo" />
+              <div className="eco-payopt__text">
+                <span className="bill-ds-title">Ví ECO</span>
+                <span className="eco-payopt__caption bill-ds-xs">
+                  {walletOk ? 'Số dư khả dụng: ' : 'Số dư ví không đủ: '}
+                  {fmtMoney(WALLET_BALANCE)}
+                </span>
+              </div>
+              {walletOk ? (
+                <span className={`eco-payradio ${effective === 'wallet' ? 'is-checked' : ''}`} />
+              ) : (
+                <button type="button" className="eco-btn eco-btn--sm eco-btn--brand">
+                  Nạp tiền
+                </button>
+              )}
+            </div>
+            <div
+              className={`eco-payopt ${effective === 'bank' ? 'is-selected' : ''}`}
+              onClick={() => setMethod('bank')}
+              role="radio"
+              aria-checked={effective === 'bank'}
+              tabIndex={0}
+            >
+              <img src="/ds/payment/pay-card.svg" alt="" className="eco-payopt__logo" />
+              <div className="eco-payopt__text">
+                <span className="bill-ds-title">Techcombank</span>
+                <span className="eco-payopt__caption bill-ds-xs">•••• 2939</span>
+              </div>
+              <span className={`eco-payradio ${effective === 'bank' ? 'is-checked' : ''}`} />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="cta-bar sticky">
-        <button className="btn btn-primary" onClick={onContinue}>
-          Tiếp tục
-        </button>
-      </div>
+      {/* ActionFooter */}
+      <footer className="eco-actionfooter bill-footer">
+        <div className="eco-actionfooter__bar">
+          <button type="button" className="eco-btn eco-btn--brand eco-btn--lg eco-btn--full" onClick={onContinue}>
+            Tiếp tục
+          </button>
+        </div>
+        <div className="eco-actionfooter__safe" />
+      </footer>
     </div>
   )
 }

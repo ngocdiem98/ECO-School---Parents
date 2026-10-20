@@ -362,7 +362,7 @@ export function StudentScreen({
         </button>
       </div>
 
-      <div className="student-header">
+      <div className="student-header is-detailed">
         <button
           className="student-header-main"
           onClick={() => onOpenProfile(student.id)}
@@ -370,13 +370,17 @@ export function StudentScreen({
         >
           <StudentAvatar student={student} />
           <div className="info">
-            <div className="student-name">{student.name}</div>
+            <div className="student-name">
+              {student.name} <span className="student-header-chevron">›</span>
+            </div>
+            <div className="meta">{student.code}</div>
             <div className="meta">{student.className}</div>
+            <div className="meta">{student.school}</div>
           </div>
-          <span className="student-header-chevron">›</span>
         </button>
         <button className="btn-change" onClick={() => setShowPicker(true)}>
-          ⇄ Đổi
+          <img src="/ds/payment/student-switch.svg" alt="" width={20} height={20} />
+          Đổi
         </button>
       </div>
 
@@ -385,7 +389,9 @@ export function StudentScreen({
           Số dư thẻ
           {isCardLocked && <span className="badge badge--danger-soft">Đã khóa</span>}
         </span>
-        <span className="value">{student.balance.toLocaleString('vi-VN')} điểm</span>
+        <span className="value">
+          {student.balance.toLocaleString('vi-VN')} <small>điểm</small>
+        </span>
       </div>
 
       <PagedIconGrid
