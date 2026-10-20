@@ -1,0 +1,122 @@
+/* ECO Design System tokens — generated from the "ECO Me DS" design system (tokens.json). Do not edit by hand. */
+:root {
+  --eco-blue: #006FDA; /* Primary brand color — the ECO wordmark and mark, primary buttons and links. Matches "Blue (Primary)" in the official ECO Design System's Core palette (exact hex not readable from the public page; cross-verified against the ECO Me color reference asset). */
+  --eco-yellow: #FFCA00; /* Secondary brand color — the ECO mark's badge background, highlights and callouts. Matches "Yellow (Primary)" in the Core palette (same caveat as eco-blue). */
+  --artic-blue: #4AC3FF; /* Supporting accent — light backgrounds, secondary UI accents, info states. */
+  --deep-aqua: #00C1C1; /* Supporting accent — secondary actions, success states, data visualization. */
+  --orange-citrus: #F78700; /* Supporting accent — promotions, warning states, warm highlights. */
+  --color-danger: #C0263A; /* Error/destructive states — form validation, danger buttons, delete actions. Proposed (Core palette's ECO Red hex wasn't readable from the reference material); 5.9:1 on white, passes as text. */
+  --text-primary: #1F1F1F; /* Primary body text and headings. Solid color, not alpha — stays legible over any surface. */
+  --text-secondary: #595959; /* Secondary info, helper text, metadata. */
+  --text-tertiary: #8C8C8C; /* Low-priority info; used sparingly (3.4:1 on white — large text or non-text use only). */
+  --text-disabled: #BFBFBF; /* Disabled interactive elements. */
+  --text-inverse: #FFFFFF; /* Text on dark or solid-brand backgrounds. */
+  --bg-canvas: #F5F5F5; /* Page background, sidebar, header. */
+  --bg-sunken: #FAFAFA; /* Warm-tinted recessed background. */
+  --bg-surface: #FFFFFF; /* Card, table, form and modal background. */
+  --bg-solid: #1F1F1F; /* Opaque fill for buttons, badges, tags — solid dark instead of pure black for a softer contrast. */
+  --bg-overlay: rgba(0,0,0,0.45); /* Scrim behind Modal, Drawer, Popconfirm. The one place alpha stays intentional — it sits over arbitrary content, so it must blend with whatever's underneath. */
+  --border-default: #D9D9D9; /* Primary border for containers, cards, tables. */
+  --border-subtle: #F0F0F0; /* Subtle dividers, secondary containers. */
+  --eco-link: var(--eco-blue); /* Liên kết hành động trong card/danh sách: "Thanh toán", "Kích hoạt", "Đổi trường", "Cấp lại thẻ". */
+  --eco-gold: #fac515; /* Vàng nhấn: thumb ScrollIndicator, chấm StepList, viền StepsCard. */
+  --color-danger-bright: #e5252b; /* Đỏ nhấn trên nền trắng: nhãn "Thẻ tạm khoá", chấm báo mới. Khác color-danger (đỏ đậm dùng cho lỗi form). */
+  --color-warning-text: #e8590c; /* Chữ cảnh báo cam: "1 hóa đơn chờ thanh toán". */
+  --text-label: #141414; /* Màu chữ nhãn/tiêu đề trong Figma consumer (text/default). */
+  --bg-input-soft: #f6f7fb; /* Nền ô tìm kiếm và dòng LogoListItem. */
+  --bg-neutral-soft: #f3f4f8; /* Nền nút `soft` ("Quét mã trên thẻ học sinh"). */
+  --text-body: #232628; /* Chữ chính trên màn ECO Me (Figma text/primary): tiêu đề card, nội dung, giá trị. */
+  --text-link: #0070CE; /* Liên kết và nút chữ xanh ECO Me ("Xem thêm", "Xem đơn", số nổi bật). */
+  --text-muted: #8B97A1; /* Chữ phụ nhạt: mã học sinh, thời gian, nhãn phụ. */
+  --text-caption: #737373; /* Chú thích, placeholder, nhãn xám trên nền trắng. */
+  --text-subtle: #687179; /* Nhãn dòng thông tin (cột trái của dòng nhãn – giá trị). */
+  --text-neutral: #525252; /* Chữ xám đậm phụ (tab chưa chọn, mô tả). */
+  --text-ink: #27272A; /* Chữ rất đậm trên nền sáng (nút soft, tiêu đề sheet). */
+  --border-soft: #EBEBF0; /* Đường kẻ/viền mảnh trong card, giữa các dòng. */
+  --border-input: #DDDDE3; /* Viền ô nhập, ô lựa chọn chưa chọn, kẻ dưới thanh tab. */
+  --border-info: #99C6EB; /* Viền khối thông tin xanh. */
+  --border-info-soft: #B9D9FB; /* Viền nhạt khối thông tin xanh, khung chụp ảnh. */
+  --bg-info-soft: #F0F8FF; /* Nền xanh rất nhạt: ghi chú thông tin, thẻ chọn, chip xanh. */
+  --bg-muted: #F4F5F6; /* Nền xám nhạt: tag trung tính, nút phụ, ô thời gian. */
+  --bg-cream: #FFF9E9; /* Nền kem vàng: ô đang chọn, khối nổi bật. */
+  --bg-danger-soft: #FFF0F1; /* Nền đỏ nhạt cho tag/thông báo lỗi. */
+  --bg-success-soft: #EFFFF4; /* Nền xanh lá nhạt cho tag thành công. */
+  --bg-warning-soft: #FFF5EB; /* Nền cam nhạt cho tag chờ/cảnh báo. */
+  --bg-input-fill: #F8F9FD; /* Nền ô nhập dạng fill. */
+  --bg-info-tint: #E5F3FF; /* Nền xanh nhạt đậm hơn bg-info-soft (icon tròn, chip). */
+  --brand-yellow-strong: #FEC020; /* Vàng ECO Me cho trạng thái chọn: viền ô chọn, tab đang chọn, checkbox. */
+  --color-danger-ui: #D93843; /* Đỏ trạng thái trên giao diện (Đã huỷ, Vắng không phép). */
+  --color-error: #E01C1C; /* Đỏ thông báo lỗi ô nhập. */
+  --color-success: #079449; /* Xanh lá trạng thái thành công (Đã duyệt, Có mặt). */
+  --color-warning: #E36301; /* Cam trạng thái chờ (Chờ duyệt, Đến muộn). */
+  --color-orange: #FF9F41; /* Cam nhấn (icon đến muộn, số liệu cam). */
+  --icon-blue: #2970FF; /* Xanh icon minh hoạ học sinh/dịch vụ. */
+  --space-4: 4px; /* Tight inline gaps, icon padding. */
+  --space-8: 8px; /* Compact stack spacing. */
+  --space-12: 12px; /* Default gap between related elements. */
+  --space-16: 16px; /* Card padding, form field spacing. */
+  --space-24: 24px; /* Section spacing on mobile. */
+  --space-32: 32px; /* Section spacing on desktop. */
+  --space-48: 48px; /* Major layout spacing between blocks. */
+  --radius-sm: 6px; /* Inputs, chips, small controls. */
+  --radius-md: 10px; /* Buttons, cards. */
+  --radius-lg: 16px; /* Large cards, modals, the ECO badge shape. */
+  --radius-full: 9999px; /* Pills, avatars, circular icon badges. */
+  --radius-4: 4px; /* Tag, chip nhỏ. */
+  --radius-8: 8px; /* Ô nhập, ô lựa chọn, tag lớn, ảnh nhỏ. */
+  --radius-12: 12px; /* Card nội dung, khối thông tin (chuẩn ECO Me). */
+  --radius-20: 20px; /* Bottom sheet, card lớn, section trang chủ. */
+  --shadow-xs: 0 1px 2px rgba(31,31,31,0.08); /* Subtle lift — inputs and chips on hover/focus. */
+  --shadow-sm: 0 2px 4px rgba(31,31,31,0.08), 0 1px 2px rgba(31,31,31,0.06); /* Cards, list rows at rest. */
+  --shadow-md: 0 4px 8px rgba(31,31,31,0.10), 0 2px 4px rgba(31,31,31,0.06); /* Dropdown menus, popovers, tooltips. */
+  --shadow-lg: 0 8px 16px rgba(31,31,31,0.12), 0 4px 8px rgba(31,31,31,0.06); /* Modals, drawers. */
+  --shadow-xl: 0 16px 32px rgba(31,31,31,0.16), 0 6px 12px rgba(31,31,31,0.08); /* Toasts/notifications that float above modals. */
+  --font-sans: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans-native: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --text-h1: 700 64px/76px var(--font-sans-native);
+  --text-h2: 700 48px/58px var(--font-sans-native);
+  --text-h3: 700 36px/44px var(--font-sans-native);
+  --text-h4: 700 24px/30px var(--font-sans-native);
+  --text-amount: 700 32px/48px var(--font-sans-native);
+  --text-body-l: 400 18px/24px var(--font-sans-native);
+  --text-body-m: 400 16px/22px var(--font-sans-native);
+  --text-body-s: 400 14px/20px var(--font-sans-native);
+  --text-body-xs: 400 12px/16px var(--font-sans-native);
+}
+.h1 { font-family: var(--font-sans-native); font-size: 64px; line-height: 76px; font-weight: 700; letter-spacing: -1.3px; }
+.h2 { font-family: var(--font-sans-native); font-size: 48px; line-height: 58px; font-weight: 700; letter-spacing: -0.8px; }
+.h3 { font-family: var(--font-sans-native); font-size: 36px; line-height: 44px; font-weight: 700; letter-spacing: -0.4px; }
+.h4 { font-family: var(--font-sans-native); font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: 0px; }
+.amount { font-family: var(--font-sans-native); font-size: 32px; line-height: 48px; font-weight: 700; letter-spacing: 0px; }
+.body-l { font-family: var(--font-sans-native); font-size: 18px; line-height: 24px; font-weight: 400; letter-spacing: 0px; }
+.body-m { font-family: var(--font-sans-native); font-size: 16px; line-height: 22px; font-weight: 400; letter-spacing: 0px; }
+.body-s { font-family: var(--font-sans-native); font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.2px; }
+.body-xs { font-family: var(--font-sans-native); font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.2px; }
+@font-face {
+  font-family: "SF Pro";
+  src: url("/fonts/SF-Pro-Text-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SF Pro";
+  src: url("/fonts/SF-Pro-Text-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SF Pro";
+  src: url("/fonts/SF-Pro-Text-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SF Pro";
+  src: url("/fonts/SF-Pro-Text-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}

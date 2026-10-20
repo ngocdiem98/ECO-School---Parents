@@ -28,7 +28,7 @@ export function AmountScreen({
     <div className="screen">
       <TopBar title="Thông tin nạp điểm" onBack={onBack} />
       <div className="card text-center">
-        <div style={{ fontSize: 30, marginBottom: 6 }}>◈</div>
+        <div style={{ fontSize: 32, marginBottom: 6 }}>◈</div>
         <div className="card-title" style={{ textAlign: 'center' }}>
           Nạp điểm thẻ học sinh
         </div>

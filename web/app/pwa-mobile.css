@@ -1,0 +1,66 @@
+/* Phone view: drops the iPhone frame when the app runs on a real phone / as an installed PWA (from the reference app). */
+/* ============================================================
+   Mobile View (Remove iPhone simulator when opened on mobile)
+   ============================================================ */
+/* Explicit modifier classes for mobile state */
+.desktop-backdrop--mobile {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  display: block !important;
+  overflow-x: hidden;
+}
+
+.device-frame--mobile {
+  position: relative;
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto;
+}
+
+.device-screen--mobile {
+  position: relative;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto;
+  background: var(--bg-canvas, #ffffff);
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.app-shell--mobile {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  padding-top: 0 !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto;
+  overflow-x: hidden !important;
+  overflow-y: visible;
+}

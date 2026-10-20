@@ -101,7 +101,7 @@ export function MedicineCreateScreen({
 
       <div className="section-heading section-heading-row">
         <span>Giờ uống thuốc</span>
-        <span className="text-muted" style={{ fontSize: 12.5 }}>
+        <span className="text-muted" style={{ fontSize: 12 }}>
           {doses.length}/{MAX_DOSES}
         </span>
       </div>

@@ -1,13 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { MOCK_STUDENTS, getStudent, type HealthRecord } from '@/lib/mock-data'
+import { useEffect, useState } from 'react'
+import { MOCK_STUDENTS, getStudent, isMamNonStudent, type HealthRecord } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { eligibleStudents, type ServiceIntent } from '@/components/parents/shared/use-service-launcher'
 import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
+import { dsServiceIcon } from '@/components/parents/shared/ds-service-icon'
 import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
+import { StudentSettingsSheet } from '@/components/parents/student-settings-sheet'
+import { SurveyCard } from '@/components/parents/survey/survey-card'
+import { getSurveyState, isParentEligibleForSurvey, type SurveyState } from '@/lib/survey-storage'
+import { Toast } from '@/components/parents/shared/toast'
+import { useToast } from '@/components/parents/shared/use-toast'
 
 // Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
 // ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
@@ -186,7 +192,7 @@ function ZScoreAdviceSheet({
           </button>
         </div>
         <div className="sheet-body" style={{ padding: '0 16px 20px' }}>
-          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 14px' }}>
             Bé đang ở nhóm <span style={{ fontWeight: 700, color: band.color }}>{band.label}</span>
             {trendLine ? <>. {trendLine}</> : '.'}
           </p>
@@ -219,7 +225,7 @@ function HealthHistorySheet({ history, onClose }: { history: HealthRecord[]; onC
           </button>
         </div>
         <div className="sheet-body">
-          <div className="text-muted" style={{ fontSize: 11.5, margin: '0 16px 10px' }}>
+          <div className="text-muted" style={{ fontSize: 12, margin: '0 16px 10px' }}>
             Hiển thị các thay đổi trong 6 tháng gần nhất
           </div>
           <div className="table-scroll">
@@ -273,17 +279,17 @@ function ZScoreInfoSheet({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <div className="sheet-body" style={{ padding: '0 16px 20px' }}>
-          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 14px' }}>
             Z-score (chỉ số Z) đánh giá tình trạng dinh dưỡng của trẻ bằng cách
             so sánh chỉ số BMI theo tuổi và giới tính của trẻ với quần thể
             tham chiếu chuẩn tăng trưởng, thay vì chỉ dùng một ngưỡng BMI cố
             định như người lớn.
           </p>
-          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 14px' }}>
             Ngưỡng phân loại áp dụng theo Quyết định số 3777/QĐ-BYT ngày 16
             tháng 12 năm 2024 của Bộ Y tế:
           </p>
-          <ul style={{ fontSize: 13.5, lineHeight: 1.8, margin: 0, paddingLeft: 18 }}>
+          <ul style={{ fontSize: 14, lineHeight: 1.8, margin: 0, paddingLeft: 18 }}>
             <li>Dưới -2: Thiếu cân</li>
             <li>-2 đến 2: Bình thường</li>
             <li>Trên 2: Thừa cân</li>
@@ -319,8 +325,27 @@ export function StudentScreen({
   const [showHealthHistory, setShowHealthHistory] = useState(false)
   const [showZScoreInfo, setShowZScoreInfo] = useState(false)
   const [showZScoreAdvice, setShowZScoreAdvice] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [isCardLocked, setIsCardLocked] = useState(false)
+  const [surveyState, setSurveyState] = useState<SurveyState>(getSurveyState)
+  const { toast, show } = useToast()
+  // The survey card reflects a submission made on the Khảo sát screen.
+  useEffect(() => setSurveyState(getSurveyState()), [showSettings])
   const student = getStudent(studentId)
   if (!student) return null
+
+  const handleSettingsAction = (action: string) => {
+    setShowSettings(false)
+    if (action === 'auto_topup') onOpenService('topup', student.id)
+    else if (action === 'limit') show('Cấu hình hạn mức chi tiêu: tối đa 200.000đ/ngày')
+    else if (action === 'reissue') show('Yêu cầu cấp lại thẻ đã được gửi tới nhà trường')
+    else if (action === 'unlink') show('Vui lòng liên hệ nhà trường để hủy liên kết học sinh')
+  }
+  const handleToggleLock = () => {
+    const next = !isCardLocked
+    setIsCardLocked(next)
+    show(next ? 'Đã kích hoạt khóa thẻ khẩn cấp' : 'Đã mở khóa thẻ học sinh')
+  }
 
   return (
     <div className="screen">
@@ -329,7 +354,12 @@ export function StudentScreen({
           ‹
         </button>
         <div className="topbar-title">Học sinh</div>
-        <span className="icon-btn-ghost" />
+        <button className="icon-btn" onClick={() => setShowSettings(true)} aria-label="Cài đặt thẻ học sinh">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
       </div>
 
       <div className="student-header">
@@ -351,7 +381,10 @@ export function StudentScreen({
       </div>
 
       <div className="balance-row">
-        <span>Số dư thẻ</span>
+        <span>
+          Số dư thẻ
+          {isCardLocked && <span className="badge badge--danger-soft">Đã khóa</span>}
+        </span>
         <span className="value">{student.balance.toLocaleString('vi-VN')} điểm</span>
       </div>
 
@@ -359,7 +392,11 @@ export function StudentScreen({
         pages={chunk(
           PARENT_SERVICES.filter((svc) => svc.intent && eligibleStudents(svc.intent).some((x) => x.id === student.id)),
         ).map((page) =>
-          page.map((svc) => ({ ...svc, onClick: () => onOpenService(svc.intent!, student.id) })),
+          page.map((svc) => ({
+            ...svc,
+            imgSrc: dsServiceIcon(svc.id),
+            onClick: () => onOpenService(svc.intent!, student.id),
+          })),
         )}
       />
 
@@ -378,8 +415,40 @@ export function StudentScreen({
         weightKg={student.weightKg}
         zScore={student.zScore}
         onInfoClick={() => setShowZScoreInfo(true)}
-        onAdviceClick={() => setShowZScoreAdvice(true)}
+        onAdviceClick={() => onOpenService('healthadvice', student.id)}
       />
+
+      {isMamNonStudent(student) && (
+        <>
+          <div className="section-heading section-heading-row">
+            <span>Tiến trình phát triển</span>
+            <button className="btn-link" onClick={() => onOpenService('development', student.id)}>
+              Xem chi tiết ›
+            </button>
+          </div>
+          <button className="dev-entry" onClick={() => onOpenService('development', student.id)}>
+            <span className="eco-tile__icon eco-tile__icon--purple dev-entry-icon">
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17V13M12 17V7M17 17V11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2.5 12C2.5 7.522 2.5 5.282 3.891 3.891C5.282 2.5 7.522 2.5 12 2.5C16.478 2.5 18.718 2.5 20.109 3.891C21.5 5.282 21.5 7.522 21.5 12C21.5 16.478 21.5 18.718 20.109 20.109C18.718 21.5 16.478 21.5 12 21.5C7.522 21.5 5.282 21.5 3.891 20.109C2.5 18.718 2.5 16.478 2.5 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="dev-entry-text">
+              <b>La bàn phát triển 5 lĩnh vực</b>
+              <small>Theo Thông tư 51/2020/TT-BGDĐT</small>
+            </span>
+            <span className="dev-entry-chev">›</span>
+          </button>
+        </>
+      )}
+
+      <div className="survey-entry">
+        <SurveyCard
+          isEligible={isParentEligibleForSurvey(surveyState)}
+          lastSubmission={surveyState.lastSubmission}
+          onOpenSurvey={() => onOpenService('survey', student.id)}
+        />
+      </div>
 
       <div className="section-heading">Hoạt động gần đây</div>
       <div className="recent-frame">
@@ -432,6 +501,21 @@ export function StudentScreen({
       )}
 
       {showZScoreInfo && <ZScoreInfoSheet onClose={() => setShowZScoreInfo(false)} />}
+
+      {showSettings && (
+        <StudentSettingsSheet
+          isLocked={isCardLocked}
+          onToggleLock={handleToggleLock}
+          onClose={() => setShowSettings(false)}
+          onActionClick={handleSettingsAction}
+          onOpenPickup={() => {
+            setShowSettings(false)
+            onOpenService('pickup', student.id)
+          }}
+        />
+      )}
+
+      {toast && <Toast message={toast} />}
 
       {showZScoreAdvice && (
         <ZScoreAdviceSheet

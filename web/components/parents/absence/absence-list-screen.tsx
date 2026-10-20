@@ -27,6 +27,7 @@ export function AbsenceListScreen({
   absences,
   filter,
   onFilterChange,
+  onSelectAbsence,
   onBack,
   onChangeStudent,
   onCreate,
@@ -35,6 +36,7 @@ export function AbsenceListScreen({
   absences: AbsenceRequest[]
   filter: 'all' | AbsenceStatus
   onFilterChange: (value: 'all' | AbsenceStatus) => void
+  onSelectAbsence: (absence: AbsenceRequest) => void
   onBack: () => void
   onChangeStudent: () => void
   onCreate: () => void
@@ -64,7 +66,7 @@ export function AbsenceListScreen({
       </div>
       {items.length ? (
         items.map((a) => (
-          <div className="card" key={a.id}>
+          <div className="card absence-item" key={a.id} onClick={() => onSelectAbsence(a)} role="button" tabIndex={0}>
             <div className="feedback-row">
               <span style={{ fontWeight: 700 }}>{a.range}</span>
               <span className={`badge badge--${STATUS_BADGE[a.status]}`}>{STATUS_LABEL[a.status]}</span>

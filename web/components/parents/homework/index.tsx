@@ -3,22 +3,20 @@
 import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type Homework, type HomeworkStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
-import { Dialog } from '@/components/parents/shared/dialog'
 import { HomeworkListScreen } from './homework-list-screen'
 import { HomeworkDetailScreen } from './homework-detail-screen'
 import { HomeworkSubmitScreen } from './homework-submit-screen'
+import { HomeworkActionSheet } from './homework-action-sheet'
+import { HomeworkSuccessDialog } from './homework-success-dialog'
 
 interface HomeworkAppProps {
-  studentId: string
+  studentId?: string
   onBack: () => void
 }
 
 type HwScreen = 'list' | 'detail' | 'submit'
 
-// Mirrors App.confirmHomeworkSubmit() — mutates the module-level student's
-// homework entry in place (same pattern as AbsenceApp / eduteachers'
-// PHIEU_BE_NGOAN_RECORDS) and bumps a version counter to force a re-render.
-export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
+export function HomeworkApp({ studentId = 'han', onBack }: HomeworkAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
   const [screen, setScreen] = useState<HwScreen>('list')
   const [filter, setFilter] = useState<'all' | HomeworkStatus>('all')
@@ -26,12 +24,11 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
   const [files, setFiles] = useState<string[]>([])
   const [isEdit, setIsEdit] = useState(false)
   const [showPicker, setShowPicker] = useState(false)
+  const [showActionSheet, setShowActionSheet] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [, setVersion] = useState(0)
 
-  const student = getStudent(selectedStudentId)
-  if (!student) return null
-
+  const student = getStudent(selectedStudentId) || MOCK_STUDENTS[0]
   const selectedHw: Homework | undefined = student.homework.find((h) => h.id === selectedHwId)
 
   const openDetail = (hw: Homework) => {
@@ -39,16 +36,38 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
     setScreen('detail')
   }
 
-  const openSubmit = (hw: Homework, edit: boolean) => {
-    setSelectedHwId(hw.id)
+  const handleOpenActionSheet = () => {
+    if (!selectedHw) return
+    const edit = selectedHw.status === 'submitted' || selectedHw.status === 'graded'
     setIsEdit(edit)
-    setFiles(hw.submissionFiles.slice())
+    if (edit) {
+      if (selectedHw.submissionFiles && selectedHw.submissionFiles.length > 0) {
+        setFiles(selectedHw.submissionFiles.slice())
+      } else {
+        setFiles(['/homework/sample-sub.png'])
+      }
+      setScreen('submit')
+    } else {
+      setFiles(['/homework/sample-sub.png'])
+      setShowActionSheet(true)
+    }
+  }
+
+  const handleSelectSource = (source: 'library' | 'camera' | 'document') => {
+    setShowActionSheet(false)
+    if (files.length === 0) {
+      setFiles(['/homework/sample-sub.png'])
+    }
     setScreen('submit')
   }
 
   const handleAddFiles = (fileList: FileList | null) => {
-    if (!fileList) return
-    setFiles((prev) => [...prev, ...Array.from(fileList).map((f) => f.name)])
+    if (!fileList || fileList.length === 0) return
+    const newFiles: string[] = []
+    Array.from(fileList).forEach((file) => {
+      newFiles.push(URL.createObjectURL(file))
+    })
+    setFiles((prev) => [...prev, ...newFiles])
   }
 
   const handleRemoveFile = (index: number) => {
@@ -59,6 +78,7 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
     if (selectedHw) {
       selectedHw.status = 'submitted'
       selectedHw.submissionFiles = files.slice()
+      selectedHw.submittedAt = '14:41 18/10/2026'
     }
     setVersion((v) => v + 1)
     setShowSuccess(false)
@@ -83,9 +103,7 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
         <HomeworkDetailScreen
           homework={selectedHw}
           onBack={() => setScreen('list')}
-          onSubmit={() =>
-            openSubmit(selectedHw, selectedHw.status === 'submitted' || selectedHw.status === 'graded')
-          }
+          onSubmitClick={handleOpenActionSheet}
         />
       )}
 
@@ -100,6 +118,14 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
         />
       )}
 
+      {/* Upload Source Bottom Sheet */}
+      <HomeworkActionSheet
+        isOpen={showActionSheet}
+        onClose={() => setShowActionSheet(false)}
+        onSelect={handleSelectSource}
+      />
+
+      {/* Student Switcher Sheet */}
       {showPicker && (
         <StudentPickerSheet
           students={MOCK_STUDENTS}
@@ -114,14 +140,14 @@ export function HomeworkApp({ studentId, onBack }: HomeworkAppProps) {
         />
       )}
 
-      {showSuccess && (
-        <Dialog
-          title="Nộp bài thành công"
-          subtitle="Học sinh nộp bài thành công"
-          ctaLabel="Đã hiểu"
-          onConfirm={handleConfirmSuccess}
-        />
-      )}
+      {/* Success Modal Dialog */}
+      <HomeworkSuccessDialog
+        isOpen={showSuccess}
+        title={isEdit ? 'Cập nhật thành công' : 'Nộp bài thành công'}
+        subtitle="Học sinh nộp bài thành công"
+        ctaLabel="Đã hiểu"
+        onConfirm={handleConfirmSuccess}
+      />
     </>
   )
 }

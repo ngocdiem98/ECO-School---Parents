@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { EcoHomeScreen } from '@/components/parents/eco-me/eco-home-screen'
 import { EcoServicesScreen } from '@/components/parents/eco-me/eco-services-screen'
 import { ParentsHomeScreen } from '@/components/parents/home-screen'
@@ -29,6 +29,14 @@ import type { ServiceIntent } from '@/components/parents/shared/use-service-laun
 import type { NotificationTarget } from '@/lib/mock-data'
 import { LinkStudentApp } from '@/components/parents/link-student'
 import { HelpApp } from '@/components/parents/help'
+import { PostpaidFeeApp } from '@/components/parents/postpaid-fee'
+import { ChildDevelopmentScreen } from '@/components/parents/development'
+import { PickupApp } from '@/components/parents/pickup'
+import { SurveyScreen } from '@/components/parents/survey'
+import { HealthAdviceScreen } from '@/components/parents/health-advice'
+import { TransferMoneyFlow } from '@/components/parents/transfer'
+import { TopupWalletFlow } from '@/components/parents/topup-wallet'
+import { MOCK_STUDENTS } from '@/lib/mock-data'
 
 // Mirrors the single-page phone-frame shell in eduteachers' app/page.tsx —
 // one real Next.js route, top-level screen state via useState (no router
@@ -72,6 +80,13 @@ type Screen =
   | 'chat'
   | 'gallery'
   | 'feedback'
+  | 'postpaid-fee'
+  | 'development'
+  | 'pickup'
+  | 'survey'
+  | 'health-advice'
+  | 'transfer'
+  | 'topup-wallet'
   | 'link-student'
   | 'help'
 
@@ -96,6 +111,11 @@ const INTENT_SCREEN: Record<ServiceIntent, Screen> = {
   chat: 'chat',
   gallery: 'gallery',
   feedback: 'feedback',
+  postpaid: 'postpaid-fee',
+  development: 'development',
+  pickup: 'pickup',
+  healthadvice: 'health-advice',
+  survey: 'survey',
 }
 
 export default function Page() {
@@ -111,6 +131,30 @@ export default function Page() {
   // Shortcuts between features (Điểm danh → Báo vắng, Trao đổi → đơn): back
   // returns to the feature that opened it without losing `returnScreen`.
   const [subReturn, setSubReturn] = useState<Screen | null>(null)
+  // The QR scanner takes the whole screen; the link intro and ECO Me home draw their hero under the status bar.
+  const [isLinkScanning, setIsLinkScanning] = useState(false)
+  // On a real phone (or ?mobile=1) the iPhone frame is dropped and the app fills the screen.
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const update = () => {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('simulator') === '0' || params.get('frame') === '0' || params.get('mobile') === '1') return setIsMobile(true)
+      if (params.get('simulator') === '1' || params.get('frame') === '1' || params.get('desktop') === '1') return setIsMobile(false)
+      // Only a real phone drops the frame; a narrow desktop window keeps the 390px iPhone frame.
+      setIsMobile(
+        /Android|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+          (/iPad/i.test(navigator.userAgent) && window.innerWidth <= 768),
+      )
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+  // Every screen opens at the top (the scroll container is shared by all of them).
+  const mainRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (mainRef.current) mainRef.current.scrollTop = 0
+  }, [screen, activeStudentId])
 
   // Opens a service for a student and remembers which screen it came from, so
   // back returns there. Used by both home screens, the service list and Học sinh.
@@ -137,18 +181,26 @@ export default function Page() {
   }
   // Where "Về trang chủ" should land: the home the current flow started from.
   const originHome: Screen =
-    returnScreen === 'student' ? studentOrigin : returnScreen === 'eco-services' || returnScreen === 'notifications' ? 'eco-home' : returnScreen
+    returnScreen === 'student' ? studentOrigin : returnScreen === 'eco-services' ||
+        returnScreen === 'notifications' ||
+        returnScreen === 'transfer' ||
+        returnScreen === 'topup-wallet'
+      ? 'eco-home' : returnScreen
 
   return (
-    <div className="desktop-backdrop">
-      <div className="device-frame">
-        <div className="device-notch" />
-        <span className="device-side-button power" />
-        <span className="device-side-button vol-up" />
-        <span className="device-side-button vol-down" />
-        <div className="device-screen">
-          <div className="app-shell">
-            <div className="status-bar">
+    <div className={`desktop-backdrop ${isMobile ? 'desktop-backdrop--mobile' : ''}`}>
+      <div className={`device-frame ${isMobile ? 'device-frame--mobile' : ''}`}>
+        {!isMobile && <div className="device-notch" />}
+        {!isMobile && <span className="device-side-button power" />}
+        {!isMobile && <span className="device-side-button vol-up" />}
+        {!isMobile && <span className="device-side-button vol-down" />}
+        <div className={`device-screen ${isMobile ? 'device-screen--mobile' : ''}`}>
+          <div
+            className={`app-shell ${
+              screen === 'eco-home' || (screen === 'link-student' && !isLinkScanning) ? 'app-shell--fullbleed' : ''
+            } ${isMobile ? 'app-shell--mobile' : ''}`}
+          >
+            {!isMobile && <div className="status-bar">
               <span className="status-time">09:41</span>
               <span className="status-icons">
                 <span className="status-wifi">
@@ -161,15 +213,17 @@ export default function Page() {
                   <span className="status-battery-fill" />
                 </span>
               </span>
-            </div>
+            </div>}
 
-            <main className="screen-root">
+            <main className="screen-root" ref={mainRef}>
               {screen === 'eco-home' && (
                 <EcoHomeScreen
                   {...serviceNav('eco-home')}
                   onOpenServices={() => setScreen('eco-services')}
                   onOpenNotifications={() => setScreen('notifications')}
                   onOpenEcoParent={() => setScreen('home')}
+                  onOpenTransfer={() => setScreen('transfer')}
+                  onOpenWalletTopup={() => setScreen('topup-wallet')}
                   onNavigateToStudent={openStudent('eco-home')}
                   onNavigateToLinkStudent={() => {
                     setReturnScreen('eco-home')
@@ -348,7 +402,58 @@ export default function Page() {
                 <FeedbackApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
               )}
 
-              {screen === 'link-student' && <LinkStudentApp onBack={() => setScreen(returnScreen)} />}
+              {screen === 'postpaid-fee' && activeStudentId && (
+                <PostpaidFeeApp studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'development' && activeStudentId && (
+                <ChildDevelopmentScreen
+                  studentId={activeStudentId}
+                  onBack={() => setScreen(returnScreen)}
+                  onSelectStudent={setActiveStudentId}
+                  onNavigateToResults={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('development')
+                    setScreen('results')
+                  }}
+                />
+              )}
+
+              {screen === 'pickup' && activeStudentId && (
+                <PickupApp
+                  studentId={activeStudentId}
+                  onBack={() => setScreen(returnScreen)}
+                  onSelectStudent={setActiveStudentId}
+                />
+              )}
+
+              {screen === 'survey' && (
+                <SurveyScreen onBack={() => setScreen(returnScreen)} onSuccess={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'health-advice' && activeStudentId && (
+                <HealthAdviceScreen studentId={activeStudentId} onBack={() => setScreen(returnScreen)} />
+              )}
+
+              {screen === 'transfer' && (
+                <TransferMoneyFlow
+                  onBack={() => setScreen('eco-home')}
+                  onNavigateToFee={() => openService('fee', activeStudentId ?? MOCK_STUDENTS[0].id, 'transfer' as Screen)}
+                  onNavigateToPostpaid={() => openService('postpaid', activeStudentId ?? MOCK_STUDENTS[0].id, 'transfer' as Screen)}
+                />
+              )}
+
+              {screen === 'topup-wallet' && (
+                <TopupWalletFlow
+                  onBack={() => setScreen('eco-home')}
+                  onNavigateToFee={() => openService('fee', activeStudentId ?? MOCK_STUDENTS[0].id, 'topup-wallet' as Screen)}
+                  onNavigateToPostpaid={() => openService('postpaid', activeStudentId ?? MOCK_STUDENTS[0].id, 'topup-wallet' as Screen)}
+                />
+              )}
+
+              {screen === 'link-student' && (
+                <LinkStudentApp onBack={() => setScreen(returnScreen)} onScanModeChange={setIsLinkScanning} />
+              )}
 
               {screen === 'help' && <HelpApp onBack={() => setScreen(returnScreen)} />}
             </main>
@@ -356,7 +461,7 @@ export default function Page() {
             <div className="overlay-root" id="overlay-root" />
           </div>
         </div>
-        <div className="device-home-indicator" />
+        {!isMobile && <div className="device-home-indicator" />}
       </div>
     </div>
   )

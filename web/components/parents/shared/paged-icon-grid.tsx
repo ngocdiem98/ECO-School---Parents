@@ -5,6 +5,8 @@ import { useRef, useState } from 'react'
 export interface GridItem {
   id: string
   icon: string
+  /** Design-system icon image (a service tile); replaces the glyph. */
+  imgSrc?: string
   label: string
   disabled?: boolean
   onClick?: () => void
@@ -27,9 +29,9 @@ export function PagedIconGrid({ pages }: { pages: GridItem[][] }) {
       <div className="icon-grid-scroller" ref={scrollerRef} onScroll={onScroll}>
         {pages.map((items, p) => (
           <div className="icon-grid-page" key={p}>
-            {items.map(({ id, icon, label, disabled, onClick }) => (
+            {items.map(({ id, icon, imgSrc, label, disabled, onClick }) => (
               <button key={id} className="icon-item" disabled={disabled} onClick={onClick}>
-                <span className="icon-glyph">{icon}</span>
+                {imgSrc ? <img className="icon-img" src={imgSrc} alt="" /> : <span className="icon-glyph">{icon}</span>}
                 <span className="icon-label">{label}</span>
               </button>
             ))}

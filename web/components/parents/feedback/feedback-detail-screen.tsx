@@ -280,12 +280,8 @@ export function FeedbackDetailScreen({
             </div>
             <div className="sheet-body fb-info-sheet">
               <dl>
-                {feedback.type && (
-                  <>
-                    <dt>Loại góp ý</dt>
-                    <dd>{feedback.type}</dd>
-                  </>
-                )}
+                <dt>Loại góp ý</dt>
+                <dd className={feedback.type ? '' : 'muted'}>{feedback.type || 'Chưa có thông tin'}</dd>
                 <dt>Người gửi</dt>
                 <dd>{feedback.sender}</dd>
                 <dt>Người xử lý</dt>

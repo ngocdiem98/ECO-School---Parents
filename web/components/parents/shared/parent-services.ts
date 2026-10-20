@@ -13,6 +13,7 @@ export interface ParentService {
 
 export const PARENT_SERVICES: ParentService[] = [
   { id: 'fee', icon: '▣', label: 'Đóng học phí', intent: 'fee' },
+  { id: 'paylater', icon: '▣', label: 'Học phí trả sau', intent: 'postpaid' },
   { id: 'topup', icon: '◈', label: 'Nạp điểm vào thẻ', intent: 'topup' },
   { id: 'spending', icon: '▥', label: 'Lịch sử chi tiêu', intent: 'spending' },
   { id: 'timetable', icon: '▦', label: 'Thời khoá biểu', intent: 'timetable' },

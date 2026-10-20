@@ -15,8 +15,8 @@ export interface EcoService {
 }
 
 export const EDU_SERVICES: EcoService[] = [
-  { id: 'fee', icon: 'graduation', tint: ['#2F7BFF', '#0A4FD6'], label: 'Đóng Học Phí', intent: 'fee' },
-  { id: 'paylater', icon: 'wallet', tint: ['#FFB347', '#F0802A'], label: 'Học phí trả sau' },
+  { id: 'fee', icon: 'graduation', tint: ['#2F7BFF', '#0A4FD6'], label: 'Đóng học phí', intent: 'fee' },
+  { id: 'paylater', icon: 'wallet', tint: ['#FFB347', '#F0802A'], label: 'Học phí trả sau', intent: 'postpaid' },
   { id: 'hoadon', icon: 'invoice', tint: ['#4DB6FF', '#2B8CF0'], label: 'Hóa đơn', intent: 'hoadon' },
   { id: 'topup', icon: 'card-plus', tint: ['#6B9BFF', '#3D6FE0'], label: 'Nạp điểm vào thẻ', intent: 'topup' },
   { id: 'spending', icon: 'calculator', tint: ['#5B9BFF', '#2F6FE8'], label: 'Lịch sử chi tiêu', intent: 'spending' },

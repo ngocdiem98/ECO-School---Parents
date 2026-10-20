@@ -3,6 +3,7 @@
 import { MOCK_STUDENTS } from '@/lib/mock-data'
 import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
 import { PARENT_SERVICES, chunk } from '@/components/parents/shared/parent-services'
+import { dsServiceIcon } from '@/components/parents/shared/ds-service-icon'
 import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
@@ -42,6 +43,7 @@ export function ParentsHomeScreen({
         pages={chunk(PARENT_SERVICES).map((page) =>
           page.map((svc) => ({
             ...svc,
+            imgSrc: dsServiceIcon(svc.id),
             disabled: !svc.intent,
             onClick: svc.intent ? () => launch(svc.intent!) : undefined,
           })),

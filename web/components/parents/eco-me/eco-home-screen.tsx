@@ -2,14 +2,11 @@
 
 import { useState } from 'react'
 import {
-  ArrowLeftRight,
-  ArrowUpFromLine,
   Bell,
   ChevronRight,
   Eye,
   EyeOff,
   House,
-  Plus,
   ReceiptText,
   ScanLine,
   Search,
@@ -26,11 +23,12 @@ import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 // Mock Ví ECO balance (same figure as the confirm screens' wallet row).
 const WALLET_BALANCE = 204913
 
-const QUICK_ACTIONS: { icon: LucideIcon; label: string }[] = [
-  { icon: Plus, label: 'Nạp tiền' },
-  { icon: ArrowLeftRight, label: 'Chuyển tiền' },
-  { icon: ArrowUpFromLine, label: 'Rút tiền' },
-  { icon: ScanLine, label: 'Mã thanh toán' },
+// Colour icons exported from the design system (public/ds/icons).
+const QUICK_ACTIONS: { icon: string; label: string; flow?: 'topup' | 'transfer' }[] = [
+  { icon: 'wallet-add', label: 'Nạp tiền', flow: 'topup' },
+  { icon: 'wallet-change', label: 'Chuyển tiền', flow: 'transfer' },
+  { icon: 'wallet-minus', label: 'Rút tiền' },
+  { icon: 'scan-qr', label: 'Mã thanh toán' },
 ]
 
 const TABS: { icon: LucideIcon; label: string; active?: boolean }[] = [
@@ -44,18 +42,23 @@ interface EcoHomeScreenProps extends ServiceNav {
   onOpenServices: () => void
   onOpenEcoParent: () => void
   onOpenNotifications: () => void
+  onOpenTransfer: () => void
+  onOpenWalletTopup: () => void
   onNavigateToStudent: (studentId: string) => void
   onNavigateToLinkStudent: () => void
 }
 
 // ECO Me home (the super-app landing): promo banner with greeting, wallet
 // card, 7 services plus "Xem thêm", the linked students and the bottom tab bar.
-// Wallet actions, search, the banner CTA and the bottom tabs are inert
-// placeholders (only the education services are built); the bell opens Thông báo.
+// Nạp tiền and Chuyển tiền open their wallet flows; Rút tiền, Mã thanh toán,
+// search, the banner CTA and the bottom tabs are inert placeholders; the bell
+// opens Thông báo.
 export function EcoHomeScreen({
   onOpenServices,
   onOpenEcoParent,
   onOpenNotifications,
+  onOpenTransfer,
+  onOpenWalletTopup,
   onNavigateToStudent,
   onNavigateToLinkStudent,
   ...nav
@@ -75,8 +78,8 @@ export function EcoHomeScreen({
     <div className="screen eco-home">
       <div className="eco-banner">
         <div className="eco-header">
-          <div className="eco-avatar">D</div>
-          <div className="eco-greeting">Xin chào, Diễm 👋</div>
+          <div className="eco-me-avatar">D</div>
+          <div className="eco-me-greeting">Xin chào, Diễm 👋</div>
           <button className="eco-round" disabled aria-label="Tìm kiếm">
             <Search size={20} />
           </button>
@@ -114,10 +117,15 @@ export function EcoHomeScreen({
 
       <div className="eco-wallet">
         <div className="eco-wallet-actions">
-          {QUICK_ACTIONS.map(({ icon: Icon, label }) => (
-            <button key={label} className="svc-item eco-action" disabled>
+          {QUICK_ACTIONS.map(({ icon, label, flow }) => (
+            <button
+              key={label}
+              className="svc-item eco-action"
+              disabled={!flow}
+              onClick={flow === 'topup' ? onOpenWalletTopup : flow === 'transfer' ? onOpenTransfer : undefined}
+            >
               <span className="eco-action-icon">
-                <Icon size={24} strokeWidth={2.2} />
+                <img src={`/ds/icons/${icon}.svg`} alt="" width={32} height={32} />
               </span>
               <span className="svc-label">{label}</span>
             </button>

@@ -23,7 +23,7 @@ export function ServiceGrid({
         const live = !!(s.intent || s.ecoParent)
         return (
           <button key={s.id} className="svc-item" disabled={!live} onClick={() => onPick(s)}>
-            <ServiceIcon name={s.icon} tint={s.tint} disabled={!live} />
+            <ServiceIcon id={s.id} name={s.icon} tint={s.tint} disabled={!live} />
             <span className="svc-label">{s.label}</span>
           </button>
         )

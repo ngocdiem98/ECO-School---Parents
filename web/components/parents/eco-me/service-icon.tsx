@@ -25,6 +25,7 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react'
+import { dsServiceIcon } from '@/components/parents/shared/ds-service-icon'
 
 // Coloured app-icon tile (gradient rounded square + white glyph) used by the
 // ECO Me service grids. Glyphs are lucide icons; the gradient comes from the
@@ -54,7 +55,20 @@ const ICONS: Record<string, LucideIcon> = {
   bell: Bell,
 }
 
-export function ServiceIcon({ name, tint, disabled }: { name: string; tint: [string, string]; disabled?: boolean }) {
+export function ServiceIcon({
+  id,
+  name,
+  tint,
+  disabled,
+}: {
+  id: string
+  name: string
+  tint: [string, string]
+  disabled?: boolean
+}) {
+  const src = dsServiceIcon(id)
+  // Design-system icon (already includes its gradient tile).
+  if (src) return <img className={`svc-icon svc-icon--img ${disabled ? 'is-off' : ''}`} src={src} alt="" />
   const Icon = ICONS[name] ?? FileText
   return (
     <span

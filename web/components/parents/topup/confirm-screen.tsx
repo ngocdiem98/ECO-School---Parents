@@ -22,7 +22,7 @@ export function ConfirmScreen({
     <div className="screen">
       <TopBar title="Xác nhận giao dịch" onBack={onBack} />
       <div className="result-hero">
-        <div style={{ fontSize: 26 }}>◈</div>
+        <div style={{ fontSize: 24 }}>◈</div>
         <div className="total-label">Tổng thanh toán</div>
         <div className="result-amount">{fmtMoney(amount)}</div>
         <span className="badge badge--outline">Nạp điểm thẻ học sinh</span>
@@ -70,7 +70,7 @@ export function ConfirmScreen({
             color: '#fff',
             padding: '8px 12px',
             borderRadius: 999,
-            fontSize: 11.5,
+            fontSize: 12,
             fontWeight: 700,
           }}
         >

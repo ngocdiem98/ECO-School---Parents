@@ -1,0 +1,54 @@
+<svg width="437" height="71" viewBox="0 0 437 71" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="437" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFE684" />
+      <stop offset="32%" stop-color="#FDDD5D" />
+      <stop offset="68%" stop-color="#FDD438" />
+      <stop offset="100%" stop-color="#FCC614" />
+    </linearGradient>
+    <linearGradient id="leftBottomShade" x1="0" y1="20" x2="90" y2="71" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDD338" stop-opacity="0" />
+      <stop offset="100%" stop-color="#F7BE00" stop-opacity="0.65" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base Golden Gradient -->
+  <rect width="437" height="71" fill="url(#bgGrad)" />
+  <rect width="160" height="71" fill="url(#leftBottomShade)" />
+
+  <!-- Bottom-left decorative waves -->
+  <path
+    d="M-4 71C2 55 10 49 17 51C24 53 26 65 34 69C42 73 50 58 64 56C78 54 88 64 98 71H-4Z"
+    fill="#FFF5C8"
+    fill-opacity="0.32"
+  />
+  <path
+    d="M-2 71C4 53 11 49 17.5 51.5C23 53.5 25 65 29.5 71H-2Z"
+    fill="#FFF9DC"
+    fill-opacity="0.48"
+  />
+  <path
+    d="M46 71C53 60 63 56 75 58C87 60 95 66 103 71"
+    stroke="#FFF6CC"
+    stroke-opacity="0.35"
+    stroke-width="1.2"
+    fill="none"
+  />
+
+  <!-- Center-left pin 1 (white circle + stem) -->
+  <line x1="157" y1="61" x2="154" y2="72" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" />
+  <circle cx="157" cy="61" r="4.5" fill="#FFFFFF" />
+
+  <!-- Center-left pin 2 (soft cream circle + diagonal stem) -->
+  <line x1="183" y1="43" x2="202" y2="72" stroke="#FFF3B8" stroke-opacity="0.85" stroke-width="1.6" stroke-linecap="round" />
+  <circle cx="182" cy="42" r="6" fill="#FFF3B8" fill-opacity="0.78" />
+
+  <!-- Right concentric rings -->
+  <g stroke="#FFF6C4" stroke-opacity="0.32" stroke-width="4.2" fill="none">
+    <circle cx="366" cy="58" r="13" />
+    <circle cx="366" cy="58" r="25.5" />
+    <circle cx="366" cy="58" r="38" />
+    <circle cx="366" cy="58" r="50.5" />
+    <circle cx="366" cy="58" r="63" />
+  </g>
+</svg>

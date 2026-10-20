@@ -1,0 +1,6 @@
+<svg width="48" height="48" viewBox="155 4 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="179" cy="28" r="24" fill="#E3FFE0"></circle>
+<circle cx="179" cy="28" r="18.8571" fill="#00CC60"></circle>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M187.668 19.1283C187.974 18.8211 188.471 18.8211 188.777 19.1283L190.4 20.7584C190.704 21.0637 190.704 21.5575 190.4 21.8628L175.007 37.3206L167.6 29.8777C167.296 29.5723 167.296 29.0787 167.6 28.7734L169.223 27.1436C169.529 26.8363 170.026 26.8364 170.332 27.1438L175.007 31.8426L187.668 19.1283Z" fill="url(#ps0)"></path>
+<defs><linearGradient id="ps0" x1="167.125" y1="37.2411" x2="189.569" y2="14.8902" gradientUnits="userSpaceOnUse"><stop offset="0.1446" stop-color="#FDFEFF"></stop><stop offset="0.552" stop-color="#F6F6F7"></stop><stop offset="1" stop-color="#EAE8E9"></stop></linearGradient></defs>
+</svg>

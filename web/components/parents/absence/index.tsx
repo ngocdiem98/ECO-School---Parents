@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { MOCK_STUDENTS, getStudent, type AbsenceStatus } from '@/lib/mock-data'
+import { MOCK_STUDENTS, getStudent, type AbsenceRequest, type AbsenceStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { Dialog } from '@/components/parents/shared/dialog'
 import { AbsenceListScreen } from './absence-list-screen'
+import { AbsenceDetailScreen } from './absence-detail-screen'
 import { AbsenceCreateScreen, DEFAULT_ABSENCE_FORM, type AbsenceFormState } from './absence-create-screen'
 
 interface AbsenceAppProps {
@@ -14,7 +15,7 @@ interface AbsenceAppProps {
   onBack: () => void
 }
 
-type AbsenceScreen = 'list' | 'create'
+type AbsenceScreen = 'list' | 'create' | 'detail'
 
 // Mirrors App.confirmAbsence() in ../../../scripts/app.js: mutates the
 // module-level MOCK_STUDENTS array in place (same "no real store" pattern
@@ -24,6 +25,7 @@ type AbsenceScreen = 'list' | 'create'
 export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
   const [screen, setScreen] = useState<AbsenceScreen>(startOnCreate ? 'create' : 'list')
+  const [selectedAbsence, setSelectedAbsence] = useState<AbsenceRequest | null>(null)
   const [filter, setFilter] = useState<'all' | AbsenceStatus>('all')
   const [form, setForm] = useState<AbsenceFormState>(DEFAULT_ABSENCE_FORM)
   const [showPicker, setShowPicker] = useState(false)
@@ -50,6 +52,8 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
       const [y, m, d] = isoDate.split('-')
       return `${d}/${m}/${y}`
     }
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
     student.absence.unshift({
       id: 'ab' + Date.now(),
       range: `${fmt(form.from)} - ${fmt(form.to)}`,
@@ -57,6 +61,9 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
       time: form.period === 'full' ? 'Cả ngày' : form.period === 'morning' ? 'Buổi sáng' : 'Buổi chiều',
       days: 1,
       note: form.note,
+      createdAt: `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`,
+      fromDate: fmt(form.from),
+      toDate: fmt(form.to),
     })
     setVersion((v) => v + 1)
     setForm(DEFAULT_ABSENCE_FORM)
@@ -65,14 +72,37 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
     setScreen('list')
   }
 
+  const handleCancelAbsence = (absenceId: string) => {
+    const target = student.absence.find((a) => a.id === absenceId)
+    if (target) {
+      target.status = 'cancelled'
+      setSelectedAbsence({ ...target })
+    }
+    setVersion((v) => v + 1)
+  }
+
   return (
     <>
-      {screen === 'list' ? (
+      {screen === 'detail' && selectedAbsence ? (
+        <AbsenceDetailScreen
+          student={student}
+          absence={selectedAbsence}
+          onBack={(returnFilter) => {
+            if (returnFilter) setFilter(returnFilter)
+            setScreen('list')
+          }}
+          onCancelAbsence={handleCancelAbsence}
+        />
+      ) : screen === 'list' ? (
         <AbsenceListScreen
           student={student}
           absences={student.absence}
           filter={filter}
           onFilterChange={setFilter}
+          onSelectAbsence={(a) => {
+            setSelectedAbsence(a)
+            setScreen('detail')
+          }}
           onBack={onBack}
           onChangeStudent={() => setShowPicker(true)}
           onCreate={() => setScreen('create')}

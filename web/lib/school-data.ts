@@ -330,7 +330,7 @@ export const BULLETIN: BulletinPost[] = [
     category: 'Thông báo chung',
     at: '2026-09-30T16:20',
     title: 'Nhắc nhở đóng học phí tháng 10',
-    content: 'Nhà trường nhắc phụ huynh hoàn tất học phí tháng 10 trước ngày 15/10. Phụ huynh có thể thanh toán ngay trong ECO Me, mục Đóng Học Phí.',
+    content: 'Nhà trường nhắc phụ huynh hoàn tất học phí tháng 10 trước ngày 15/10. Phụ huynh có thể thanh toán ngay trong ECO Me, mục Đóng học phí.',
     attachments: [],
   },
   {

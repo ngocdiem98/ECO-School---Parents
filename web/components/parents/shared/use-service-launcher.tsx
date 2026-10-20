@@ -27,6 +27,11 @@ export type ServiceIntent =
   | 'chat'
   | 'gallery'
   | 'feedback'
+  | 'postpaid'
+  | 'development'
+  | 'pickup'
+  | 'healthadvice'
+  | 'survey'
 
 // One handler for every service: page.tsx maps the intent to a screen.
 export interface ServiceNav {
@@ -34,7 +39,7 @@ export interface ServiceNav {
 }
 
 // "Nạp điểm vào thẻ" only lists students whose school supports top-up,
-// "Phiếu bé ngoan" and "Nhật ký chăm sóc" only apply to Mầm non students, and
+// "Phiếu bé ngoan", "Nhật ký chăm sóc" and "Tiến trình phát triển" only apply to Mầm non students, and
 // "Hóa đơn" only to students with bills.
 export function eligibleStudents(intent: ServiceIntent): Student[] {
   switch (intent) {
@@ -42,6 +47,7 @@ export function eligibleStudents(intent: ServiceIntent): Student[] {
       return MOCK_STUDENTS.filter((s) => s.supportsTopUp)
     case 'goodbehavior':
     case 'diary':
+    case 'development':
       return MOCK_STUDENTS.filter(isMamNonStudent)
     case 'hoadon':
       return MOCK_STUDENTS.filter((s) => s.bills.length > 0)

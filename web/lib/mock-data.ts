@@ -13,6 +13,11 @@ export interface AbsenceRequest {
   time: string
   days: number
   note: string
+  // Set by requests created in the app; the detail screen falls back to `range`.
+  createdAt?: string
+  fromDate?: string
+  toDate?: string
+  attachedImages?: string[]
 }
 
 // 'completed' (Đã hoàn thành) = every dose of every day was confirmed by the
@@ -105,6 +110,8 @@ export interface Homework {
   overdue: boolean
   comment: string
   submissionFiles: string[]
+  submittedAt?: string
+  attachedFiles?: string[]
 }
 
 export interface ResultsTerm {
