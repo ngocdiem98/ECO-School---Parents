@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { fmtMoney, sumItems, type Student } from '@/lib/mock-data'
 import { fmtDong, summarizeYear, yearAnchor } from './bill-year'
@@ -93,10 +94,33 @@ export function BillOverviewScreen({
   // for a past year); the parent scrolls left for older months.
   const months = yearMonths
   const barsRef = useRef<HTMLDivElement>(null)
+  // Index of the first visible month. The bars snap column by column, so the
+  // chart always rests on VISIBLE_MONTHS whole columns.
+  const lastFirst = Math.max(months.length - VISIBLE_MONTHS, 0)
+  const [first, setFirst] = useState(lastFirst)
+  const stride = () => {
+    const cols = barsRef.current?.children
+    return cols && cols.length > 1 ? (cols[1] as HTMLElement).offsetLeft - (cols[0] as HTMLElement).offsetLeft : 0
+  }
   useEffect(() => {
     const el = barsRef.current
     if (el) el.scrollLeft = el.scrollWidth
-  }, [])
+    setFirst(lastFirst)
+  }, [startYear, lastFirst])
+  const syncFirst = () => {
+    const el = barsRef.current
+    const w = stride()
+    if (el && w) setFirst(Math.min(Math.max(Math.round(el.scrollLeft / w), 0), lastFirst))
+  }
+  const step = (dir: -1 | 1) => {
+    const el = barsRef.current
+    const w = stride()
+    const next = Math.min(Math.max(first + dir, 0), lastFirst)
+    if (el && w) el.scrollTo({ left: next * w, behavior: 'smooth' })
+    setFirst(next)
+  }
+  const rangeFrom = months[first]
+  const rangeTo = months[Math.min(first + VISIBLE_MONTHS - 1, months.length - 1)]
   const maxAmount = Math.max(...months.map((m) => m.amount), 0)
   // Y axis: 0, half and top. The top is a round number that keeps the tallest
   // bar at or below BAR_MAX of the track, so its value label stays inside.
@@ -136,6 +160,30 @@ export function BillOverviewScreen({
         <div className="ov-heading">Thanh toán theo tháng</div>
         {yearMonths.length ? (
           <>
+            <div className="ov-range">
+              <button
+                type="button"
+                className="ov-range-btn"
+                aria-label="Lùi 1 tháng"
+                disabled={first <= 0}
+                onClick={() => step(-1)}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="ov-range-label">
+                Tháng {String(rangeFrom.month).padStart(2, '0')}/{rangeFrom.year} - Tháng{' '}
+                {String(rangeTo.month).padStart(2, '0')}/{rangeTo.year}
+              </span>
+              <button
+                type="button"
+                className="ov-range-btn"
+                aria-label="Tiến 1 tháng"
+                disabled={first >= lastFirst}
+                onClick={() => step(1)}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
             <div className="ov-chart">
               <div className="ov-yaxis" aria-hidden>
                 {ticks.map((t) => (
@@ -147,6 +195,7 @@ export function BillOverviewScreen({
               <div
                 ref={barsRef}
                 className={`ov-bars ${months.length > VISIBLE_MONTHS ? 'scroll' : ''}`}
+                onScroll={syncFirst}
                 role="group"
                 aria-label="Số tiền đã thanh toán theo tháng"
               >

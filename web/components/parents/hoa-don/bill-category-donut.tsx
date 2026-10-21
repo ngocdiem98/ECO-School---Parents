@@ -15,13 +15,13 @@ function categoryOf(item: BillItem): string {
   return name
 }
 
-const MAX_SEGMENTS = 4
-// A category under this share of the total is folded into "Khác".
-const MIN_SEGMENT_SHARE = 0.05
+// Up to 5 categories are shown as they are. With more, the 4 largest stay and
+// the rest fold into one "Còn lại" segment (opened from its legend row).
+const MAX_CATEGORIES = 5
 const OTHER_ID = '__other'
-// Brand palette (blue, yellow, dark blue); "Khác" always takes the last,
-// lightest shade.
-const SEGMENT_COLORS = ['#0070ce', '#e36301', '#00305e', '#595959']
+const OTHER_LABEL = 'Còn lại'
+// Brand palette; "Còn lại" always takes the last (grey) shade.
+const SEGMENT_COLORS = ['#0070ce', '#e36301', '#00305e', '#2dc26d', '#595959']
 
 export interface Segment {
   id: string
@@ -29,13 +29,10 @@ export interface Segment {
   color: string
   amount: number
   pct: number
-  // Only on the grouped "Khác" segment: the categories folded into it.
+  // Only on the grouped "Còn lại" segment: the categories folded into it.
   children?: { label: string; amount: number }[]
 }
 
-// Categories under MIN_SEGMENT_SHARE of the total are folded into one "Khác"
-// (its own total may exceed that share). At most MAX_SEGMENTS segments: if more
-// remain, the smallest ones are folded into "Khác" as well.
 export function buildSegments(items: BillItem[]): Segment[] {
   const byCat = new Map<string, number>()
   items.forEach((it) => byCat.set(categoryOf(it), (byCat.get(categoryOf(it)) ?? 0) + it.amount))
@@ -43,29 +40,25 @@ export function buildSegments(items: BillItem[]): Segment[] {
     .map(([label, amount]) => ({ label, amount }))
     .filter((c) => c.amount > 0)
     .sort((a, b) => b.amount - a.amount)
-  const total = sumOf(cats)
 
-  let head = cats.filter((c) => c.amount / total >= MIN_SEGMENT_SHARE)
-  let rest = cats.filter((c) => c.amount / total < MIN_SEGMENT_SHARE)
-  if (head.length + (rest.length ? 1 : 0) > MAX_SEGMENTS) {
-    const keep = MAX_SEGMENTS - 1
-    rest = [...head.slice(keep), ...rest]
-    head = head.slice(0, keep)
+  const raw: { id: string; label: string; amount: number; children?: Segment['children'] }[] = []
+  if (cats.length > MAX_CATEGORIES) {
+    cats.slice(0, MAX_CATEGORIES - 1).forEach((c) => raw.push({ id: c.label, ...c }))
+    const rest = cats.slice(MAX_CATEGORIES - 1)
+    raw.push({ id: OTHER_ID, label: OTHER_LABEL, amount: sumOf(rest), children: rest })
+  } else {
+    cats.forEach((c) => raw.push({ id: c.label, ...c }))
   }
-  const raw = head.map((c) => ({ id: c.label, label: c.label, amount: c.amount, children: undefined as Segment['children'] }))
-  if (rest.length) raw.push({ id: OTHER_ID, label: 'Khác', amount: sumOf(rest), children: rest })
 
   const pcts = toPercents(raw.map((r) => r.amount))
   return raw.map((r, i) => ({
     ...r,
     pct: pcts[i],
-    color: i === raw.length - 1 && raw.length > 1 ? SEGMENT_COLORS[3] : SEGMENT_COLORS[i],
+    color: r.id === OTHER_ID ? SEGMENT_COLORS[SEGMENT_COLORS.length - 1] : SEGMENT_COLORS[i],
   }))
 }
 
 const sumOf = (xs: { amount: number }[]) => xs.reduce((n, x) => n + x.amount, 0)
-
-const pctLabel = (s: Segment) => (s.pct === 0 && s.amount > 0 ? '<1%' : `${s.pct}%`)
 
 // Largest-remainder rounding so the legend percentages always add up to 100.
 function toPercents(values: number[]): number[] {
@@ -83,6 +76,8 @@ function toPercents(values: number[]): number[] {
   return floors
 }
 
+const pctLabel = (s: Segment) => (s.pct === 0 && s.amount > 0 ? '<1%' : `${s.pct}%`)
+
 // --- Donut ----------------------------------------------------------------
 
 // Geometry in a 346 x 206 box (the phone's content width). The ring sits in
@@ -95,7 +90,7 @@ const CY = VB_H / 2
 const R = 62 // ring centre radius
 const RING = 28 // ring thickness
 const CIRC = 2 * Math.PI * R
-const LABEL_H = 52 // chip + name
+const LABEL_H = 30 // % chip
 const LABEL_GAP = 6
 const LEFT_EDGE = 76 // x where a left label's chip ends / its leader starts
 const RIGHT_EDGE = VB_W - 76
@@ -138,25 +133,19 @@ function placeLabels(segments: Segment[]): Placed[] {
   return raw
 }
 
-function DonutChart({
-  segments,
-  selected,
-  onSelect,
-}: {
-  segments: Segment[]
-  selected: string | null
-  onSelect: (id: string) => void
-}) {
-  const total = segments.reduce((n, s) => n + s.amount, 0)
+// Ring with a % chip per slice, joined by a dotted leader line. Not
+// interactive; the amounts are in the legend below.
+function DonutChart({ segments }: { segments: Segment[] }) {
+  const total = sumOf(segments)
   const placed = placeLabels(segments)
   let offset = 0
   return (
-    <div className="ov-donut-wrap" role="group" aria-label="Phân bổ danh mục">
+    <div className="ov-donut-wrap" role="img" aria-label="Phân bổ danh mục">
       <svg className="ov-donut" viewBox={`0 0 ${VB_W} ${VB_H}`}>
         <circle cx={CX} cy={CY} r={R} fill="none" stroke="var(--c-blue-50)" strokeWidth={RING + 12} />
         {placed.map(({ seg, side, edge, top }) => {
           const endX = side === 'left' ? LEFT_EDGE : RIGHT_EDGE
-          const endY = top + 15
+          const endY = top + LABEL_H / 2
           return (
             <line
               key={seg.id}
@@ -179,26 +168,14 @@ function DonutChart({
             const el = (
               <circle
                 key={s.id}
-                className={`ov-donut-seg ${selected === s.id ? 'active' : ''}`}
                 cx={CX}
                 cy={CY}
                 r={R}
                 fill="none"
                 stroke={s.color}
-                strokeWidth={selected === s.id ? RING + 8 : RING}
+                strokeWidth={RING}
                 strokeDasharray={`${dash} ${CIRC - dash}`}
                 strokeDashoffset={-(offset + gap / 2)}
-                role="button"
-                tabIndex={0}
-                aria-label={`${s.label} ${pctLabel(s)}`}
-                aria-pressed={selected === s.id}
-                onClick={() => onSelect(s.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    onSelect(s.id)
-                  }
-                }}
               />
             )
             offset += len
@@ -207,64 +184,66 @@ function DonutChart({
         </g>
       </svg>
       {placed.map(({ seg, side, top }) => (
-        <button
+        <div
           key={seg.id}
-          className={`ov-donut-label ov-donut-label--${side} ${selected === seg.id ? 'active' : ''}`}
+          className={`ov-donut-label ov-donut-label--${side}`}
           style={{ top: `${(top / VB_H) * 100}%` }}
-          aria-pressed={selected === seg.id}
-          onClick={() => onSelect(seg.id)}
         >
           <span className="ov-pct">
             <span className="ov-dot" style={{ background: seg.color }} />
             {pctLabel(seg)}
           </span>
-          <span className="ov-name">{seg.label}</span>
-        </button>
+        </div>
       ))}
     </div>
   )
 }
 
-// "Phân bổ danh mục": donut + selected-category callout + the "Khác" sheet.
-// Shared by the Tổng quan screen and the summary card on the Hóa đơn list.
-// `paidItems` are the paid items of the current school year; `showHint` toggles
-// the "Chạm vào biểu đồ…" line shown while nothing is selected.
-export function CategoryDonut({ paidItems, showHint = true }: { paidItems: BillItem[]; showHint?: boolean }) {
-  const [category, setCategory] = useState<string | null>(null)
+// "Phân bổ danh mục": the ring (with a % chip per slice), then one row per
+// category (colour, name, amount). The "Còn lại" row opens a bottom sheet with the folded categories.
+// Used by the Tổng quan screen; `paidItems` are the paid items of the school year.
+export function CategoryDonut({ paidItems }: { paidItems: BillItem[] }) {
   const [showOther, setShowOther] = useState(false)
-
   const segments = buildSegments(paidItems)
-  const selectedSeg = segments.find((s) => s.id === category) ?? null
   const otherSeg = segments.find((s) => s.id === OTHER_ID)
-
-  // Tapping the selected segment again clears it. The "Khác" sheet is opened
-  // only from the "Xem chi tiết ›" link in the callout.
-  const pickSegment = (id: string) => setCategory(category === id ? null : id)
 
   if (!segments.length) return <div className="ov-hint">Chưa có hóa đơn trong năm học này</div>
 
   return (
     <>
-      <DonutChart segments={segments} selected={category} onSelect={pickSegment} />
-      {selectedSeg ? (
-        <div className="ov-callout">
-          Tổng số tiền ({selectedSeg.label}): <b>{fmtDong(selectedSeg.amount)}</b>
-          {selectedSeg.children && (
-            <button className="ov-callout-link" onClick={() => setShowOther(true)}>
-              Xem chi tiết ›
-            </button>
-          )}
-        </div>
-      ) : (
-        showHint && <div className="ov-hint">Chạm vào biểu đồ để xem số tiền theo danh mục</div>
-      )}
+      <DonutChart segments={segments} />
+      <ul className="ov-legend">
+        {segments.map((s) => {
+          const body = (
+            <>
+              <span className="ov-dot" style={{ background: s.color }} />
+              <span className="ov-legend-name">{s.label}</span>
+              <span className="ov-legend-amt">{fmtMoney(s.amount)}</span>
+              {s.children && <span className="ov-legend-chev">›</span>}
+            </>
+          )
+          return (
+            <li key={s.id}>
+              {s.children ? (
+                <button type="button" className="ov-legend-row is-link" onClick={() => setShowOther(true)}>
+                  {body}
+                </button>
+              ) : (
+                <div className="ov-legend-row">{body}</div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
 
       {showOther && otherSeg?.children && (
         <OverlayPortal>
           <div className="scrim" onClick={() => setShowOther(false)} />
           <div className="sheet">
             <div className="sheet-head">
-              <span className="t">Khác · {fmtDong(otherSeg.amount)}</span>
+              <span className="t">
+                {OTHER_LABEL} · {fmtDong(otherSeg.amount)}
+              </span>
               <button className="icon-btn" onClick={() => setShowOther(false)} aria-label="Đóng">
                 ✕
               </button>

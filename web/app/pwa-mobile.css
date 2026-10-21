@@ -18,13 +18,16 @@
 .device-frame--mobile {
   position: relative;
   box-sizing: border-box;
+  /* Phone view is fluid between iPhone SE (375) and Pro Max (428); wider
+     windows (?mobile=1 on a desktop, tablets) keep a centred 428 column. */
   width: 100% !important;
-  max-width: 100% !important;
+  min-width: 375px;
+  max-width: 428px !important;
   min-height: 100vh !important;
   min-height: 100dvh !important;
   height: 100% !important;
   padding: 0 !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;

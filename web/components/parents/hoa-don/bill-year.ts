@@ -44,6 +44,7 @@ export function yearAnchor(now: Date, startYear: number): Date {
 export function summarizeYear(student: Student, now: Date, startYear = schoolYearStart(now)) {
   const bills = billsInYear(student, startYear)
   const paidItems = bills.flatMap((b) => b.items.filter((it) => it.paid))
+  const unpaidItems = bills.flatMap((b) => b.items.filter((it) => !it.paid))
   const paidCount = bills.filter((b) => b.items.some((it) => it.paid)).length
   const unpaidCount = bills.filter((b) => !b.items.some((it) => it.paid) && b.items.some((it) => !it.paid)).length
   return {
@@ -51,6 +52,7 @@ export function summarizeYear(student: Student, now: Date, startYear = schoolYea
     bills,
     paidItems,
     paidAmount: sumItems(paidItems),
+    unpaidAmount: sumItems(unpaidItems),
     totalBills: paidCount + unpaidCount,
     paidCount,
     unpaidCount,

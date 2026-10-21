@@ -84,10 +84,6 @@ export function BillListScreen({
       <StudentHeader student={student} onChangeStudent={onChangeStudent} detailed />
       <YearFilter year={year} years={years} onChange={onYearChange} />
 
-      {wantPaid && (
-        <BillSummaryCard paidItems={summary.paidItems} total={summary.paidAmount} onOpenOverview={onOpenOverview} />
-      )}
-
       {/* PillTabs "segment": two equal halves, selected = eco-yellow */}
       <div className="eco-segment bill-segment" role="tablist">
         {TABS.map((t) => (
@@ -102,6 +98,11 @@ export function BillListScreen({
           </button>
         ))}
       </div>
+
+      <BillSummaryCard
+        total={wantPaid ? summary.paidAmount : summary.unpaidAmount}
+        onOpenOverview={wantPaid ? onOpenOverview : undefined}
+      />
 
       {wantPaid ? (
         // Đã thanh toán: PaidBillCard per bill on the grey page

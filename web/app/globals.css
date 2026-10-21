@@ -38,8 +38,11 @@
   --c-blue-100: var(--bg-info-tint);
   --c-blue-200: var(--border-info-soft);
 
+  /* Simulator specs: the screen is 390 x 844 (iPhone 12 / 13 / 14), inside a
+     6px bezel with a 46px corner radius, status bar 34px. */
   --device-w: 390px;
   --device-h: 844px;
+  --device-bezel: 6px;
 
   /* shadcn/base-ui variable aliases — mapped onto the tokens above so any
      shadcn primitive (e.g. components/ui/button.tsx) renders in this app's
@@ -102,11 +105,13 @@ img { max-width: 100%; display: block; }
 
 .device-frame {
   position: relative;
-  width: var(--device-w);
-  height: var(--device-h);
+  box-sizing: border-box;
+  /* --device-w / --device-h are the screen; the bezel adds 2 x padding. */
+  width: calc(var(--device-w) + 2 * var(--device-bezel));
+  height: calc(var(--device-h) + 2 * var(--device-bezel));
   background: var(--c-black);
   border-radius: 46px;
-  padding: 6px;
+  padding: var(--device-bezel);
   box-shadow:
     0 40px 80px rgba(0, 0, 0, 0.35),
     0 0 0 2px var(--c-gray-800);
@@ -1237,8 +1242,6 @@ img { max-width: 100%; display: block; }
 
 .ov-donut-wrap { position: relative; width: 100%; aspect-ratio: 346 / 206; }
 .ov-donut { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.ov-donut-seg { cursor: pointer; transition: stroke-width 0.15s; outline: none; }
-.ov-donut-seg:focus-visible { stroke-opacity: 0.7; }
 .ov-donut-label {
   position: absolute;
   width: 27%;
@@ -1246,9 +1249,6 @@ img { max-width: 100%; display: block; }
   flex-direction: column;
   gap: 4px;
   padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
 }
 .ov-donut-label--left { left: 0; align-items: flex-start; text-align: left; }
 .ov-donut-label--right { right: 0; align-items: flex-end; text-align: right; }
@@ -1266,18 +1266,14 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
   color: var(--c-ink);
 }
-.ov-name { font-size: 12px; line-height: 1.25; color: var(--c-gray-600); }
-.ov-donut-label.active .ov-pct { background: var(--c-blue-50); border-color: var(--c-blue); }
-.ov-donut-label.active .ov-name { color: var(--c-ink); font-weight: 700; }
 .ov-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
-.ov-callout {
-  margin-top: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--c-black);
-  border-radius: var(--radius-12);
-  font-size: 14px;
-  text-align: center;
-}
+.ov-legend { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; }
+.ov-legend li + li { border-top: 1px solid var(--border-soft); }
+.ov-legend-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 0; background: none; border: 0; text-align: left; font-size: 14px; color: var(--text-body); }
+.ov-legend-name { flex: 1; min-width: 0; }
+.ov-legend-amt { font-weight: 700; }
+.ov-legend-chev { flex: none; margin-left: -2px; color: var(--text-muted); font-size: 18px; line-height: 1; }
+.ov-legend-row.is-link { cursor: pointer; }
 .ov-hint { margin-top: 10px; font-size: 12px; color: var(--c-gray-500); text-align: center; }
 
 .ov-chart { display: flex; border: 1px solid var(--c-gray-200); border-radius: var(--radius-12); padding: 12px 10px 8px 6px; }
@@ -1353,15 +1349,6 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
 }
 .ov-month-head .amt { margin-left: auto; font-weight: 700; }
-.ov-callout-link {
-  display: block;
-  margin: 6px auto 0;
-  background: none;
-  border: none;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--c-ink);
-}
 
 
 /* Bill focused from the overview chart: briefly outlined, then fades. */
@@ -1476,8 +1463,7 @@ img { max-width: 100%; display: block; }
 .btn-primary { background: var(--c-yellow); color: var(--c-navy); }
 .btn-primary:active:not(:disabled) { background: var(--c-yellow-deep); }
 .btn-outline { color: var(--c-blue); border-color: var(--c-blue); }
-.btn-link, .pay-banner button, .eco-link, .ov-detail-link, .ov-callout-link { color: var(--c-blue); }
-.btn-change { border-color: var(--c-blue); color: var(--c-blue); }
+.btn-link, .pay-banner button, .eco-link, .ov-detail-link, .btn-change { border-color: var(--c-blue); color: var(--c-blue); }
 .banner-note .btn-mini { background: var(--c-yellow); color: var(--c-navy); }
 
 .amount-opt.active { border-color: var(--c-blue); background: var(--c-blue-50); color: var(--c-blue); }
@@ -1509,7 +1495,6 @@ img { max-width: 100%; display: block; }
 .ov-kpi-count { background: var(--c-yellow-50); border-color: var(--c-yellow); }
 .ov-kpi-value { color: var(--c-navy); }
 .ov-detail-link { color: var(--c-blue); }
-.ov-callout { border-color: var(--c-blue); background: var(--c-blue-50); }
 .ov-bar { background: var(--c-blue-200); }
 .ov-bar-col.active .ov-bar { background: var(--c-blue); }
 .ov-month-head { background: var(--c-blue-50); }
@@ -2228,7 +2213,6 @@ img { max-width: 100%; display: block; }
 .ov-card-link { flex: none; background: none; border: none; padding: 0; font-size: 14px; font-weight: 700; color: var(--c-blue); }
 .ov-card-total { margin-top: 2px; font-size: 14px; color: var(--c-gray-700); }
 .ov-card-total b { color: var(--c-ink); }
-.ov-card .ov-donut-wrap { margin-top: 10px; }
 .ov-card .ov-hint { margin-bottom: 0; }
 
 /* Land the tabs just under the sticky top bar when scrolled into view */
@@ -2303,6 +2287,13 @@ img { max-width: 100%; display: block; }
   -webkit-overflow-scrolling: touch;
 }
 .ov-bars.scroll .ov-bar-col { flex: 0 0 calc((100% - 40px) / 5); }
+/* Rest on whole columns: the scroll snaps to the start of a month column */
+.ov-bars.scroll { scroll-snap-type: x mandatory; }
+.ov-bars.scroll .ov-bar-col { scroll-snap-align: start; scroll-snap-stop: always; }
+.ov-range { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.ov-range-label { flex: 1; text-align: center; font-size: 14px; font-weight: 500; color: var(--text-body); }
+.ov-range-btn { flex: none; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border-soft); border-radius: 50%; background: var(--bg-surface); color: var(--text-body); }
+.ov-range-btn:disabled { opacity: .35; }
 
 
 /* ============================================================
@@ -2574,13 +2565,6 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
 .bill-summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); font: var(--text-body-m); color: var(--text-body); }
 .bill-summary-link { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; color: var(--text-link); font: var(--text-body-s); font-weight: 500; letter-spacing: .2px; }
 .bill-summary-total { margin: var(--space-12) 0; font: var(--text-h4); font-weight: 700; color: var(--text-label); }
-.bill-summary-body { display: flex; align-items: center; gap: var(--space-16); }
-.bill-summary-donut { flex: none; width: 68px; height: 68px; }
-.bill-summary-legend { flex: 1; min-width: 0; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-8); }
-.bill-summary-legend li { display: flex; align-items: center; gap: var(--space-8); font: var(--text-body-s); letter-spacing: .2px; }
-.bill-summary-legend .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-.bill-summary-legend .name { flex: 1; min-width: 0; }
-.bill-summary-legend b { font-weight: 700; }
 
 .bill-segment { border-bottom: 0; margin: var(--space-16) 0 0; padding: var(--space-8) var(--space-16); }
 .bill-segment .eco-segment__item.is-active { background: #FFC20E; }
