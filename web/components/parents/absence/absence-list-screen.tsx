@@ -54,7 +54,7 @@ export function AbsenceListScreen({
         <span className="icon-btn-ghost" />
       </div>
       <StudentHeader student={student} onChangeStudent={onChangeStudent} />
-      <div className="tabs">
+      <div className="tabs" data-coach="absence-status">
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -94,7 +94,7 @@ export function AbsenceListScreen({
         </div>
       )}
       <div className="cta-bar sticky">
-        <button className="btn btn-primary" onClick={onCreate}>
+        <button className="btn btn-primary" data-coach="absence-create" onClick={onCreate}>
           Tạo đơn báo vắng
         </button>
       </div>

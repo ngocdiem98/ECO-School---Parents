@@ -1,7 +1,15 @@
 'use client'
 
 import { StudentHeader } from '@/components/parents/shared/header'
+import { QuickReplies, type QuickReply } from '@/components/parents/shared/quick-replies'
 import type { Student } from '@/lib/mock-data'
+
+// Lý do nghỉ soạn sẵn (EDU-2095), same wording for Mầm non and K12.
+const ABSENCE_REASONS: QuickReply[] = [
+  { label: 'Con bị ốm', text: 'Con bị ốm, gia đình xin phép cô cho con nghỉ học để ở nhà theo dõi sức khỏe ạ.' },
+  { label: 'Đi khám bệnh', text: 'Gia đình đưa con đi khám bệnh, xin phép cô cho con nghỉ học ạ.' },
+  { label: 'Việc gia đình', text: 'Gia đình có việc riêng, xin phép cô cho con nghỉ học ạ.' },
+]
 
 export interface AbsenceFormState {
   period: 'full' | 'morning' | 'afternoon'
@@ -94,6 +102,15 @@ export function AbsenceCreateScreen({
       </div>
       <div className="field">
         <label>Ghi chú</label>
+        <QuickReplies
+          items={ABSENCE_REASONS}
+          isSelected={(r) => form.note.includes(r.text)}
+          onPick={(r) => {
+            if (form.note.includes(r.text)) return // already added: no duplicate
+            const base = form.note.trimEnd()
+            onFieldChange('note', (base ? base + ' ' + r.text : r.text).slice(0, 256))
+          }}
+        />
         <textarea
           maxLength={256}
           placeholder="Nội dung *"

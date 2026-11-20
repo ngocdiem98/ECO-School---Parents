@@ -7,17 +7,15 @@ import { EDU_SERVICES, type EcoService } from './services'
 
 interface EcoServicesScreenProps extends ServiceNav {
   onBack: () => void
-  onOpenEcoParent: () => void
 }
 
 // "Danh sách dịch vụ" — everything behind "Xem thêm" on the ECO Me home.
 // Only the "Dịch vụ giáo dục" group exists here.
-export function EcoServicesScreen({ onBack, onOpenEcoParent, ...nav }: EcoServicesScreenProps) {
+export function EcoServicesScreen({ onBack, ...nav }: EcoServicesScreenProps) {
   const { launch, picker } = useServiceLauncher(nav)
 
   const pick = (s: EcoService) => {
     if (s.intent) launch(s.intent)
-    else if (s.ecoParent) onOpenEcoParent()
   }
 
   return (

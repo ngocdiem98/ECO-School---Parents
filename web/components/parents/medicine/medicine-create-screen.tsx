@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import type { MedicineDose, Student } from '@/lib/mock-data'
+import { DraftPromptDialog } from '@/components/parents/shared/draft-dialogs'
 import { NoteSheet } from './note-sheet'
+import { clearMedicineDraft, loadMedicineDraft, medicineDraftSummary, saveMedicineDraft, type MedicineDraft } from './draft'
 import {
   DEFAULT_FIRST_TIME,
   MAX_DOSES,
@@ -49,6 +51,21 @@ export function MedicineCreateScreen({
   const [photos, setPhotos] = useState<string[]>([])
   const [attempted, setAttempted] = useState(false)
   const [editingDose, setEditingDose] = useState<number | null>(null)
+  // Bản nháp của học sinh này: asked once when the form opens.
+  const [draftPrompt, setDraftPrompt] = useState<MedicineDraft | null>(null)
+  useEffect(() => {
+    setDraftPrompt(loadMedicineDraft(student.id))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const dirty =
+    note.trim() !== '' ||
+    photos.length > 0 ||
+    from !== today ||
+    to !== today ||
+    doses.length > 1 ||
+    doses[0].time !== DEFAULT_FIRST_TIME ||
+    doses.some((d) => d.note)
 
   const dateError = !from || !to || from > to ? 'Ngày không hợp lệ' : ''
   const doseErrors = doses.map((d, i) =>
@@ -73,15 +90,22 @@ export function MedicineCreateScreen({
     setPhotos((prev) => [...prev, ...picked.map((f) => URL.createObjectURL(f))])
   }
 
+  // Leaving never warns: a form with content is kept as the draft.
+  const leave = () => {
+    if (dirty) saveMedicineDraft(student.id, { from, to, doses, note, photos })
+    onBack()
+  }
+
   const submit = () => {
     setAttempted(true)
     if (!valid) return
+    clearMedicineDraft(student.id)
     onSubmit({ from, to, doses, note: note.trim(), photos })
   }
 
   return (
     <div className="screen">
-      <TopBar title="Tạo đơn dặn thuốc" onBack={onBack} />
+      <TopBar title="Tạo đơn dặn thuốc" onBack={leave} />
       <StudentHeader student={student} onChangeStudent={onChangeStudent} />
       <div className="field">
         <label>Hôm nay, ngày {fmtDate(today)}</label>
@@ -192,6 +216,24 @@ export function MedicineCreateScreen({
           Gửi
         </button>
       </div>
+
+      {draftPrompt && (
+        <DraftPromptDialog
+          lines={medicineDraftSummary(draftPrompt)}
+          onContinue={() => {
+            setFrom(draftPrompt.from)
+            setTo(draftPrompt.to)
+            setDoses(draftPrompt.doses)
+            setNote(draftPrompt.note)
+            setPhotos(draftPrompt.photos)
+            setDraftPrompt(null)
+          }}
+          onNew={() => {
+            clearMedicineDraft(student.id)
+            setDraftPrompt(null)
+          }}
+        />
+      )}
 
       {editingDose !== null && (
         <NoteSheet

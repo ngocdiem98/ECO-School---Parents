@@ -9,6 +9,9 @@ import { eligibleStudents } from '@/components/parents/shared/use-service-launch
 import { threadsFor, type ChatOrderCard, type ChatThread } from '@/lib/school-data'
 import { ChatThreadScreen } from './chat-thread-screen'
 import { timeAgo, previewOf } from './utils'
+import { CoachMarks } from '@/components/parents/shared/coach-marks'
+import { isSeen, markSeen } from '@/components/parents/shared/first-run'
+import { draftText } from './draft'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 interface ChatAppProps {
@@ -31,6 +34,16 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
   const switchable = eligibleStudents('chat')
   const canSwitch = switchable.length > 1
   const [, setVersion] = useState(0)
+  // Chỉ dẫn lần đầu (EDU-2106 phần B): step 1 on this list, step 2 on the
+  // composer of the first conversation opened. A notification deep link does
+  // not count as the first visit.
+  const [coach, setCoach] = useState<'list' | 'composer' | 'off'>(() =>
+    openThreadId || isSeen('coach-chat') ? 'off' : 'list',
+  )
+  const finishCoach = () => {
+    markSeen('coach-chat')
+    setCoach('off')
+  }
 
   const student = getStudent(selectedId)
   if (!student) return null
@@ -39,7 +52,10 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
   if (thread) {
     return (
       <ChatThreadScreen
+        key={thread.id}
         thread={thread}
+        showComposerCoach={coach === 'composer'}
+        onCoachDone={finishCoach}
         onBack={() => {
           if (openThreadId) onBack()
           else setThreadId(null)
@@ -72,7 +88,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
         if (!threads.length) return null
         const isClosed = collapsed.has(s.id)
         return (
-          <section key={s.id} className="chat-group">
+          <section key={s.id} className="chat-group" data-coach={s.id === order[0].id ? 'chat-list' : undefined}>
             <button
               className="chat-group-head"
               onClick={() =>
@@ -113,6 +129,15 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
         </div>
       )}
 
+      {coach === 'list' && (
+        <CoachMarks
+          steps={[{ target: 'chat-list', text: 'Nhắn riêng với giáo viên hoặc xem tin trong nhóm lớp.', nextLabel: 'Tiếp' }]}
+          totalSteps={2}
+          onDone={() => setCoach('composer')}
+          onSkip={finishCoach}
+        />
+      )}
+
       {showPicker && (
         <StudentPickerSheet
           students={switchable}
@@ -138,6 +163,7 @@ function findThread(id: string): ChatThread | undefined {
 
 function ThreadRow({ t, onOpen }: { t: ChatThread; onOpen: () => void }) {
   const last = t.messages[t.messages.length - 1]
+  const draft = draftText(t.id)
   return (
     <button className="chat-row" onClick={onOpen}>
       <span className={`chat-avatar ${t.kind}`}>{t.kind === 'group' ? <Users size={22} /> : 'GV'}</span>
@@ -147,8 +173,16 @@ function ThreadRow({ t, onOpen }: { t: ChatThread; onOpen: () => void }) {
           {last && <small>{timeAgo(last.at)}</small>}
         </span>
         <span className="chat-row-sub">
-          {t.kind === 'group' && <em>{t.members} thành viên · </em>}
-          {last ? previewOf(last) : 'Chưa có tin nhắn'}
+          {draft ? (
+            <>
+              <span className="chat-draft-tag">[Nháp]</span> {draft}
+            </>
+          ) : (
+            <>
+              {t.kind === 'group' && <em>{t.members} thành viên · </em>}
+              {last ? previewOf(last) : 'Chưa có tin nhắn'}
+            </>
+          )}
         </span>
       </span>
       {t.unread && <span className="chat-dot" aria-label="Chưa đọc" />}

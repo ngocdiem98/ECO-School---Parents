@@ -3,7 +3,8 @@ import type { ServiceIntent } from '@/components/parents/shared/use-service-laun
 // ECO Me service catalogue, in the order of the "Danh sách dịch vụ" screen
 // (Dịch vụ giáo dục). Entries with an `intent` open a student-scoped feature
 // (student picker when 2+ students qualify, straight in when exactly 1 does);
-// `ecoParent` opens the ECO Phụ huynh home; the rest are inert placeholders.
+// the rest are inert placeholders. The ECO School tile is gone (EDU-1742): the student
+// pages are reached from the student list on the ECO Me home.
 // `icon` is a key into ServiceIcon's icon table, `tint` its gradient.
 export interface EcoService {
   id: string
@@ -11,7 +12,6 @@ export interface EcoService {
   tint: [string, string]
   label: string
   intent?: ServiceIntent
-  ecoParent?: true
 }
 
 export const EDU_SERVICES: EcoService[] = [
@@ -35,7 +35,6 @@ export const EDU_SERVICES: EcoService[] = [
   { id: 'results', icon: 'library', tint: ['#6E7BF2', '#4553D6'], label: 'Kết quả học tập', intent: 'results' },
   { id: 'hocba', icon: 'notebook', tint: ['#FFAA5C', '#F57C2E'], label: 'Học bạ số', intent: 'digitalreport' },
   { id: 'feedback', icon: 'feedback', tint: ['#FF9466', '#E5532D'], label: 'Góp ý', intent: 'feedback' },
-  { id: 'eco-school', icon: 'id-card', tint: ['#6E86F5', '#4A62DB'], label: 'ECO School', ecoParent: true },
 ]
 
 // The ECO Me home shows 7 of them, then "Xem thêm" as the 8th tile.

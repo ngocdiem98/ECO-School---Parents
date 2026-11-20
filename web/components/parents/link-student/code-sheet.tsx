@@ -6,9 +6,11 @@ import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 export function CodeSheet({
   initialStudentCode = '',
   onClose,
+  onConfirm,
 }: {
   initialStudentCode?: string
   onClose: () => void
+  onConfirm?: (studentCode: string) => void
 }) {
   const [studentCode, setStudentCode] = useState(initialStudentCode)
   const [guardCode, setGuardCode] = useState('')
@@ -94,6 +96,7 @@ export function CodeSheet({
                 type="button"
                 className="eco-btn eco-btn--brand eco-btn--lg eco-btn--full"
                 disabled={!canConfirm}
+                onClick={() => onConfirm?.(studentCode.trim())}
               >
                 Xác nhận
               </button>

@@ -20,7 +20,7 @@ export function ServiceGrid({
   return (
     <div className="eco-grid">
       {services.map((s) => {
-        const live = !!(s.intent || s.ecoParent)
+        const live = !!s.intent
         return (
           <button key={s.id} className="svc-item" disabled={!live} onClick={() => onPick(s)}>
             <ServiceIcon id={s.id} name={s.icon} tint={s.tint} disabled={!live} />

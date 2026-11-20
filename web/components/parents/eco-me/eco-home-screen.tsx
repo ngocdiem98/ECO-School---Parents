@@ -18,6 +18,7 @@ import { MOCK_STUDENTS, fmtMoney, unreadNotificationCount } from '@/lib/mock-dat
 import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
 import { ServiceGrid } from './service-grid'
 import { EDU_SERVICES, HOME_SERVICE_IDS, type EcoService } from './services'
+import { CoachMarks } from '@/components/parents/shared/coach-marks'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 // Mock Ví ECO balance (same figure as the confirm screens' wallet row).
@@ -40,12 +41,18 @@ const TABS: { icon: LucideIcon; label: string; active?: boolean }[] = [
 
 interface EcoHomeScreenProps extends ServiceNav {
   onOpenServices: () => void
-  onOpenEcoParent: () => void
   onOpenNotifications: () => void
   onOpenTransfer: () => void
   onOpenWalletTopup: () => void
   onNavigateToStudent: (studentId: string) => void
   onNavigateToLinkStudent: () => void
+  // Floating widget "Bạn có n lời mời liên kết học sinh" (PRD 4.6): hidden when 0 or dismissed.
+  inviteCount?: number
+  onOpenInvites?: () => void
+  onDismissInvites?: () => void
+  // First-run guide after a link: spotlight on this student's card (EDU-2106).
+  coachStudentId?: string | null
+  onCoachDone?: () => void
 }
 
 // ECO Me home (the super-app landing): promo banner with greeting, wallet
@@ -55,12 +62,16 @@ interface EcoHomeScreenProps extends ServiceNav {
 // opens Thông báo.
 export function EcoHomeScreen({
   onOpenServices,
-  onOpenEcoParent,
   onOpenNotifications,
   onOpenTransfer,
   onOpenWalletTopup,
   onNavigateToStudent,
   onNavigateToLinkStudent,
+  inviteCount = 0,
+  onOpenInvites,
+  onDismissInvites,
+  coachStudentId,
+  onCoachDone,
   ...nav
 }: EcoHomeScreenProps) {
   const [showBalance, setShowBalance] = useState(true)
@@ -71,7 +82,6 @@ export function EcoHomeScreen({
 
   const pick = (s: EcoService) => {
     if (s.intent) launch(s.intent)
-    else if (s.ecoParent) onOpenEcoParent()
   }
 
   return (
@@ -170,7 +180,12 @@ export function EcoHomeScreen({
       </div>
       <div className="eco-students">
         {MOCK_STUDENTS.map((s) => (
-          <div className="student-card eco-student-card" key={s.id} onClick={() => onNavigateToStudent(s.id)}>
+          <div
+            className="student-card eco-student-card"
+            key={s.id}
+            data-coach={s.id === coachStudentId ? 'student-card' : undefined}
+            onClick={() => onNavigateToStudent(s.id)}
+          >
             <div className="student-card-head">
               <StudentAvatar student={s} />
               <div>
@@ -188,6 +203,19 @@ export function EcoHomeScreen({
         ))}
       </div>
 
+      <div className="eco-dock">
+      {inviteCount > 0 && !coachStudentId && (
+        <div className="eco-invite-widget" role="status">
+          <img className="eco-invite-avatar" src="/ds/avatars/pho-thong-nam.svg" alt="" />
+          <button className="eco-invite-main" onClick={onOpenInvites}>
+            <span className="eco-invite-title">Bạn có {inviteCount} lời mời liên kết học sinh</span>
+            <span className="eco-invite-cta">Xem lời mời →</span>
+          </button>
+          <button className="eco-invite-close" onClick={onDismissInvites} aria-label="Ẩn lời mời">
+            ×
+          </button>
+        </div>
+      )}
       <div className="eco-tabbar">
         {TABS.slice(0, 2).map(({ icon: Icon, label, active }) => (
           <button key={label} className={`eco-tab ${active ? 'active' : ''}`} disabled={!active}>
@@ -208,8 +236,16 @@ export function EcoHomeScreen({
           </button>
         ))}
       </div>
+      </div>
 
       {picker}
+      {coachStudentId && (
+        <CoachMarks
+          steps={[{ target: 'student-card', text: 'Bấm vào thẻ học sinh để xem thông tin, thẻ và các tiện ích của con.' }]}
+          onDone={() => onCoachDone?.()}
+          onSkip={() => onCoachDone?.()}
+        />
+      )}
     </div>
   )
 }

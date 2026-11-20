@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { EcoHomeScreen } from '@/components/parents/eco-me/eco-home-screen'
 import { EcoServicesScreen } from '@/components/parents/eco-me/eco-services-screen'
-import { ParentsHomeScreen } from '@/components/parents/home-screen'
+import { isSeen, markSeen, resetAllSeen } from '@/components/parents/shared/first-run'
 import { StudentScreen } from '@/components/parents/student-screen'
 import { ProfileApp } from '@/components/parents/profile'
+import { CardDetailApp } from '@/components/parents/card-detail'
 import { PhieuBeNgoanApp } from '@/components/parents/phieu-be-ngoan'
 import { FeeApp } from '@/components/parents/fee'
 import { TopupApp } from '@/components/parents/topup'
@@ -26,8 +27,12 @@ import { ChatApp } from '@/components/parents/chat'
 import { GalleryApp } from '@/components/parents/gallery'
 import { FeedbackApp } from '@/components/parents/feedback'
 import type { ServiceIntent } from '@/components/parents/shared/use-service-launcher'
-import type { NotificationTarget } from '@/lib/mock-data'
+import { MOCK_INVITES, pendingInvites, type NotificationTarget } from '@/lib/mock-data'
 import { LinkStudentApp } from '@/components/parents/link-student'
+import { LinkInviteApp, type InviteView } from '@/components/parents/link-invite'
+import { LinkManageApp } from '@/components/parents/link-manage'
+import { Toast } from '@/components/parents/shared/toast'
+import { useToast } from '@/components/parents/shared/use-toast'
 import { HelpApp } from '@/components/parents/help'
 import { PostpaidFeeApp } from '@/components/parents/postpaid-fee'
 import { ChildDevelopmentScreen } from '@/components/parents/development'
@@ -60,9 +65,9 @@ type Screen =
   | 'eco-home'
   | 'eco-services'
   | 'notifications'
-  | 'home'
   | 'student'
   | 'profile'
+  | 'card-detail'
   | 'phieu-be-ngoan'
   | 'fee'
   | 'topup'
@@ -90,6 +95,8 @@ type Screen =
   | 'transfer'
   | 'topup-wallet'
   | 'link-student'
+  | 'link-invite'
+  | 'link-manage'
   | 'help'
 
 // Which screen each service intent opens (Phiếu bé ngoan / Hóa đơn keep their
@@ -119,12 +126,15 @@ const INTENT_SCREEN: Record<ServiceIntent, Screen> = {
   healthadvice: 'health-advice',
   survey: 'survey',
   digitalreport: 'digital-report',
+  linkmanage: 'link-manage',
 }
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('eco-home')
   const [returnScreen, setReturnScreen] = useState<Screen>('eco-home')
   const [activeStudentId, setActiveStudentId] = useState<string | null>(null)
+  // Tab Hồ sơ học sinh opens on (Hồ sơ học sinh tile → Thông tin chung, Sức khoẻ tile → Sức khoẻ).
+  const [profileTab, setProfileTab] = useState<'info' | 'health'>('info')
   // Deep links: Dặn thuốc opened on a given order (notification, chat order
   // card), Trao đổi on a given conversation, Báo vắng straight on its form.
   const [medicineOrderId, setMedicineOrderId] = useState<string | null>(null)
@@ -136,8 +146,31 @@ export default function Page() {
   const [subReturn, setSubReturn] = useState<Screen | null>(null)
   // The QR scanner takes the whole screen; the link intro and ECO Me home draw their hero under the status bar.
   const [isLinkScanning, setIsLinkScanning] = useState(false)
+  // Lời mời liên kết của trường (PRD 4.6): which invite screen is open, and whether the
+  // floating widget on the ECO Me home was dismissed (for this session only).
+  const [inviteNav, setInviteNav] = useState<{ view: InviteView; inviteId?: string }>({ view: 'list' })
+  const [inviteWidgetHidden, setInviteWidgetHidden] = useState(false)
+  const { toast, toastSuccess, show: showToast } = useToast()
+  // After the first link (EDU-1953): a manual link opens the new student's page; after an invite
+  // the ECO Me home shows a one-time spotlight on the new student card.
+  const [cardCoachId, setCardCoachId] = useState<string | null>(null)
+  const afterLinked = (studentId: string, to: 'student' | 'home') => {
+    setActiveStudentId(studentId)
+    if (to === 'student') {
+      setStudentOrigin('eco-home')
+      setScreen('student')
+    } else {
+      setScreen('eco-home')
+      if (!isSeen('coach-student-card')) setCardCoachId(studentId)
+    }
+  }
   // On a real phone (or ?mobile=1) the iPhone frame is dropped and the app fills the screen.
   const [isMobile, setIsMobile] = useState(false)
+  // `?firstrun=1` clears the "đã xem" flags of the first-run guides (EDU-2106).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('firstrun') === '1') resetAllSeen()
+  }, [])
+
   useEffect(() => {
     const update = () => {
       const params = new URLSearchParams(window.location.search)
@@ -184,11 +217,23 @@ export default function Page() {
   }
   // Where "Về trang chủ" should land: the home the current flow started from.
   const originHome: Screen =
-    returnScreen === 'student' ? studentOrigin : returnScreen === 'eco-services' ||
+    returnScreen === 'student' || returnScreen === 'card-detail' || returnScreen === 'profile' ? studentOrigin : returnScreen === 'eco-services' ||
         returnScreen === 'notifications' ||
         returnScreen === 'transfer' ||
         returnScreen === 'topup-wallet'
       ? 'eco-home' : returnScreen
+
+  // One pending invite opens its detail, two or more open the list (floating widget and notifications).
+  const openInvites = (from: Screen, inviteId?: string) => {
+    const pending = pendingInvites()
+    const target = inviteId ? MOCK_INVITES.find((i) => i.id === inviteId) : undefined
+    if (inviteId && (!target || target.status !== 'pending')) setInviteNav({ view: 'expired' })
+    else if (pending.length === 0) return
+    else if (pending.length === 1) setInviteNav({ view: 'detail', inviteId: pending[0].id })
+    else setInviteNav({ view: 'list' })
+    setReturnScreen(from)
+    setScreen('link-invite')
+  }
 
   return (
     <div className={`desktop-backdrop ${isMobile ? 'desktop-backdrop--mobile' : ''}`}>
@@ -224,13 +269,20 @@ export default function Page() {
                   {...serviceNav('eco-home')}
                   onOpenServices={() => setScreen('eco-services')}
                   onOpenNotifications={() => setScreen('notifications')}
-                  onOpenEcoParent={() => setScreen('home')}
                   onOpenTransfer={() => setScreen('transfer')}
                   onOpenWalletTopup={() => setScreen('topup-wallet')}
                   onNavigateToStudent={openStudent('eco-home')}
                   onNavigateToLinkStudent={() => {
                     setReturnScreen('eco-home')
                     setScreen('link-student')
+                  }}
+                  inviteCount={inviteWidgetHidden ? 0 : pendingInvites().length}
+                  onOpenInvites={() => openInvites('eco-home')}
+                  onDismissInvites={() => setInviteWidgetHidden(true)}
+                  coachStudentId={cardCoachId}
+                  onCoachDone={() => {
+                    markSeen('coach-student-card')
+                    setCardCoachId(null)
                   }}
                 />
               )}
@@ -239,6 +291,12 @@ export default function Page() {
                 <NotificationsApp
                   onBack={() => setScreen('eco-home')}
                   onOpenTarget={(target: NotificationTarget) => {
+                    if (target.type === 'invite') return openInvites('notifications', target.inviteId)
+                    if (target.type === 'invite-expired') {
+                      setInviteNav({ view: 'expired' })
+                      setReturnScreen('notifications')
+                      return setScreen('link-invite')
+                    }
                     openService(target.type === 'medicine' ? 'medicine' : (target.intent as ServiceIntent), target.studentId, 'notifications')
                     if (target.type === 'medicine') setMedicineOrderId(target.orderId)
                     else if (target.threadId) setChatThreadId(target.threadId)
@@ -251,23 +309,6 @@ export default function Page() {
                 <EcoServicesScreen
                   {...serviceNav('eco-services')}
                   onBack={() => setScreen('eco-home')}
-                  onOpenEcoParent={() => setScreen('home')}
-                />
-              )}
-
-              {screen === 'home' && (
-                <ParentsHomeScreen
-                  {...serviceNav('home')}
-                  onBack={() => setScreen('eco-home')}
-                  onNavigateToStudent={openStudent('home')}
-                  onNavigateToHelp={() => {
-                    setReturnScreen('home')
-                    setScreen('help')
-                  }}
-                  onNavigateToLinkStudent={() => {
-                    setReturnScreen('home')
-                    setScreen('link-student')
-                  }}
                 />
               )}
 
@@ -276,16 +317,49 @@ export default function Page() {
                   studentId={activeStudentId}
                   onBack={() => setScreen(studentOrigin)}
                   onSelectStudent={setActiveStudentId}
-                  onOpenProfile={(studentId) => {
+                  onOpenProfile={(studentId, tab) => {
                     setActiveStudentId(studentId)
+                    setProfileTab(tab)
                     setScreen('profile')
+                  }}
+                  onOpenCard={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setScreen('card-detail')
+                  }}
+                  onOpenHelp={() => {
+                    setReturnScreen('student')
+                    setScreen('help')
                   }}
                   onOpenService={(intent, studentId) => openService(intent, studentId, 'student')}
                 />
               )}
 
+              {screen === 'card-detail' && activeStudentId && (
+                <CardDetailApp
+                  studentId={activeStudentId}
+                  onBack={() => setScreen('student')}
+                  onSelectStudent={setActiveStudentId}
+                  onOpenHelp={() => {
+                    setReturnScreen('card-detail')
+                    setScreen('help')
+                  }}
+                  onOpenService={(intent, studentId) => openService(intent, studentId, 'card-detail')}
+                />
+              )}
+
               {screen === 'profile' && activeStudentId && (
-                <ProfileApp studentId={activeStudentId} onBack={() => setScreen('student')} />
+                <ProfileApp
+                  studentId={activeStudentId}
+                  initialTab={profileTab}
+                  key={activeStudentId + profileTab}
+                  onBack={() => setScreen('student')}
+                  onSelectStudent={setActiveStudentId}
+                  onOpenLinkManage={(studentId) => openService('linkmanage', studentId, 'profile')}
+                  onOpenService={(intent, studentId) => {
+                    setProfileTab('health') // back from Gợi ý cho ba mẹ returns to the Sức khoẻ tab
+                    openService(intent, studentId, 'profile')
+                  }}
+                />
               )}
 
               {screen === 'phieu-be-ngoan' && activeStudentId && (
@@ -459,11 +533,42 @@ export default function Page() {
               )}
 
               {screen === 'link-student' && (
-                <LinkStudentApp onBack={() => setScreen(returnScreen)} onScanModeChange={setIsLinkScanning} />
+                <LinkStudentApp
+                  onBack={() => setScreen(returnScreen)}
+                  onScanModeChange={setIsLinkScanning}
+                  onLinked={(studentId) => afterLinked(studentId, 'student')}
+                />
+              )}
+
+              {screen === 'link-invite' && (
+                <LinkInviteApp
+                  initial={inviteNav}
+                  onBack={() => setScreen(returnScreen)}
+                  onGoEcoMe={() => setScreen('eco-home')}
+                  onLinked={(studentId) => afterLinked(studentId, 'home')}
+                  onToast={showToast}
+                />
+              )}
+
+              {screen === 'link-manage' && activeStudentId && (
+                <LinkManageApp
+                  studentId={activeStudentId}
+                  onBack={() => setScreen(returnScreen)}
+                  onSelectStudent={setActiveStudentId}
+                  onLeft={(studentId) => {
+                    const i = MOCK_STUDENTS.findIndex((x) => x.id === studentId)
+                    if (i >= 0) MOCK_STUDENTS.splice(i, 1)
+                    setActiveStudentId(null)
+                    setScreen('eco-home')
+                    showToast('Đã huỷ liên kết với học sinh')
+                  }}
+                />
               )}
 
               {screen === 'help' && <HelpApp onBack={() => setScreen(returnScreen)} />}
             </main>
+
+            {toast && <Toast message={toast} success={toastSuccess} />}
 
             <div className="overlay-root" id="overlay-root" />
           </div>

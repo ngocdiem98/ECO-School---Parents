@@ -2,16 +2,20 @@
 
 import { useState } from 'react'
 import { CodeSheet } from './code-sheet'
+import { linkStudentByCode } from '@/lib/mock-data'
 import { QrScannerScreen } from './qr-scanner-screen'
 
 interface LinkStudentAppProps {
   onBack: () => void
   onScanModeChange?: (isScanning: boolean) => void
+  // Linked successfully (code sheet confirmed): the caller opens the new student.
+  onLinked?: (studentId: string) => void
 }
 
 export function LinkStudentApp({
   onBack,
   onScanModeChange,
+  onLinked,
 }: LinkStudentAppProps) {
   const [showCodeSheet, setShowCodeSheet] = useState(false)
   const [showQrScanner, setShowQrScanner] = useState(false)
@@ -224,6 +228,10 @@ export function LinkStudentApp({
         <CodeSheet
           initialStudentCode={scannedCode}
           onClose={() => setShowCodeSheet(false)}
+          onConfirm={(code) => {
+            setShowCodeSheet(false)
+            onLinked?.(linkStudentByCode(code).id)
+          }}
         />
       )}
     </div>

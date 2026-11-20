@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type AbsenceRequest, type AbsenceStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
+import { DraftPromptDialog } from '@/components/parents/shared/draft-dialogs'
 import { Dialog } from '@/components/parents/shared/dialog'
 import { AbsenceListScreen } from './absence-list-screen'
 import { AbsenceDetailScreen } from './absence-detail-screen'
+import { CoachMarks, type CoachStep } from '@/components/parents/shared/coach-marks'
+import { useFirstRun } from '@/components/parents/shared/first-run'
+import { clearDraft, draftSummary, loadDraft, saveDraft } from './draft'
 import { AbsenceCreateScreen, DEFAULT_ABSENCE_FORM, type AbsenceFormState } from './absence-create-screen'
 
 interface AbsenceAppProps {
@@ -17,6 +21,12 @@ interface AbsenceAppProps {
 }
 
 type AbsenceScreen = 'list' | 'create' | 'detail'
+
+// Chỉ dẫn lần đầu (EDU-2106 phần B).
+const COACH: CoachStep[] = [
+  { target: 'absence-create', text: 'Bấm vào đây để báo con nghỉ học, chọn ngày và lý do nghỉ.' },
+  { target: 'absence-status', text: 'Theo dõi đơn đã gửi tại đây: Chờ duyệt, Đã duyệt.' },
+]
 
 // Mirrors App.confirmAbsence() in ../../../scripts/app.js: mutates the
 // module-level MOCK_STUDENTS array in place (same "no real store" pattern
@@ -34,16 +44,37 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
   const canSwitch = switchable.length > 1
   const [showSuccess, setShowSuccess] = useState(false)
   const [, setVersion] = useState(0)
+  // Bản nháp (EDU-2095): the "Tiếp tục bản nháp?" popup shows the saved form.
+  const [draftPrompt, setDraftPrompt] = useState<AbsenceFormState | null>(null)
+  // Not shown when the feature is opened straight on the create form (shortcut).
+  const coach = useFirstRun('coach-absence', screen === 'list' && !startOnCreate)
+
+  useEffect(() => {
+    if (startOnCreate) setDraftPrompt(loadDraft(selectedStudentId))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const student = getStudent(selectedStudentId)
   if (!student) return null
 
   const handleFieldChange = <K extends keyof AbsenceFormState>(field: K, value: AbsenceFormState[K]) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    const next = { ...form, [field]: value }
+    setForm(next)
+    saveDraft(selectedStudentId, next)
   }
 
   const handleAddPhotos = (count: number) => {
-    setForm((prev) => ({ ...prev, photos: Math.min(10, prev.photos + count) }))
+    const next = { ...form, photos: Math.min(10, form.photos + count) }
+    setForm(next)
+    saveDraft(selectedStudentId, next)
+  }
+
+  const leaveCreate = () => (startOnCreate ? onBack() : setScreen('list'))
+
+  const openCreate = () => {
+    setForm(DEFAULT_ABSENCE_FORM)
+    setDraftPrompt(loadDraft(selectedStudentId))
+    setScreen('create')
   }
 
   const handleSubmit = () => {
@@ -69,6 +100,7 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
       toDate: fmt(form.to),
     })
     setVersion((v) => v + 1)
+    clearDraft(selectedStudentId)
     setForm(DEFAULT_ABSENCE_FORM)
     setShowSuccess(false)
     setFilter('all')
@@ -108,7 +140,7 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
           }}
           onBack={onBack}
           onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
-          onCreate={() => setScreen('create')}
+          onCreate={openCreate}
         />
       ) : (
         <AbsenceCreateScreen
@@ -116,7 +148,7 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
           form={form}
           onFieldChange={handleFieldChange}
           onAddPhotos={handleAddPhotos}
-          onBack={() => (startOnCreate ? onBack() : setScreen('list'))}
+          onBack={leaveCreate}
           onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined}
           onSubmit={handleSubmit}
         />
@@ -128,11 +160,30 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)
+            setForm(DEFAULT_ABSENCE_FORM)
+            setDraftPrompt(null)
             setScreen('list')
             setFilter('all')
             setShowPicker(false)
           }}
           onClose={() => setShowPicker(false)}
+        />
+      )}
+
+      {coach.active && screen === 'list' && <CoachMarks steps={COACH} onDone={coach.finish} onSkip={coach.finish} />}
+
+      {draftPrompt && (
+        <DraftPromptDialog
+          lines={draftSummary(draftPrompt)}
+          onContinue={() => {
+            setForm(draftPrompt)
+            setDraftPrompt(null)
+          }}
+          onNew={() => {
+            clearDraft(selectedStudentId)
+            setForm(DEFAULT_ABSENCE_FORM)
+            setDraftPrompt(null)
+          }}
         />
       )}
 

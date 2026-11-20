@@ -45,10 +45,13 @@ export function StudentPickerSheet({
                 <div className="student-name">{s.name}</div>
                 <div className="student-code">{s.code}</div>
               </div>
-              <div className="right">
-                <div className="lbl">Số dư thẻ</div>
-                <div className="val">{s.balance.toLocaleString('vi-VN')} điểm</div>
-              </div>
+              {/* Học sinh không có thẻ (trường không dùng thẻ): không hiện số dư. */}
+              {s.card && (
+                <div className="right">
+                  <div className="lbl">Số dư thẻ</div>
+                  <div className="val">{s.balance.toLocaleString('vi-VN')} điểm</div>
+                </div>
+              )}
             </div>
           ))}
         </div>
