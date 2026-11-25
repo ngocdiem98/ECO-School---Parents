@@ -8,8 +8,6 @@ import { Dialog } from '@/components/parents/shared/dialog'
 import { MedicineListScreen } from './medicine-list-screen'
 import { MedicineCreateScreen, type MedicineSubmit } from './medicine-create-screen'
 import { MedicineDetailScreen } from './medicine-detail-screen'
-import { CoachMarks, type CoachStep } from '@/components/parents/shared/coach-marks'
-import { useFirstRun } from '@/components/parents/shared/first-run'
 import { Toast } from '@/components/parents/shared/toast'
 
 interface MedicineAppProps {
@@ -21,12 +19,6 @@ interface MedicineAppProps {
 }
 
 type MedicineScreen = 'list' | 'create' | 'detail'
-
-// Chỉ dẫn lần đầu (EDU-2106 phần B).
-const COACH: CoachStep[] = [
-  { target: 'medicine-create', text: 'Gửi cô đơn dặn thuốc kèm ảnh thuốc, liều và giờ uống.' },
-  { target: 'medicine-list', text: 'Xem cô đã nhận và cho con uống thuốc chưa tại đây.' },
-]
 
 // [PH-13] Phụ huynh gửi đơn dặn thuốc. No vanilla counterpart — built from
 // the PRD (Confluence EDUS, pageId 99230047). Same "mutate MOCK_STUDENTS in
@@ -45,8 +37,6 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
   const [showCancelled, setShowCancelled] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [, setVersion] = useState(0)
-  // Opening an order from a notification does not count as the first visit.
-  const coach = useFirstRun('coach-medicine', screen === 'list' && !openOrderId)
 
   useEffect(() => {
     if (!toast) return
@@ -108,8 +98,6 @@ export function MedicineApp({ studentId, openOrderId, onBack }: MedicineAppProps
           onToast={setToast}
         />
       )}
-
-      {coach.active && screen === 'list' && <CoachMarks steps={COACH} onDone={coach.finish} onSkip={coach.finish} />}
 
       {showPicker && (
         <StudentPickerSheet

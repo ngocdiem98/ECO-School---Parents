@@ -9,9 +9,19 @@ import { useCallback, useEffect, useState } from 'react'
 // "đăng xuất hoặc cài lại app").
 const PREFIX = 'eco-firstrun:'
 const memory = new Set<string>()
+let resetChecked = false
+
+// Runs before the first read: the ECO Me home guide mounts together with the page,
+// so clearing the flags from a page-level effect would come too late.
+function applyResetParam() {
+  if (resetChecked) return
+  resetChecked = true
+  if (new URLSearchParams(window.location.search).get('firstrun') === '1') resetAllSeen()
+}
 
 export function isSeen(key: string): boolean {
   if (typeof window === 'undefined') return true
+  applyResetParam()
   if (memory.has(key)) return true
   try {
     return localStorage.getItem(PREFIX + key) === '1'
@@ -29,7 +39,7 @@ export function markSeen(key: string) {
   }
 }
 
-export function resetAllSeen() {
+function resetAllSeen() {
   memory.clear()
   try {
     Object.keys(localStorage)

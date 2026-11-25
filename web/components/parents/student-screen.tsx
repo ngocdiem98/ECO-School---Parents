@@ -12,6 +12,15 @@ import { PagedIconGrid } from '@/components/parents/shared/paged-icon-grid'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
 import { getSurveyState, isParentEligibleForSurvey } from '@/lib/survey-storage'
+import { CoachMarks, type CoachStep } from '@/components/parents/shared/coach-marks'
+import { useFirstRun } from '@/components/parents/shared/first-run'
+
+// First-run guide of the page (EDU-2106).
+const COACH: CoachStep[] = [
+  { target: 'sp-tiles', text: 'Xem hồ sơ và tình hình sức khoẻ của con tại đây.' },
+  { target: 'sp-services', text: 'Các tiện ích của nhà trường dành cho con nằm tại đây.' },
+  { target: 'sp-help', text: 'Bấm dấu chấm hỏi để xem hướng dẫn sử dụng.' },
+]
 
 // Trang Học sinh (PRD "[PH] Enhance Trang Học sinh", Figma EDU-1819): a short
 // page with the student bar, two entry tiles (Hồ sơ học sinh / Sức khoẻ), the
@@ -40,6 +49,7 @@ export function StudentScreen({
   const [showPicker, setShowPicker] = useState(false)
   const [, setVersion] = useState(0)
   const { toast, show } = useToast()
+  const coach = useFirstRun('coach-student')
   const student = getStudent(studentId)
   if (!student) return null
 
@@ -61,7 +71,7 @@ export function StudentScreen({
           ‹
         </button>
         <div className="topbar-title">Học sinh</div>
-        <button className="icon-btn" onClick={onOpenHelp} aria-label="Hướng dẫn sử dụng">
+        <button className="icon-btn" data-coach="sp-help" onClick={onOpenHelp} aria-label="Hướng dẫn sử dụng">
           <HelpCircle size={24} strokeWidth={1.8} />
         </button>
       </div>
@@ -81,7 +91,7 @@ export function StudentScreen({
       )}
 
       <div className="sp-body">
-        <div className="sp-tiles">
+        <div className="sp-tiles" data-coach="sp-tiles">
           <button className="sp-tile" onClick={() => onOpenProfile(student.id, 'info')}>
             <span className="sp-tile-icon sp-tile-icon--blue">
               <UserRound size={22} strokeWidth={1.8} />
@@ -121,7 +131,7 @@ export function StudentScreen({
           </div>
         )}
 
-        <div className="sp-panel">
+        <div className="sp-panel" data-coach="sp-services">
           <PagedIconGrid
             pages={chunk(
               PARENT_SERVICES.filter(
@@ -181,6 +191,8 @@ export function StudentScreen({
           onClose={() => setShowPicker(false)}
         />
       )}
+
+      {coach.active && <CoachMarks steps={COACH} onDone={coach.finish} onSkip={coach.finish} />}
 
       {toast && <Toast message={toast} />}
     </div>

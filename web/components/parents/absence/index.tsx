@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type AbsenceRequest, type AbsenceStatus } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
@@ -8,8 +8,6 @@ import { DraftPromptDialog } from '@/components/parents/shared/draft-dialogs'
 import { Dialog } from '@/components/parents/shared/dialog'
 import { AbsenceListScreen } from './absence-list-screen'
 import { AbsenceDetailScreen } from './absence-detail-screen'
-import { CoachMarks, type CoachStep } from '@/components/parents/shared/coach-marks'
-import { useFirstRun } from '@/components/parents/shared/first-run'
 import { clearDraft, draftSummary, loadDraft, saveDraft } from './draft'
 import { AbsenceCreateScreen, DEFAULT_ABSENCE_FORM, type AbsenceFormState } from './absence-create-screen'
 
@@ -22,12 +20,6 @@ interface AbsenceAppProps {
 
 type AbsenceScreen = 'list' | 'create' | 'detail'
 
-// Chỉ dẫn lần đầu (EDU-2106 phần B).
-const COACH: CoachStep[] = [
-  { target: 'absence-create', text: 'Bấm vào đây để báo con nghỉ học, chọn ngày và lý do nghỉ.' },
-  { target: 'absence-status', text: 'Theo dõi đơn đã gửi tại đây: Chờ duyệt, Đã duyệt.' },
-]
-
 // Mirrors App.confirmAbsence() in ../../../scripts/app.js: mutates the
 // module-level MOCK_STUDENTS array in place (same "no real store" pattern
 // eduteachers uses for its own PHIEU_BE_NGOAN_RECORDS — see its
@@ -35,7 +27,14 @@ const COACH: CoachStep[] = [
 // to force React to re-read it.
 export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps) {
   const [selectedStudentId, setSelectedStudentId] = useState(studentId)
-  const [screen, setScreen] = useState<AbsenceScreen>(startOnCreate ? 'create' : 'list')
+  // Bản nháp (EDU-2095): asked on the list, before the create form opens. The
+  // shortcut from Theo dõi điểm danh therefore stops on the list when a draft exists.
+  const [draftPrompt, setDraftPrompt] = useState<AbsenceFormState | null>(() =>
+    startOnCreate ? loadDraft(studentId) : null,
+  )
+  const [screen, setScreen] = useState<AbsenceScreen>(startOnCreate && !draftPrompt ? 'create' : 'list')
+  // True while the form was reached through the shortcut: back returns to where it came from.
+  const [fromShortcut, setFromShortcut] = useState(!!startOnCreate)
   const [selectedAbsence, setSelectedAbsence] = useState<AbsenceRequest | null>(null)
   const [filter, setFilter] = useState<'all' | AbsenceStatus>('all')
   const [form, setForm] = useState<AbsenceFormState>(DEFAULT_ABSENCE_FORM)
@@ -44,16 +43,6 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
   const canSwitch = switchable.length > 1
   const [showSuccess, setShowSuccess] = useState(false)
   const [, setVersion] = useState(0)
-  // Bản nháp (EDU-2095): the "Tiếp tục bản nháp?" popup shows the saved form.
-  const [draftPrompt, setDraftPrompt] = useState<AbsenceFormState | null>(null)
-  // Not shown when the feature is opened straight on the create form (shortcut).
-  const coach = useFirstRun('coach-absence', screen === 'list' && !startOnCreate)
-
-  useEffect(() => {
-    if (startOnCreate) setDraftPrompt(loadDraft(selectedStudentId))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const student = getStudent(selectedStudentId)
   if (!student) return null
 
@@ -64,17 +53,22 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
   }
 
   const handleAddPhotos = (count: number) => {
-    const next = { ...form, photos: Math.min(10, form.photos + count) }
-    setForm(next)
-    saveDraft(selectedStudentId, next)
+    setForm({ ...form, photos: Math.min(10, form.photos + count) }) // photos are not drafted
   }
 
-  const leaveCreate = () => (startOnCreate ? onBack() : setScreen('list'))
+  const leaveCreate = () => (fromShortcut ? onBack() : setScreen('list'))
+
+  const startForm = (initial: AbsenceFormState) => {
+    setForm(initial)
+    setDraftPrompt(null)
+    setScreen('create')
+  }
 
   const openCreate = () => {
-    setForm(DEFAULT_ABSENCE_FORM)
-    setDraftPrompt(loadDraft(selectedStudentId))
-    setScreen('create')
+    setFromShortcut(false)
+    const draft = loadDraft(selectedStudentId)
+    if (draft) setDraftPrompt(draft)
+    else startForm(DEFAULT_ABSENCE_FORM)
   }
 
   const handleSubmit = () => {
@@ -170,20 +164,18 @@ export function AbsenceApp({ studentId, startOnCreate, onBack }: AbsenceAppProps
         />
       )}
 
-      {coach.active && screen === 'list' && <CoachMarks steps={COACH} onDone={coach.finish} onSkip={coach.finish} />}
-
       {draftPrompt && (
         <DraftPromptDialog
+          title="Bạn có đơn nháp"
+          continueLabel="Mở đơn nháp"
+          newLabel="Tạo đơn mới"
           lines={draftSummary(draftPrompt)}
-          onContinue={() => {
-            setForm(draftPrompt)
-            setDraftPrompt(null)
-          }}
+          onContinue={() => startForm(draftPrompt)}
           onNew={() => {
             clearDraft(selectedStudentId)
-            setForm(DEFAULT_ABSENCE_FORM)
-            setDraftPrompt(null)
+            startForm(DEFAULT_ABSENCE_FORM)
           }}
+          onClose={() => setDraftPrompt(null)}
         />
       )}
 

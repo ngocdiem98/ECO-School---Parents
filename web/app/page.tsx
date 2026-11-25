@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { EcoHomeScreen } from '@/components/parents/eco-me/eco-home-screen'
 import { EcoServicesScreen } from '@/components/parents/eco-me/eco-services-screen'
-import { isSeen, markSeen, resetAllSeen } from '@/components/parents/shared/first-run'
 import { StudentScreen } from '@/components/parents/student-screen'
 import { ProfileApp } from '@/components/parents/profile'
 import { CardDetailApp } from '@/components/parents/card-detail'
@@ -151,9 +150,8 @@ export default function Page() {
   const [inviteNav, setInviteNav] = useState<{ view: InviteView; inviteId?: string }>({ view: 'list' })
   const [inviteWidgetHidden, setInviteWidgetHidden] = useState(false)
   const { toast, toastSuccess, show: showToast } = useToast()
-  // After the first link (EDU-1953): a manual link opens the new student's page; after an invite
-  // the ECO Me home shows a one-time spotlight on the new student card.
-  const [cardCoachId, setCardCoachId] = useState<string | null>(null)
+  // After a link (EDU-1953): a manual link opens the new student's page; an invite returns to the
+  // ECO Me home.
   const afterLinked = (studentId: string, to: 'student' | 'home') => {
     setActiveStudentId(studentId)
     if (to === 'student') {
@@ -161,16 +159,10 @@ export default function Page() {
       setScreen('student')
     } else {
       setScreen('eco-home')
-      if (!isSeen('coach-student-card')) setCardCoachId(studentId)
     }
   }
   // On a real phone (or ?mobile=1) the iPhone frame is dropped and the app fills the screen.
   const [isMobile, setIsMobile] = useState(false)
-  // `?firstrun=1` clears the "đã xem" flags of the first-run guides (EDU-2106).
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('firstrun') === '1') resetAllSeen()
-  }, [])
-
   useEffect(() => {
     const update = () => {
       const params = new URLSearchParams(window.location.search)
@@ -279,11 +271,6 @@ export default function Page() {
                   inviteCount={inviteWidgetHidden ? 0 : pendingInvites().length}
                   onOpenInvites={() => openInvites('eco-home')}
                   onDismissInvites={() => setInviteWidgetHidden(true)}
-                  coachStudentId={cardCoachId}
-                  onCoachDone={() => {
-                    markSeen('coach-student-card')
-                    setCardCoachId(null)
-                  }}
                 />
               )}
 

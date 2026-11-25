@@ -7,8 +7,6 @@ export interface CoachStep {
   /** Value of the target's `data-coach` attribute. */
   target: string
   text: string
-  /** Overrides the default button label ("Tiếp", or "Đã hiểu" on the last step). */
-  nextLabel?: string
 }
 
 interface Box {
@@ -20,25 +18,20 @@ interface Box {
   rootH: number
 }
 
-const MAX_SPOT_H = 200
+const MAX_SPOT_H = 280
 const BUBBLE_H = 150
 
 // First-run guide (EDU-2106 phần B): dims the screen, cuts a spotlight around
 // the element tagged data-coach="…" and shows a bubble with 1–2 sentences,
-// "Tiếp" / "Đã hiểu" and "Bỏ qua". `stepOffset` / `totalSteps` let a guide
-// continue on another screen (Trao đổi: list, then the composer).
+// "Tiếp" / "Đã hiểu" and "Bỏ qua".
 export function CoachMarks({
   steps,
   onDone,
   onSkip,
-  stepOffset = 0,
-  totalSteps = steps.length,
 }: {
   steps: CoachStep[]
   onDone: () => void
   onSkip: () => void
-  stepOffset?: number
-  totalSteps?: number
 }) {
   const [idx, setIdx] = useState(0)
   const [box, setBox] = useState<Box | null>(null)
@@ -92,7 +85,7 @@ export function CoachMarks({
   const bubbleLeft = Math.min(Math.max(16, spot.left + spot.width / 2 - bubbleW / 2), box.rootW - bubbleW - 16)
   const arrowLeft = Math.min(Math.max(20, spot.left + spot.width / 2 - bubbleLeft), bubbleW - 20)
   const isLast = idx === steps.length - 1
-  const label = step.nextLabel ?? (isLast ? 'Đã hiểu' : 'Tiếp')
+  const label = isLast ? 'Đã hiểu' : 'Tiếp'
 
   return (
     <OverlayPortal>
@@ -110,7 +103,7 @@ export function CoachMarks({
           <div className="coach-text">{step.text}</div>
           <div className="coach-foot">
             <span className="coach-count">
-              {stepOffset + idx + 1}/{totalSteps}
+              {idx + 1}/{steps.length}
             </span>
             <button className="coach-skip" onClick={onSkip}>
               Bỏ qua

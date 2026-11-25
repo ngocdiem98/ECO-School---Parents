@@ -56,8 +56,8 @@ export function MedicineListScreen({
         ))}
       </div>
       {items.length ? (
-        items.map((o, i) => (
-          <div className="card med-card" key={o.id} data-coach={i === 0 ? 'medicine-list' : undefined} onClick={() => onOpen(o.id)}>
+        items.map((o) => (
+          <div className="card med-card" key={o.id} onClick={() => onOpen(o.id)}>
             <div className="feedback-row">
               <span style={{ fontWeight: 700 }}>
                 {fmtDate(o.from)} - {fmtDate(o.to)}
@@ -73,13 +73,13 @@ export function MedicineListScreen({
           </div>
         ))
       ) : (
-        <div className="empty-state" data-coach="medicine-list">
+        <div className="empty-state">
           <div className="glyph">✛</div>
           <div className="text">Chưa có đơn dặn thuốc</div>
         </div>
       )}
       <div className="cta-bar sticky">
-        <button className="btn btn-primary" data-coach="medicine-create" onClick={onCreate}>
+        <button className="btn btn-primary" onClick={onCreate}>
           Tạo đơn dặn thuốc
         </button>
       </div>

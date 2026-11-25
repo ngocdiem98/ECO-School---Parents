@@ -18,8 +18,18 @@ import { MOCK_STUDENTS, fmtMoney, unreadNotificationCount } from '@/lib/mock-dat
 import { useServiceLauncher, type ServiceNav } from '@/components/parents/shared/use-service-launcher'
 import { ServiceGrid } from './service-grid'
 import { EDU_SERVICES, HOME_SERVICE_IDS, type EcoService } from './services'
-import { CoachMarks } from '@/components/parents/shared/coach-marks'
+import { CoachMarks, type CoachStep } from '@/components/parents/shared/coach-marks'
+import { useFirstRun } from '@/components/parents/shared/first-run'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
+
+// First-run guide of the home (EDU-2106): the student card, then the service group.
+const COACH: CoachStep[] = [
+  { target: 'student-card', text: 'Bấm vào thẻ học sinh để xem thông tin, thẻ và các tiện ích của con.' },
+  {
+    target: 'eco-services',
+    text: 'Giúp phụ huynh truy cập nhanh để theo dõi tình hình điểm danh, học tập của con tại trường, đóng học phí và liên lạc kịp thời với nhà trường.',
+  },
+]
 
 // Mock Ví ECO balance (same figure as the confirm screens' wallet row).
 const WALLET_BALANCE = 204913
@@ -50,9 +60,6 @@ interface EcoHomeScreenProps extends ServiceNav {
   inviteCount?: number
   onOpenInvites?: () => void
   onDismissInvites?: () => void
-  // First-run guide after a link: spotlight on this student's card (EDU-2106).
-  coachStudentId?: string | null
-  onCoachDone?: () => void
 }
 
 // ECO Me home (the super-app landing): promo banner with greeting, wallet
@@ -70,13 +77,12 @@ export function EcoHomeScreen({
   inviteCount = 0,
   onOpenInvites,
   onDismissInvites,
-  coachStudentId,
-  onCoachDone,
   ...nav
 }: EcoHomeScreenProps) {
   const [showBalance, setShowBalance] = useState(true)
   const { launch, picker } = useServiceLauncher(nav)
   const unread = unreadNotificationCount()
+  const coach = useFirstRun('coach-home', MOCK_STUDENTS.length > 0)
 
   const homeServices = HOME_SERVICE_IDS.map((id) => EDU_SERVICES.find((s) => s.id === id)!)
 
@@ -179,11 +185,11 @@ export function EcoHomeScreen({
         </button>
       </div>
       <div className="eco-students">
-        {MOCK_STUDENTS.map((s) => (
+        {MOCK_STUDENTS.map((s, i) => (
           <div
             className="student-card eco-student-card"
             key={s.id}
-            data-coach={s.id === coachStudentId ? 'student-card' : undefined}
+            data-coach={i === 0 ? 'student-card' : undefined}
             onClick={() => onNavigateToStudent(s.id)}
           >
             <div className="student-card-head">
@@ -204,7 +210,7 @@ export function EcoHomeScreen({
       </div>
 
       <div className="eco-dock">
-      {inviteCount > 0 && !coachStudentId && (
+      {inviteCount > 0 && !coach.active && (
         <div className="eco-invite-widget" role="status">
           <img className="eco-invite-avatar" src="/ds/avatars/pho-thong-nam.svg" alt="" />
           <button className="eco-invite-main" onClick={onOpenInvites}>
@@ -239,13 +245,7 @@ export function EcoHomeScreen({
       </div>
 
       {picker}
-      {coachStudentId && (
-        <CoachMarks
-          steps={[{ target: 'student-card', text: 'Bấm vào thẻ học sinh để xem thông tin, thẻ và các tiện ích của con.' }]}
-          onDone={() => onCoachDone?.()}
-          onSkip={() => onCoachDone?.()}
-        />
-      )}
+      {coach.active && <CoachMarks steps={COACH} onDone={coach.finish} onSkip={coach.finish} />}
     </div>
   )
 }

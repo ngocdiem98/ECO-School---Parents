@@ -1,46 +1,17 @@
-// Bản nháp tin nhắn theo từng cuộc trò chuyện (EDU-2118). Text is mirrored to
-// localStorage (this device only); attachments are blob URLs, so they live in
-// memory for the visit. The draft is dropped when the text is emptied, when the
-// message is sent, and on logout.
-interface Draft {
-  text: string
-  files: string[]
-}
+import { readDraft, removeDraft, writeDraft } from '@/components/parents/shared/draft-store'
 
-const mem = new Map<string, Draft>()
+// Bản nháp tin nhắn theo từng cuộc trò chuyện (EDU-2118): text only (attached
+// photos / videos are never kept), on this device for 24 hours (see draft-store).
+// Dropped when the text is emptied and when the message is sent.
 const key = (threadId: string) => `eco-chat-draft:${threadId}`
 
-export function getDraft(threadId: string): Draft | null {
-  const m = mem.get(threadId)
-  if (m) return m
-  try {
-    const t = localStorage.getItem(key(threadId))
-    return t ? { text: t, files: [] } : null
-  } catch {
-    return null
-  }
-}
-
-export function setDraft(threadId: string, text: string, files: string[]) {
-  if (!text.trim()) {
-    mem.delete(threadId)
-    try {
-      localStorage.removeItem(key(threadId))
-    } catch {
-      /* ignore */
-    }
-    return
-  }
-  mem.set(threadId, { text, files })
-  try {
-    localStorage.setItem(key(threadId), text)
-  } catch {
-    /* ignore */
-  }
-}
-
 export function draftText(threadId: string): string | null {
-  return getDraft(threadId)?.text ?? null
+  return readDraft<string>(key(threadId))
+}
+
+export function setDraft(threadId: string, text: string) {
+  if (!text.trim()) removeDraft(key(threadId))
+  else writeDraft(key(threadId), text)
 }
 
 // Fill-in sentences (EDU-2118 "Danh sách câu mẫu").

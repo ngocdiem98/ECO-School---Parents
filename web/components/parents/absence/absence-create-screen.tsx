@@ -102,15 +102,8 @@ export function AbsenceCreateScreen({
       </div>
       <div className="field">
         <label>Ghi chú</label>
-        <QuickReplies
-          items={ABSENCE_REASONS}
-          isSelected={(r) => form.note.includes(r.text)}
-          onPick={(r) => {
-            if (form.note.includes(r.text)) return // already added: no duplicate
-            const base = form.note.trimEnd()
-            onFieldChange('note', (base ? base + ' ' + r.text : r.text).slice(0, 256))
-          }}
-        />
+        {/* A chip replaces whatever is in the field; it stays tappable and unmarked. */}
+        <QuickReplies items={ABSENCE_REASONS} onPick={(r) => onFieldChange('note', r.text)} />
         <textarea
           maxLength={256}
           placeholder="Nội dung *"

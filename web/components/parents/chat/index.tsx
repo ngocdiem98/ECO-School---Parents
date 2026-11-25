@@ -9,8 +9,6 @@ import { eligibleStudents } from '@/components/parents/shared/use-service-launch
 import { threadsFor, type ChatOrderCard, type ChatThread } from '@/lib/school-data'
 import { ChatThreadScreen } from './chat-thread-screen'
 import { timeAgo, previewOf } from './utils'
-import { CoachMarks } from '@/components/parents/shared/coach-marks'
-import { isSeen, markSeen } from '@/components/parents/shared/first-run'
 import { draftText } from './draft'
 import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
@@ -34,16 +32,6 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
   const switchable = eligibleStudents('chat')
   const canSwitch = switchable.length > 1
   const [, setVersion] = useState(0)
-  // Chỉ dẫn lần đầu (EDU-2106 phần B): step 1 on this list, step 2 on the
-  // composer of the first conversation opened. A notification deep link does
-  // not count as the first visit.
-  const [coach, setCoach] = useState<'list' | 'composer' | 'off'>(() =>
-    openThreadId || isSeen('coach-chat') ? 'off' : 'list',
-  )
-  const finishCoach = () => {
-    markSeen('coach-chat')
-    setCoach('off')
-  }
 
   const student = getStudent(selectedId)
   if (!student) return null
@@ -54,8 +42,6 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
       <ChatThreadScreen
         key={thread.id}
         thread={thread}
-        showComposerCoach={coach === 'composer'}
-        onCoachDone={finishCoach}
         onBack={() => {
           if (openThreadId) onBack()
           else setThreadId(null)
@@ -88,7 +74,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
         if (!threads.length) return null
         const isClosed = collapsed.has(s.id)
         return (
-          <section key={s.id} className="chat-group" data-coach={s.id === order[0].id ? 'chat-list' : undefined}>
+          <section key={s.id} className="chat-group">
             <button
               className="chat-group-head"
               onClick={() =>
@@ -127,15 +113,6 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
           <div className="glyph">▢</div>
           <div className="text">Không tìm thấy cuộc trò chuyện</div>
         </div>
-      )}
-
-      {coach === 'list' && (
-        <CoachMarks
-          steps={[{ target: 'chat-list', text: 'Nhắn riêng với giáo viên hoặc xem tin trong nhóm lớp.', nextLabel: 'Tiếp' }]}
-          totalSteps={2}
-          onDone={() => setCoach('composer')}
-          onSkip={finishCoach}
-        />
       )}
 
       {showPicker && (

@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Camera, ChevronRight, Copy, Download, Image as ImageIcon, Pin, PinOff, Plus, Send, Users, X } from 'lucide-react'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
-import { CoachMarks } from '@/components/parents/shared/coach-marks'
 import { QuickReplies } from '@/components/parents/shared/quick-replies'
-import { CHAT_QUICK_REPLIES, getDraft, setDraft } from './draft'
+import { CHAT_QUICK_REPLIES, draftText, setDraft } from './draft'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
 import { weekdayName, type ChatMessage, type ChatOrderCard, type ChatThread } from '@/lib/school-data'
@@ -37,20 +36,15 @@ export function ChatThreadScreen({
   thread,
   onBack,
   onOpenOrder,
-  showComposerCoach,
-  onCoachDone,
 }: {
   thread: ChatThread
   onBack: () => void
   onOpenOrder: (card: ChatOrderCard) => void
-  /** Step 2 of the first-run guide: point at the composer (EDU-2106). */
-  showComposerCoach?: boolean
-  onCoachDone?: () => void
 }) {
   const [, setVersion] = useState(0)
   // Bản nháp theo từng cuộc trò chuyện (EDU-2118): restored without asking.
-  const [text, setText] = useState(() => getDraft(thread.id)?.text ?? '')
-  const [files, setFiles] = useState<string[]>(() => getDraft(thread.id)?.files ?? [])
+  const [text, setText] = useState(() => draftText(thread.id) ?? '')
+  const [files, setFiles] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const [showAttach, setShowAttach] = useState(false)
   const [actionMsg, setActionMsg] = useState<ChatMessage | null>(null)
@@ -68,8 +62,8 @@ export function ChatThreadScreen({
   }, [thread])
 
   useEffect(() => {
-    setDraft(thread.id, text, files)
-  }, [thread.id, text, files])
+    setDraft(thread.id, text)
+  }, [thread.id, text])
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
@@ -224,7 +218,7 @@ export function ChatThreadScreen({
       {thread.readOnly ? (
         <div className="composer-locked">Chỉ giáo viên được đăng bài trong nhóm này</div>
       ) : (
-        <div className="composer-wrap" data-coach="chat-composer">
+        <div className="composer-wrap">
           {files.length > 0 && (
             <div className="composer-preview">
               {files.map((src, i) => (
@@ -378,16 +372,6 @@ export function ChatThreadScreen({
             </div>
           </div>
         </OverlayPortal>
-      )}
-
-      {showComposerCoach && !thread.readOnly && (
-        <CoachMarks
-          steps={[{ target: 'chat-composer', text: 'Nhấn giữ một tin nhắn để ghim, trả lời hoặc sao chép.', nextLabel: 'Đã hiểu' }]}
-          stepOffset={1}
-          totalSteps={2}
-          onDone={() => onCoachDone?.()}
-          onSkip={() => onCoachDone?.()}
-        />
       )}
 
       {viewer && <PhotoViewer photos={viewer.photos} startIndex={viewer.index} onClose={() => setViewer(null)} onToast={show} />}

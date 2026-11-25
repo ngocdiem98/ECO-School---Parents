@@ -12,11 +12,9 @@ export interface QuickReply {
 // field; the parent edits it and sends.
 export function QuickReplies({
   items,
-  isSelected,
   onPick,
 }: {
   items: QuickReply[]
-  isSelected?: (item: QuickReply) => boolean
   onPick: (item: QuickReply) => void
 }) {
   return (
@@ -25,7 +23,7 @@ export function QuickReplies({
         <button
           key={it.label}
           type="button"
-          className={`qr-chip ${isSelected?.(it) ? 'is-on' : ''}`}
+          className="qr-chip"
           onClick={() => onPick(it)}
         >
           {it.label}

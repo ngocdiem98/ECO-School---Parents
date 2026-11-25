@@ -18,7 +18,7 @@ export function ServiceGrid({
   more?: () => void
 }) {
   return (
-    <div className="eco-grid">
+    <div className="eco-grid" data-coach={more ? 'eco-services' : undefined}>
       {services.map((s) => {
         const live = !!s.intent
         return (

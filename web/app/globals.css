@@ -2703,8 +2703,8 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
   flex: none; padding: 6px 12px; border-radius: 999px; cursor: pointer;
   border: 1px solid var(--c-gray-200); background: var(--c-white); color: var(--c-black);
   font-size: 14px; font-weight: 500; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; /* no highlight when tapped */
 }
-.qr-chip.is-on { border-color: var(--c-blue); color: var(--c-blue); background: #eef4ff; }
 .chat-draft-tag { color: #e5484d; font-weight: 500; }
 
 .coach-layer { position: absolute; inset: 0; pointer-events: auto; z-index: 120; }
