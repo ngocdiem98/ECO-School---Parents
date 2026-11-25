@@ -1,6 +1,5 @@
 'use client'
 
-import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState } from 'react'
 import {
   PickupPerson,
@@ -11,6 +10,7 @@ import {
 import { getStudent, MOCK_STUDENTS } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 interface PickupMainScreenProps {
   studentId: string
@@ -39,7 +39,6 @@ export function PickupMainScreen({
   const switchable = eligibleStudents('pickup')
   const canSwitch = !!onSelectStudent && switchable.length > 1
   const student = getStudent(studentId)
-  const avatarSrc = student ? dsStudentAvatar(student) : '/ds/avatars/tieu-hoc-nu.svg'
 
   // Separate Slot 0 (Main Connector) and auxiliary persons
   const mainConnector = persons.find((p) => p.role === 'main_connector')
@@ -63,38 +62,9 @@ export function PickupMainScreen({
         <span className="icon-btn-ghost" />
       </div>
 
-      {/* Standard Student Profile Card with '⇄ Đổi' Button */}
-      <div className="absence-student-header-card">
-        <div
-          className="absence-student-header-main"
-          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
-          role="button"
-          tabIndex={0}
-          aria-label="Đổi học sinh"
-        >
-          <img
-            src={avatarSrc}
-            alt={student?.name || 'Học sinh'}
-            className="absence-student-avatar-img"
-          />
-          <div className="absence-student-info-col">
-            <div className="absence-student-name">{student?.name || 'Học sinh'}</div>
-            <div className="absence-student-code">{student?.code}</div>
-            <div className="absence-student-meta">{student?.className}</div>
-            <div className="absence-student-meta">{student?.school}</div>
-          </div>
-        </div>
-        {canSwitch && (
-          <button
-            type="button"
-            className="btn-change absence-btn-change"
-            onClick={() => setShowStudentPicker(true)}
-            aria-label="Đổi học sinh"
-          >
-            ⇄ Đổi
-          </button>
-        )}
-      </div>
+      {student && (
+        <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowStudentPicker(true) : undefined} />
+      )}
 
       <div className="pickup-main-scroll">
         {/* Quota Summary Banner (simplified: only shows number of active authorized pickup persons) */}

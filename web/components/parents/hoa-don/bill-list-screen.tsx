@@ -81,7 +81,7 @@ export function BillListScreen({
   return (
     <div className="screen bill-ds">
       <TopBar title="Hoá đơn học phí" onBack={onBack} />
-      <StudentHeader student={student} onChangeStudent={onChangeStudent} detailed />
+      <StudentHeader student={student} onChangeStudent={onChangeStudent} />
       <YearFilter year={year} years={years} onChange={onYearChange} />
 
       {/* PillTabs "segment": two equal halves, selected = eco-yellow */}

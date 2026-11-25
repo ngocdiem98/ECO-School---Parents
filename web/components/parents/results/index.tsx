@@ -1,6 +1,5 @@
 'use client'
 
-import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState } from 'react'
 import { MOCK_STUDENTS, getStudent, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
@@ -16,6 +15,7 @@ import {
 } from './results-data'
 import { Cap1Screen } from './cap1-screen'
 import { Cap23Screen } from './cap23-screen'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 interface ResultsAppProps {
   studentId: string
@@ -143,55 +143,10 @@ export function ResultsApp({ studentId, onBack }: ResultsAppProps) {
         <span className="icon-btn-ghost" />
       </header>
 
-      {/* 2. Standard Student Profile Header (ECO.StudentHeader) */}
-      <div className="absence-student-header-card eco-stuhead carelog-stuhead">
-        <div
-          className="absence-student-header-main"
-          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
-          role="button"
-          tabIndex={0}
-          aria-label="Đổi học sinh"
-        >
-          <div className="activity-avatar-circle">
-            <img src={appStudent ? dsStudentAvatar(appStudent) : '/ds/avatars/tieu-hoc-nu.svg'} alt="" style={{ width: '100%', height: '100%' }} />
-          </div>
-          <div className="absence-student-info-col">
-            <div className="absence-student-name">{studentProfile.name}</div>
-            <div className="absence-student-code">{studentProfile.code}</div>
-            <div className="absence-student-meta">
-              {studentProfile.className}
-            </div>
-            <div className="absence-student-meta">{studentProfile.school}</div>
-          </div>
-        </div>
-
-        {canSwitch && (
-          <button
-            type="button"
-            className="eco-stuhead__action"
-            onClick={() => setShowStudentPicker(true)}
-            aria-label="Đổi học sinh"
-          >
-            <span
-              style={{
-                width: 20,
-                height: 20,
-                display: 'inline-flex',
-                flexShrink: 0,
-              }}
-            >
-              <img
-                src="/ds/payment/student-switch.svg"
-                alt=""
-                width={20}
-                height={20}
-                style={{ display: 'block' }}
-              />
-            </span>
-            <span>Đổi</span>
-          </button>
-        )}
-      </div>
+      {/* 2. Student header */}
+      {appStudent && (
+        <StudentHeader student={appStudent} onChangeStudent={canSwitch ? () => setShowStudentPicker(true) : undefined} />
+      )}
 
       {/* 3. Academic Year Bar (ECO.AcademicYearBar) */}
       <div className="eco-yearbar">

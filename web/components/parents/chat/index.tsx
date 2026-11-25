@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
 import { StudentHeader, TopBar } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
@@ -10,7 +10,6 @@ import { threadsFor, type ChatOrderCard, type ChatThread } from '@/lib/school-da
 import { ChatThreadScreen } from './chat-thread-screen'
 import { timeAgo, previewOf } from './utils'
 import { draftText } from './draft'
-import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 interface ChatAppProps {
   studentId: string
@@ -20,14 +19,14 @@ interface ChatAppProps {
   onOpenOrder: (card: ChatOrderCard, studentId: string) => void
 }
 
-// [PH-14] Trao đổi: conversation list (one GV Lớp thread per child plus the
-// class group when the parent was added), then the chat. Real-time chat is
+// [PH-14] Trao đổi: the conversation list of the selected student only (the GV
+// Lớp thread plus the class group when the parent was added), then the chat.
+// Switching student in the header switches the whole list. Real-time chat is
 // out of scope in the PRD, so messages are just appended to mock data.
 export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAppProps) {
   const [selectedId, setSelectedId] = useState(studentId)
   const [threadId, setThreadId] = useState<string | null>(openThreadId ?? null)
   const [query, setQuery] = useState('')
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [showPicker, setShowPicker] = useState(false)
   const switchable = eligibleStudents('chat')
   const canSwitch = switchable.length > 1
@@ -52,9 +51,8 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
     )
   }
 
-  // Selected child first, then the others, each as a collapsible group.
-  const order = [student, ...MOCK_STUDENTS.filter((s) => s.id !== selectedId)]
   const q = query.trim().toLowerCase()
+  const threads = threadsFor(selectedId).filter((t) => !q || t.title.toLowerCase().includes(q))
 
   return (
     <div className="screen">
@@ -69,49 +67,15 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
         />
       </label>
 
-      {order.map((s) => {
-        const threads = threadsFor(s.id).filter((t) => !q || t.title.toLowerCase().includes(q))
-        if (!threads.length) return null
-        const isClosed = collapsed.has(s.id)
-        return (
-          <section key={s.id} className="chat-group">
-            <button
-              className="chat-group-head"
-              onClick={() =>
-                setCollapsed((c) => {
-                  const n = new Set(c)
-                  n.has(s.id) ? n.delete(s.id) : n.add(s.id)
-                  return n
-                })
-              }
-            >
-              <StudentAvatar student={s} className="avatar sm" />
-              <span className="chat-group-name">
-                <b>{s.name}</b>
-                <small>
-                  {s.className} · {s.school}
-                </small>
-              </span>
-              {isClosed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-            </button>
-            {!isClosed &&
-              threads.map((t) => (
-                <ThreadRow
-                  key={t.id}
-                  t={t}
-                  onOpen={() => {
-                    setSelectedId(s.id)
-                    setThreadId(t.id)
-                  }}
-                />
-              ))}
-          </section>
-        )
-      })}
-      {!MOCK_STUDENTS.some((s) => threadsFor(s.id).some((t) => !q || t.title.toLowerCase().includes(q))) && (
+      <div className="chat-list">
+        {threads.map((t) => (
+          <ThreadRow key={t.id} t={t} onOpen={() => setThreadId(t.id)} />
+        ))}
+      </div>
+      {!threads.length && (
         <div className="empty-state">
           <div className="glyph">▢</div>
-          <div className="text">Không tìm thấy cuộc trò chuyện</div>
+          <div className="text">{q ? 'Không tìm thấy cuộc trò chuyện' : 'Chưa có cuộc trò chuyện'}</div>
         </div>
       )}
 
@@ -121,6 +85,7 @@ export function ChatApp({ studentId, openThreadId, onBack, onOpenOrder }: ChatAp
           selectedStudentId={selectedId}
           onSelect={(s) => {
             setSelectedId(s.id)
+            setQuery('')
             setShowPicker(false)
           }}
           onClose={() => setShowPicker(false)}

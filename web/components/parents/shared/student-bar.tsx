@@ -4,10 +4,20 @@ import { RefreshCw } from 'lucide-react'
 import type { Student } from '@/lib/mock-data'
 import { StudentAvatar } from './student-avatar'
 
-// "Thanh học sinh" of the enhanced Trang Học sinh (EDU-1819): avatar, họ tên,
-// lớp and a swap icon. Only a parent with 2+ students gets the icon and the
-// tap target that opens "Danh sách học sinh" (BR-02).
-export function StudentBar({ student, onSwitch }: { student: Student; onSwitch?: () => void }) {
+// "Thanh học sinh" (EDU-1478, EDU-1819): avatar, họ tên, lớp and a swap icon.
+// Only a parent with 2+ students gets the icon and the tap target that opens
+// "Danh sách học sinh" (BR-02). `flat` is the square-edged bar of the feature
+// screens; Trang Học sinh, Chi tiết thẻ and Hồ sơ keep the rounded one.
+export function StudentBar({
+  student,
+  onSwitch,
+  flat,
+}: {
+  student: Student
+  onSwitch?: () => void
+  flat?: boolean
+}) {
+  const className = `sb-bar${flat ? ' is-flat' : ''}`
   const body = (
     <>
       <StudentAvatar student={student} />
@@ -19,10 +29,10 @@ export function StudentBar({ student, onSwitch }: { student: Student; onSwitch?:
     </>
   )
   return onSwitch ? (
-    <button className="sb-bar" onClick={onSwitch} aria-label="Đổi học sinh">
+    <button type="button" className={className} onClick={onSwitch} aria-label="Đổi học sinh">
       {body}
     </button>
   ) : (
-    <div className="sb-bar">{body}</div>
+    <div className={className}>{body}</div>
   )
 }

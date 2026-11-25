@@ -132,7 +132,7 @@ export function BillOverviewScreen({
   return (
     <div className="screen bill-ds">
       <TopBar title="Tổng quan hóa đơn" onBack={onBack} />
-      <StudentHeader student={student} detailed />
+      <StudentHeader student={student} />
       <YearFilter year={startYear} years={years} onChange={onYearChange} />
 
       <div className="ov-section">

@@ -10,12 +10,10 @@
 .eco-navbar__title { font-size: 18px; font-weight: 500; line-height: 24px; color: var(--text-label); margin: 0; }
 
 /* Student header (shared one + the hand-made copies in imported screens) */
-.student-header .student-name,
 .hw-student-name,
 .absence-student-name,
 .timetable-student-name,
 .eco-stuhead__name { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--text-label); }
-.student-header .meta,
 .hw-student-meta,
 .absence-student-code,
 .absence-student-meta,

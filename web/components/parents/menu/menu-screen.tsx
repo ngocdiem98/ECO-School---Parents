@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { getStudent, MOCK_STUDENTS } from '@/lib/mock-data'
-import { StudentPickerSheet, getStudentDsAvatar } from '@/components/parents/shared/student-picker-sheet'
+import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { WeekPickerSheet } from '@/components/parents/shared/week-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
@@ -16,6 +16,7 @@ import {
   type MealItem,
   type MealIngredient,
 } from './menu-data'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 export interface MenuScreenProps {
   studentId: string
@@ -112,55 +113,7 @@ export function MenuScreen({
       </header>
 
       <div className="menu-scrollable-content">
-        {/* Part 2 of 3-Part White Header Standard: ECO.StudentProfileHeader */}
-        <section
-          className="eco-stuhead"
-          style={{ background: '#FFFFFF', borderBottom: '1px solid #F0F0F0' }}
-        >
-          <span className="eco-avatar eco-avatar--xl">
-            <img
-              src={getStudentDsAvatar(student)}
-              alt={student.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </span>
-          <div className="eco-stuhead__text">
-            <strong
-              className="eco-stuhead__name"
-              style={{ font: 'var(--text-body-l)', fontWeight: 700, color: '#141414' }}
-            >
-              {student.name}
-            </strong>
-            <span className="eco-stuhead__line" style={{ font: 'var(--text-body-s)', color: '#232628' }}>
-              {student.code}
-            </span>
-            <span className="eco-stuhead__line" style={{ font: 'var(--text-body-s)', color: '#232628' }}>
-              {student.className}
-            </span>
-            <span className="eco-stuhead__line" style={{ font: 'var(--text-body-s)', color: '#232628' }}>
-              {student.school}
-            </span>
-          </div>
-          {canSwitch && (
-            <button
-              type="button"
-              className="eco-stuhead__action"
-              onClick={() => setShowPicker(true)}
-              aria-label="Đổi học sinh"
-            >
-              <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
-                <img
-                  src="/ds/payment/student-switch.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  style={{ display: 'block' }}
-                />
-              </span>
-              <span style={{ font: 'var(--text-body-s)', fontWeight: 500 }}>Đổi</span>
-            </button>
-          )}
-        </section>
+        <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
 
         {/* Part 3 of 3-Part White Header Standard: ECO.WeekBar (size='s') */}
         <div

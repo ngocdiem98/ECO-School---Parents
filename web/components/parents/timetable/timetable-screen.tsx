@@ -1,12 +1,12 @@
 'use client'
 
-import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import { STUDENT_TIMETABLES, type TimetablePeriod } from './timetable-data'
 import { StudentPickerSheet } from '../shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import { MOCK_STUDENTS, getStudent, type Student } from '@/lib/mock-data'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 interface TimetableScreenProps {
   initialStudentId?: string
@@ -87,55 +87,11 @@ export function TimetableScreen({
         <div style={{ width: 36 }} />
       </div>
 
+      {appStudent && (
+        <StudentHeader student={appStudent} onChangeStudent={canSwitch ? () => setShowPicker(true) : undefined} />
+      )}
+
       <div className="timetable-scroll-body">
-        {/* Student Profile Card (Image 4 & 5) */}
-        <div className="timetable-student-card">
-          <div className="timetable-student-avatar-wrap">
-            <div className="timetable-student-avatar">
-              <img src={appStudent ? dsStudentAvatar(appStudent) : '/ds/avatars/tieu-hoc-nu.svg'} alt="" style={{ width: '100%', height: '100%' }} />
-            </div>
-          </div>
-
-          <div className="timetable-student-info">
-            <div className="timetable-student-name">
-              {currentConfig.studentName}
-            </div>
-            <div className="timetable-student-code">
-              {currentConfig.studentCode}
-            </div>
-            <div className="timetable-student-class">
-              {currentConfig.className}
-            </div>
-            <div className="timetable-student-school">
-              {currentConfig.school}
-            </div>
-          </div>
-
-          {/* Switch Student Button */}
-          {canSwitch && (
-            <button
-              type="button"
-              className="timetable-btn-change"
-              onClick={() => setShowPicker(true)}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#2563EB"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span>Đổi</span>
-            </button>
-          )}
-        </div>
-
         {/* Time Period Subtitle */}
         <div className="timetable-period-row">
           <span className="timetable-period-icon">📒</span>

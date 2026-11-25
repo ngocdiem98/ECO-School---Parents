@@ -1,17 +1,16 @@
 'use client'
 
-import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import React, { useState, useRef, useEffect } from 'react'
 import { MOCK_STUDENTS, type Student } from '@/lib/mock-data'
 import { StudentPickerSheet } from '../shared/student-picker-sheet'
 import { eligibleStudents } from '@/components/parents/shared/use-service-launcher'
 import {
   BULLETIN_TABS,
-  BULLETIN_STUDENT_PROFILES,
   MOCK_BULLETIN_POSTS,
   type BulletinCategory,
   type BulletinPost,
 } from './bulletin-data'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 interface BulletinScreenProps {
   initialStudentId?: string
@@ -54,18 +53,8 @@ export function BulletinScreen({
     }
   }, [activePost])
 
-  // Resolve student profile matching mockups (default Tạ Thái Dương - 340000000002 - Lớp 1A - Trường FINVIET)
   // Header data comes from the app's own student.
   const appStudent = MOCK_STUDENTS.find((s) => s.id === selectedStudentId)
-  const studentProfile = appStudent
-    ? {
-        id: appStudent.id,
-        name: appStudent.name,
-        code: appStudent.code,
-        className: appStudent.className,
-        school: appStudent.school,
-      }
-    : BULLETIN_STUDENT_PROFILES[selectedStudentId] || BULLETIN_STUDENT_PROFILES.duong
 
   // Filter posts by selected tab
   const filteredPosts =
@@ -208,58 +197,9 @@ export function BulletinScreen({
         <span className="icon-btn-ghost" />
       </header>
 
-      {/* Student Profile Header (Tạ Thái Dương - 340000000002 - Lớp 1A - Trường FINVIET) */}
-      <div className="absence-student-header-card bulletin-student-header eco-stuhead">
-        <div
-          className="absence-student-header-main bulletin-student-main"
-          onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
-          role="button"
-          tabIndex={0}
-          aria-label="Đổi học sinh"
-        >
-          <div className="bulletin-avatar-circle">
-            <img
-              src={appStudent ? dsStudentAvatar(appStudent) : '/ds/avatars/tieu-hoc-nu.svg'}
-              alt={studentProfile.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-          <div className="absence-student-info-col bulletin-student-meta">
-            <div className="absence-student-name bulletin-student-name">
-              {studentProfile.name}
-            </div>
-            <div className="absence-student-code bulletin-student-line">
-              {studentProfile.code}
-            </div>
-            <div className="absence-student-meta bulletin-student-line">
-              {studentProfile.className}
-            </div>
-            <div className="absence-student-meta bulletin-student-line">
-              {studentProfile.school}
-            </div>
-          </div>
-        </div>
-
-        {canSwitch && (
-          <button
-            type="button"
-            className="eco-stuhead__action bulletin-change-btn"
-            onClick={() => setShowStudentPicker(true)}
-            aria-label="Đổi học sinh"
-          >
-            <span style={{ width: 20, height: 20, display: 'inline-flex', flexShrink: 0 }}>
-              <img
-                src="/ds/payment/student-switch.svg"
-                alt=""
-                width={20}
-                height={20}
-                style={{ display: 'block' }}
-              />
-            </span>
-            <span>Đổi</span>
-          </button>
-        )}
-      </div>
+      {appStudent && (
+        <StudentHeader student={appStudent} onChangeStudent={canSwitch ? () => setShowStudentPicker(true) : undefined} />
+      )}
 
       {/* Horizontal Filter Tabs Bar */}
       <div className="bulletin-tabs-bar">

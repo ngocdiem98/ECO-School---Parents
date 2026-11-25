@@ -417,33 +417,6 @@ img { max-width: 100%; display: block; }
   font-size: 14px;
 }
 
-/* ============================================================
-   Student-scoped header (used on nearly every feature screen)
-   ============================================================ */
-.student-header {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--c-gray-150);
-}
-.student-header-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: none;
-  background: none;
-  padding: 0;
-  text-align: left;
-  min-width: 0;
-}
-.student-header-main:active { opacity: .6; }
-.student-header-chevron { flex: none; color: var(--c-gray-400); font-size: 24px; line-height: 1; }
-.student-header .info { flex: 1; min-width: 0; }
-.student-header .student-name { font-size: 16px; }
-.student-header .meta { font-size: 12px; color: var(--c-gray-500); line-height: 1.5; }
 .btn-change {
   flex: none;
   border: 1px solid var(--c-black);
@@ -1921,10 +1894,7 @@ img { max-width: 100%; display: block; }
 /* Trao đổi */
 .chat-search { display: flex; align-items: center; gap: 8px; margin: 12px 16px 4px; padding: 10px 14px; border-radius: 999px; background: var(--c-gray-100); color: var(--c-gray-500); }
 .chat-search input { flex: 1; border: none; background: none; outline: none; font-size: 14px; color: var(--c-ink); }
-.chat-group { margin-top: 6px; }
-.chat-group-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; border: none; background: var(--c-blue-50); text-align: left; }
-.chat-group-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.chat-group-name small { font-size: 12px; color: var(--c-gray-500); }
+.chat-list { margin-top: 8px; }
 .chat-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border: none; border-bottom: 1px solid var(--c-gray-100); background: var(--c-white); text-align: left; }
 .chat-avatar { width: 46px; height: 46px; border-radius: 50%; flex: none; background: var(--c-blue); color: #fff; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .chat-avatar.sm { width: 34px; height: 34px; font-size: 12px; }
@@ -2002,7 +1972,6 @@ img { max-width: 100%; display: block; }
     linear-gradient(90deg, rgba(255, 204, 51, .13) 1px, transparent 1px);
   background-size: 26px 26px;
 }
-.med-detail .student-header { background: var(--c-white); }
 .md-card { margin: 12px; padding: 16px; background: var(--c-white); border-radius: var(--radius-20); box-shadow: 0 1px 0 rgba(0, 44, 84, .04); }
 .md-card h3 { margin: 0; font-size: 16px; font-weight: 700; }
 .md-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -2031,8 +2000,7 @@ img { max-width: 100%; display: block; }
 
 /* Phiếu bé ngoan (PH-17), laid out from the Figma "[PH] Phiếu bé ngoan" frames */
 .pbn-screen { background: #FFFCF1 url(/phieu-be-ngoan/bg-tile.png) repeat-y center top / 100% auto; }
-.pbn-screen .topbar, .pbn-screen .student-header { background: var(--bg-surface); }
-.pbn-screen .student-header { border-bottom: 1px solid var(--border-soft); }
+.pbn-screen .topbar { background: var(--bg-surface); }
 .pbn-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 .pbn-total { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-body); }
 .pbn-total .n { font-size: 16px; font-weight: 700; color: var(--text-link); }
@@ -2314,10 +2282,6 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
 .topbar .icon-btn-ghost, .icon-btn-ghost { width: 40px; }
 
 /* Student header = StudentInfo (md) */
-.student-header { padding: 16px; border-bottom: 1px solid var(--border-input); background: var(--bg-surface); }
-.student-header .student-name { font: var(--text-body-l); font-weight: 700; color: var(--text-label); }
-.student-header .meta { font: var(--text-body-s); letter-spacing: .2px; color: var(--text-subtle); line-height: 21px; }
-.student-header-chevron { color: var(--text-link); }
 .btn-change {
   border: 0; background: var(--bg-info-tint); color: var(--text-link);
   padding: 4px 12px; border-radius: var(--radius-full);
@@ -2500,7 +2464,7 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
    TransactionSummary, PaymentMethodList, ActionFooter / TotalFooter)
    ============================================================ */
 .bill-ds { background: var(--bg-canvas); padding-bottom: 0; }
-.bill-ds > .topbar, .bill-ds > .student-header, .bill-ds > .year-row { background: var(--bg-surface); }
+.bill-ds > .topbar, .bill-ds > .year-row { background: var(--bg-surface); }
 .bill-segment { border-bottom: 1px solid var(--border-subtle); margin-bottom: var(--space-8); }
 .bill-segment .eco-segment__item { font: var(--text-body-s); font-weight: 400; }
 .bill-segment .eco-segment__item.is-active { font-weight: 500; }
@@ -2550,11 +2514,6 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
 /* ---- Hóa đơn (Figma): student block, year row, summary card, paid cards ---- */
 .student-avatar { background: transparent; border-radius: 50%; overflow: hidden; padding: 0; display: inline-flex; }
 .student-avatar img { display: block; width: 100%; height: 100%; }
-.student-header.is-detailed { align-items: flex-start; }
-.student-header.is-detailed .avatar { width: 48px; height: 48px; }
-.student-header.is-detailed .student-name { font: var(--text-body-l); font-weight: 700; }
-.student-header.is-detailed .meta { font: var(--text-body-s); letter-spacing: .2px; color: var(--text-body); line-height: 22px; }
-.student-header.is-detailed .btn-change { display: inline-flex; align-items: center; gap: 4px; }
 .year-row { border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); gap: var(--space-8); }
 .year-row-icon { color: #F7B500; }
 .year-row-text { flex: 1; font: var(--text-body-m); font-weight: 400; }
@@ -2742,6 +2701,7 @@ button.sb-bar { cursor: pointer; }
 .sb-name { font-size: 18px; font-weight: 700; color: var(--text-label); line-height: 1.25; }
 .sb-class { font-size: 14px; color: var(--text-subtle); line-height: 1.4; }
 .sb-swap { flex: none; color: var(--text-link); }
+.sb-bar.is-flat { flex: none; border-radius: 0; box-shadow: none; }
 
 /* Thông báo đỏ (học sinh bị khoá / thẻ tạm khoá) */
 .sp-alert, .cd-lock-alert { display: flex; gap: 8px; padding: 12px; background: var(--bg-danger-soft); color: var(--text-primary); font-size: 14px; line-height: 1.45; }

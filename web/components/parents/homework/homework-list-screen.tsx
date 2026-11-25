@@ -1,7 +1,7 @@
 'use client'
 
-import { dsStudentAvatar } from '@/components/parents/shared/student-avatar'
 import type { Homework, HomeworkStatus, Student } from '@/lib/mock-data'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 const TABS: { value: 'all' | HomeworkStatus; label: string }[] = [
   { value: 'all', label: 'Tất cả' },
@@ -43,28 +43,7 @@ export function HomeworkListScreen({
       </header>
 
       {/* 2. Student Info Header */}
-      <div className="hw-student-card">
-        <div className="hw-avatar">
-          <img src={dsStudentAvatar(student)} alt="" style={{ width: '100%', height: '100%' }} />
-        </div>
-        <div className="hw-student-info">
-          <div className="hw-student-name">{student.name}</div>
-          <div className="hw-student-meta">{student.code}</div>
-          <div className="hw-student-meta">{student.className}</div>
-          <div className="hw-student-meta">{student.school}</div>
-        </div>
-        {onChangeStudent && (
-          <button type="button" className="hw-btn-change" onClick={onChangeStudent}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="8.5" cy="7" r="4" />
-              <polyline points="17 8 20 11 23 8" />
-              <line x1="20" y1="11" x2="20" y2="17" />
-            </svg>
-            <span>Đổi</span>
-          </button>
-        )}
-      </div>
+      <StudentHeader student={student} onChangeStudent={onChangeStudent} />
 
       {/* 3. Filter Tabs */}
       <div className="hw-tabs-row">

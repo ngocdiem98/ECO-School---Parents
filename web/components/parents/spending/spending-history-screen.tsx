@@ -11,6 +11,7 @@ import {
 } from './spending-data'
 import { SpendingDatePickerSheet } from './spending-date-picker-sheet'
 import { SpendingStudentPickerSheet } from './spending-student-picker-sheet'
+import { StudentHeader } from '@/components/parents/shared/header'
 
 interface SpendingHistoryScreenProps {
   initialStudentId?: string
@@ -121,29 +122,12 @@ export function SpendingHistoryScreen({
       </header>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top Controls Band: Grey container with Golden Student Banner & Filter Pills */}
-        <div className="spending-top-controls-band">
-          <div
-            className="spending-student-banner-card"
-            onClick={canSwitch ? () => setShowStudentPicker(true) : undefined}
-            role={canSwitch ? 'button' : undefined}
-            tabIndex={canSwitch ? 0 : undefined}
-            onKeyDown={(e) => {
-              if (canSwitch && (e.key === 'Enter' || e.key === ' ')) setShowStudentPicker(true)
-            }}
-            title={canSwitch ? 'Bấm để chọn học sinh khác' : undefined}
-          >
-            <div className="spending-banner-left">
-              <div className="spending-banner-name">{selectedStudent.name}</div>
-              <div className="spending-banner-code">{selectedStudent.code}</div>
-            </div>
-            {canSwitch && <div className="spending-banner-chevron">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>}
-          </div>
+        {student && (
+          <StudentHeader student={student} onChangeStudent={canSwitch ? () => setShowStudentPicker(true) : undefined} />
+        )}
 
+        {/* Top controls band: filter pills */}
+        <div className="spending-top-controls-band">
           {/* Filter Section: Lọc theo */}
           <div className="spending-filter-section">
             <span className="spending-filter-lbl">Lọc theo</span>
