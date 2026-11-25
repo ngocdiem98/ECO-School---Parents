@@ -1710,7 +1710,9 @@ img { max-width: 100%; display: block; }
 .eco-link { color: var(--c-blue); }
 .eco-student-card { background: linear-gradient(180deg, #FFF3C9, #FFE9A8); border: none; border-radius: 18px; padding: 10px; }
 .eco-student-card .student-card-body { background: #fff; border-radius: 14px; }
-.eco-home .eco-students { padding-bottom: 96px; }
+/* The bottom space is a margin so the first-run spotlight on this section stops under the cards. */
+.eco-home .eco-students { padding-bottom: 12px; }
+.eco-student-section { margin-bottom: 84px; }
 
 .eco-tabbar {
   position: sticky; bottom: 0; z-index: 20;
@@ -2669,23 +2671,25 @@ body, button, input, textarea, select { font-family: var(--font-sans-native); }
 .coach-layer { position: absolute; inset: 0; pointer-events: auto; z-index: 120; }
 .coach-spot {
   position: absolute; border-radius: 12px;
-  box-shadow: 0 0 0 2000px rgba(0, 0, 0, .6); outline: 2px solid #fff;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, .45); outline: 3px solid var(--eco-yellow);
   pointer-events: none; transition: all .2s ease;
 }
 .coach-bubble {
-  position: absolute; background: #fff; border-radius: 12px; padding: 14px 14px 10px;
+  position: absolute; background: #fff; border-radius: var(--radius-12); padding: 12px 16px 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .25); animation: fadeIn .15s ease-out;
 }
 .coach-arrow { position: absolute; width: 14px; height: 14px; background: #fff; transform: translateX(-50%) rotate(45deg); }
 .coach-bubble.is-below .coach-arrow { top: -7px; }
 .coach-bubble.is-above .coach-arrow { bottom: -7px; }
-.coach-text { position: relative; font-size: 14px; line-height: 1.4; color: var(--c-black); }
-.coach-foot { position: relative; display: flex; align-items: center; gap: 4px; margin-top: 12px; }
-.coach-count { flex: 1; font-size: 12px; color: var(--c-gray-500); }
-.coach-skip { border: 0; background: none; padding: 8px 10px; font-size: 14px; color: var(--c-gray-500); cursor: pointer; }
+.coach-head { position: relative; display: flex; align-items: center; justify-content: space-between; }
+.coach-count { font-size: 14px; color: var(--text-caption); }
+.coach-skip { border: 0; background: none; margin-right: -8px; padding: 6px 8px; font-size: 14px; font-weight: 500; color: var(--text-label); cursor: pointer; }
+.coach-title { position: relative; margin-top: 8px; font-size: 16px; font-weight: 700; line-height: 1.35; color: var(--text-label); }
+.coach-text { position: relative; margin-top: 4px; font-size: 14px; line-height: 1.45; color: var(--text-label); }
 .coach-next {
-  border: 0; border-radius: 999px; padding: 8px 18px; font-size: 14px; font-weight: 500; cursor: pointer;
-  background: var(--eco-yellow, #ffd23f); color: var(--c-navy, #1b2a4a);
+  position: relative; display: block; width: 100%; margin-top: 12px; padding: 12px; border: 0;
+  border-radius: var(--radius-8); font-size: 16px; font-weight: 500; cursor: pointer;
+  background: var(--eco-yellow); color: var(--text-label);
 }
 
 

@@ -17,9 +17,18 @@ import { useFirstRun } from '@/components/parents/shared/first-run'
 
 // First-run guide of the page (EDU-2106).
 const COACH: CoachStep[] = [
-  { target: 'sp-tiles', text: 'Xem hồ sơ và tình hình sức khoẻ của con tại đây.' },
-  { target: 'sp-services', text: 'Các tiện ích của nhà trường dành cho con nằm tại đây.' },
-  { target: 'sp-help', text: 'Bấm dấu chấm hỏi để xem hướng dẫn sử dụng.' },
+  {
+    target: 'sp-tiles',
+    title: 'Hồ sơ và sức khoẻ của con',
+    text: 'Bấm Hồ sơ học sinh để xem thông tin của con. Bấm Sức khoẻ để theo dõi chiều cao, cân nặng của con.',
+  },
+  {
+    target: 'sp-services',
+    title: 'Tiện ích của con',
+    text: 'Theo dõi sát sao tình hình của con tại trường thông qua các chức năng chính. Lướt ngang để xem thêm.',
+    place: 'above',
+  },
+  { target: 'sp-help', title: 'Hướng dẫn sử dụng', text: 'Bấm vào đây để xem cách dùng từng tính năng khi cần.' },
 ]
 
 // Trang Học sinh (PRD "[PH] Enhance Trang Học sinh", Figma EDU-1819): a short

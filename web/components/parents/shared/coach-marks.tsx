@@ -6,7 +6,10 @@ import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 export interface CoachStep {
   /** Value of the target's `data-coach` attribute. */
   target: string
+  title: string
   text: string
+  /** Side of the target the design puts the bubble on; the other side is used when it does not fit. */
+  place?: 'above' | 'below'
 }
 
 interface Box {
@@ -19,11 +22,11 @@ interface Box {
 }
 
 const MAX_SPOT_H = 280
-const BUBBLE_H = 150
+const BUBBLE_H = 220
 
 // First-run guide (EDU-2106 phần B): dims the screen, cuts a spotlight around
-// the element tagged data-coach="…" and shows a bubble with 1–2 sentences,
-// "Tiếp" / "Đã hiểu" and "Bỏ qua".
+// the element tagged data-coach="…" and shows a bubble: step count and "Bỏ qua"
+// on top, a title, 1–2 sentences and a full-width "Tiếp" / "Xong" button.
 export function CoachMarks({
   steps,
   onDone,
@@ -80,12 +83,14 @@ export function CoachMarks({
 
   const pad = 4
   const spot = { top: box.top - pad, left: box.left - pad, width: box.width + pad * 2, height: box.height + pad * 2 }
-  const below = spot.top + spot.height + BUBBLE_H + 12 < box.rootH
-  const bubbleW = Math.min(300, box.rootW - 32)
+  const fitsBelow = spot.top + spot.height + BUBBLE_H + 12 < box.rootH
+  const fitsAbove = spot.top - BUBBLE_H - 12 > 0
+  const below = step.place === 'above' ? !fitsAbove : fitsBelow
+  const bubbleW = Math.min(360, box.rootW - 32)
   const bubbleLeft = Math.min(Math.max(16, spot.left + spot.width / 2 - bubbleW / 2), box.rootW - bubbleW - 16)
   const arrowLeft = Math.min(Math.max(20, spot.left + spot.width / 2 - bubbleLeft), bubbleW - 20)
   const isLast = idx === steps.length - 1
-  const label = isLast ? 'Đã hiểu' : 'Tiếp'
+  const label = isLast ? 'Xong' : 'Tiếp'
 
   return (
     <OverlayPortal>
@@ -100,24 +105,25 @@ export function CoachMarks({
           }}
         >
           <span className="coach-arrow" style={{ left: arrowLeft }} />
-          <div className="coach-text">{step.text}</div>
-          <div className="coach-foot">
+          <div className="coach-head">
             <span className="coach-count">
               {idx + 1}/{steps.length}
             </span>
             <button className="coach-skip" onClick={onSkip}>
               Bỏ qua
             </button>
-            <button
-              className="coach-next"
-              onClick={() => {
-                if (isLast) onDone()
-                else setIdx(idx + 1)
-              }}
-            >
-              {label}
-            </button>
           </div>
+          <div className="coach-title">{step.title}</div>
+          <div className="coach-text">{step.text}</div>
+          <button
+            className="coach-next"
+            onClick={() => {
+              if (isLast) onDone()
+              else setIdx(idx + 1)
+            }}
+          >
+            {label}
+          </button>
         </div>
       </div>
     </OverlayPortal>

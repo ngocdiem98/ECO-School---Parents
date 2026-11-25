@@ -24,10 +24,17 @@ import { StudentAvatar } from '@/components/parents/shared/student-avatar'
 
 // First-run guide of the home (EDU-2106): the student card, then the service group.
 const COACH: CoachStep[] = [
-  { target: 'student-card', text: 'Bấm vào thẻ học sinh để xem thông tin, thẻ và các tiện ích của con.' },
+  {
+    target: 'student-card',
+    title: 'Thông tin của con',
+    text: 'Bấm vào học sinh để xem thông tin học sinh và các tiện ích của con.',
+    place: 'above',
+  },
   {
     target: 'eco-services',
+    title: 'Tiện ích của con',
     text: 'Giúp phụ huynh truy cập nhanh để theo dõi tình hình điểm danh, học tập của con tại trường, đóng học phí và liên lạc kịp thời với nhà trường.',
+    place: 'above',
   },
 ]
 
@@ -176,37 +183,38 @@ export function EcoHomeScreen({
 
       <ServiceGrid services={homeServices} onPick={pick} more={onOpenServices} />
 
-      <div className="eco-students-head">
-        <span className="eco-section-title" style={{ margin: 0 }}>
-          Danh sách học sinh
-        </span>
-        <button className="eco-link" onClick={onNavigateToLinkStudent}>
-          Thêm học sinh +
-        </button>
-      </div>
-      <div className="eco-students">
-        {MOCK_STUDENTS.map((s, i) => (
-          <div
-            className="student-card eco-student-card"
-            key={s.id}
-            data-coach={i === 0 ? 'student-card' : undefined}
-            onClick={() => onNavigateToStudent(s.id)}
-          >
-            <div className="student-card-head">
-              <StudentAvatar student={s} />
-              <div>
-                <div className="student-name">{s.name}</div>
-                <div className="student-code">{s.code}</div>
+      <div className="eco-student-section" data-coach="student-card">
+        <div className="eco-students-head">
+          <span className="eco-section-title" style={{ margin: 0 }}>
+            Danh sách học sinh
+          </span>
+          <button className="eco-link" onClick={onNavigateToLinkStudent}>
+            Thêm học sinh +
+          </button>
+        </div>
+        <div className="eco-students">
+          {MOCK_STUDENTS.map((s) => (
+            <div
+              className="student-card eco-student-card"
+              key={s.id}
+              onClick={() => onNavigateToStudent(s.id)}
+            >
+              <div className="student-card-head">
+                <StudentAvatar student={s} />
+                <div>
+                  <div className="student-name">{s.name}</div>
+                  <div className="student-code">{s.code}</div>
+                </div>
+              </div>
+              <div className="student-card-body">
+                <div className="kv-label">Trường</div>
+                <div className="kv-value">{s.school}</div>
+                <div className="kv-label">Lớp</div>
+                <div className="kv-value">{s.className}</div>
               </div>
             </div>
-            <div className="student-card-body">
-              <div className="kv-label">Trường</div>
-              <div className="kv-value">{s.school}</div>
-              <div className="kv-label">Lớp</div>
-              <div className="kv-value">{s.className}</div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <div className="eco-dock">
