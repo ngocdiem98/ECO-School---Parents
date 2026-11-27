@@ -89,7 +89,7 @@ export function PickupMainScreen({
         {/* Section 1: Main Connector (Slot 0) */}
         <div className="pickup-section">
           <div className="pickup-section-title">
-            <span>Người liên kết chính</span>
+            <span>Người quản lý</span>
             <span className="pickup-main-tag">Mặc định</span>
           </div>
 
@@ -102,7 +102,7 @@ export function PickupMainScreen({
                 <div className="pickup-card-info">
                   <div className="pickup-card-name-row">
                     <span className="pickup-card-name">{mainConnector.fullName}</span>
-                    <span className="pickup-badge-main">Người liên kết chính</span>
+                    <span className="pickup-badge-main">Người quản lý</span>
                   </div>
                   <div className="pickup-card-relation-row">
                     <span className="pickup-relation-tag">{mainConnector.relationship}</span>
@@ -151,7 +151,7 @@ export function PickupMainScreen({
               <div className="pickup-empty-icon">👥</div>
               <div className="pickup-empty-title">Chưa có người được ủy quyền đón trẻ</div>
               <div className="pickup-empty-desc">
-                Bạn có thể bật quyền cho người liên kết phụ hoặc thêm mới người đón trẻ (tối đa 2 người hoạt động cùng lúc).
+                Bạn có thể bật quyền cho phụ huynh khác hoặc thêm mới người đón trẻ (tối đa 2 người hoạt động cùng lúc).
               </div>
             </div>
           ) : (
@@ -178,7 +178,7 @@ export function PickupMainScreen({
                               isSubConnector ? 'sub-connector' : 'added-new'
                             }`}
                           >
-                            {isSubConnector ? 'Người liên kết phụ' : 'Người được thêm mới'}
+                            {isSubConnector ? 'Phụ huynh' : 'Người được thêm mới'}
                           </span>
                         </div>
                         <div className="pickup-card-relation-row">

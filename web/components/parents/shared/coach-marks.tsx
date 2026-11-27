@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 
 export interface CoachStep {
@@ -8,8 +8,6 @@ export interface CoachStep {
   target: string
   title: string
   text: string
-  /** Side of the target the design puts the bubble on; the other side is used when it does not fit. */
-  place?: 'above' | 'below'
 }
 
 interface Box {
@@ -39,6 +37,14 @@ export function CoachMarks({
   const [idx, setIdx] = useState(0)
   const [box, setBox] = useState<Box | null>(null)
   const step = steps[idx]
+  // Esc works like "Bỏ qua" (stands in for the Android back button too).
+  const skipRef = useRef(onSkip)
+  skipRef.current = onSkip
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && skipRef.current()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   useLayoutEffect(() => {
     let tries = 0
@@ -85,7 +91,9 @@ export function CoachMarks({
   const spot = { top: box.top - pad, left: box.left - pad, width: box.width + pad * 2, height: box.height + pad * 2 }
   const fitsBelow = spot.top + spot.height + BUBBLE_H + 12 < box.rootH
   const fitsAbove = spot.top - BUBBLE_H - 12 > 0
-  const below = step.place === 'above' ? !fitsAbove : fitsBelow
+  // Target in the upper half: bubble below it; otherwise above (the other side if it does not fit).
+  const upperHalf = spot.top + spot.height / 2 < box.rootH / 2
+  const below = upperHalf ? fitsBelow || !fitsAbove : !fitsAbove
   const bubbleW = Math.min(360, box.rootW - 32)
   const bubbleLeft = Math.min(Math.max(16, spot.left + spot.width / 2 - bubbleW / 2), box.rootW - bubbleW - 16)
   const arrowLeft = Math.min(Math.max(20, spot.left + spot.width / 2 - bubbleLeft), bubbleW - 20)
@@ -106,8 +114,11 @@ export function CoachMarks({
         >
           <span className="coach-arrow" style={{ left: arrowLeft }} />
           <div className="coach-head">
-            <span className="coach-count">
+            <span className="coach-count" aria-hidden="true">
               {idx + 1}/{steps.length}
+            </span>
+            <span className="sr-only" role="status">
+              Bước {idx + 1} trên {steps.length}
             </span>
             <button className="coach-skip" onClick={onSkip}>
               Bỏ qua

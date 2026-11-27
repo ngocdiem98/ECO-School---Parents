@@ -12,13 +12,13 @@ import { StudentPickerSheet } from '@/components/parents/shared/student-picker-s
 import { Unlink } from 'lucide-react'
 import { MOCK_STUDENTS, getStudent, MAX_LINKED_PEOPLE, type LinkedPerson } from '@/lib/mock-data'
 
-// "Quản lý liên kết" (Hồ sơ học sinh > Phụ huynh). The list of "Người theo dõi"
+// "Quản lý phụ huynh" (Hồ sơ học sinh > Phụ huynh). "Danh sách phụ huynh"
 // includes people the school added (PRD "Nhà trường liên kết Phụ huynh – Học
 // sinh" 4.6): shown and handled like people the main connector invited, even
 // when they already have an ECO Me account:
-// - Chờ xác nhận (invite not accepted yet, or no account yet): tag + "Hủy lời mời"; no "Mời lại" for a school invite.
-// - Đã liên kết: in the follower group with "Hủy liên kết".
-// The "Thêm người giám hộ" input hides at 3 people, pending ones included
+// - Chờ đồng ý (invite not accepted yet, or no account yet): tag + "Hủy lời mời"; no "Nhắc lại" for a school invite.
+// - Đã đồng ý: "Hủy theo dõi".
+// The "Mời thêm phụ huynh" input hides at 3 people, pending ones included
 // (BR-02). Only the main connector manages; a follower just sees the list.
 
 type Confirm = { kind: 'unlink' | 'cancel' | 'resend'; person: LinkedPerson } | { kind: 'leave' } | null
@@ -35,7 +35,7 @@ export function LinkManageApp({
   studentId: string
   onBack: () => void
   onSelectStudent?: (id: string) => void
-  // The parent confirmed "Huỷ liên kết với học sinh": the caller leaves this student.
+  // The parent confirmed "Hủy theo dõi học sinh": the caller leaves this student.
   onLeft?: (studentId: string) => void
 }) {
   const student = getStudent(studentId)!
@@ -63,7 +63,8 @@ export function LinkManageApp({
   const invite = () => {
     const digits = phone.replace(/\s/g, '')
     if (!/^0\d{9}$/.test(digits)) return setPhoneError('Số điện thoại không hợp lệ')
-    if (student.linkedPeople.some((p) => (p.phone || '').replace(/\s/g, '') === digits)) return setPhoneError('Số điện thoại này đã được mời')
+    const existing = student.linkedPeople.find((p) => (p.phone || '').replace(/\s/g, '') === digits)
+    if (existing) return setPhoneError(existing.status === 'pending' ? 'Số điện thoại này đã có lời mời đang chờ' : 'Số điện thoại này đã theo dõi học sinh')
     const now = new Date().toISOString()
     student.linkedPeople = [
       ...student.linkedPeople,
@@ -71,13 +72,13 @@ export function LinkManageApp({
     ]
     setPhone('')
     setPhoneError('')
-    show('Gửi lời mời thành công', true)
+    show('Đã gửi lời mời đến phụ huynh', true)
     bump()
   }
 
   const askResend = (p: LinkedPerson) => {
     const last = new Date(p.lastInvitedAt || p.since).getTime()
-    if (Date.now() - last < REMIND_GAP_MS) return show('Thử mời lại sau 30 phút')
+    if (Date.now() - last < REMIND_GAP_MS) return show('Bạn có thể nhắc lại sau 30 phút')
     setConfirm({ kind: 'resend', person: p })
   }
 
@@ -91,10 +92,10 @@ export function LinkManageApp({
     const { kind, person } = confirm
     if (kind === 'resend') {
       person.lastInvitedAt = new Date().toISOString()
-      show('Đã gửi lại lời mời', true)
+      show('Đã nhắc lại lời mời', true)
     } else {
       remove(person)
-      show(kind === 'unlink' ? 'Đã huỷ quyền liên kết' : 'Đã huỷ lời mời', true)
+      show(kind === 'unlink' ? `Đã hủy theo dõi của ${nameOf(person)}` : 'Đã hủy lời mời', true)
     }
     setConfirm(null)
     bump()
@@ -103,12 +104,12 @@ export function LinkManageApp({
   const dialog =
     confirm &&
     (confirm.kind === 'leave'
-      ? { title: 'Huỷ liên kết với học sinh', sub: `Bạn sẽ không thể xem thông tin của ${student.name} nữa. Bạn có thể được mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
+      ? { title: 'Hủy theo dõi học sinh', sub: `Bạn sẽ không xem được thông tin của ${student.name} nữa. Bạn có thể được mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
       : confirm.kind === 'unlink'
-      ? { title: 'Xác nhận huỷ quyền liên kết', sub: `${nameOf(confirm.person)} sẽ không thể xem thông tin của học sinh này nữa. Bạn có thể mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
+      ? { title: 'Hủy theo dõi', sub: `${nameOf(confirm.person)} sẽ không xem được thông tin của ${student.name} nữa. Bạn có thể mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
       : confirm.kind === 'cancel'
-        ? { title: 'Xác nhận huỷ lời mời', sub: `${nameOf(confirm.person)} sẽ không thể chấp nhận lời mời theo dõi học sinh này nữa. Bạn có thể mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
-        : { title: 'Gửi lại lời mời', sub: 'Bạn có chắc chắn muốn gửi lại lời mời liên kết đến tài khoản này?', ok: 'Gửi lại' })
+        ? { title: 'Hủy lời mời', sub: `${nameOf(confirm.person)} sẽ không đồng ý được lời mời theo dõi ${student.name} nữa. Bạn có thể mời lại bất cứ lúc nào.`, ok: 'Xác nhận' }
+        : { title: 'Nhắc lại lời mời', sub: `Gửi lại lời mời theo dõi ${student.name} đến ${nameOf(confirm.person)}?`, ok: 'Nhắc lại' })
 
   return (
     <div className="screen lm-screen sp-screen">
@@ -116,7 +117,7 @@ export function LinkManageApp({
         <button className="icon-btn" onClick={onBack} aria-label="Quay lại">
           ‹
         </button>
-        <div className="topbar-title">Quản lý liên kết</div>
+        <div className="topbar-title">Quản lý phụ huynh</div>
         <span className="icon-btn-ghost" />
       </div>
 
@@ -124,7 +125,9 @@ export function LinkManageApp({
 
       <div className="lm-body">
         <div className="lm-card">
-          <div className="lm-card-label">{isManager ? 'Người theo dõi' : 'Người đang theo dõi'}</div>
+          <div className="lm-card-label">
+            Danh sách phụ huynh ({people.length}/{MAX_LINKED_PEOPLE})
+          </div>
           {people.map((p) => {
             const pending = p.status === 'pending'
             return (
@@ -137,11 +140,15 @@ export function LinkManageApp({
                   </div>
                   {pending ? (
                     <div className="lm-row-sub">
-                      <span className="lm-tag-pending">Chờ xác nhận</span>
+                      {p.relation && <span>{p.relation} · </span>}
+                      <span className="lm-tag-pending">Chờ đồng ý</span>
                       {p.source === 'school' && <span> · Trường mời</span>}
                     </div>
                   ) : (
-                    <div className="lm-row-sub">{joinedTextVi(p.since)}</div>
+                    <div className="lm-row-sub">
+                      {p.relation && `${p.relation} · `}
+                      {joinedTextVi(p.since)}
+                    </div>
                   )}
                 </div>
                 <div className="lm-row-actions">
@@ -153,13 +160,13 @@ export function LinkManageApp({
                         {pending && p.source === 'parent' && (
                           <>
                             <button className="lm-act lm-act-blue" onClick={() => askResend(p)}>
-                              Mời lại
+                              Nhắc lại
                             </button>
                             <span className="lm-sep" />
                           </>
                         )}
                         <button className="lm-act lm-act-red" onClick={() => setConfirm({ kind: pending ? 'cancel' : 'unlink', person: p })}>
-                          {pending ? 'Hủy lời mời' : 'Hủy liên kết'}
+                          {pending ? 'Hủy lời mời' : 'Hủy theo dõi'}
                         </button>
                       </>
                     )
@@ -172,13 +179,13 @@ export function LinkManageApp({
 
         {isManager && (
           <div className="lm-card">
-            <div className="lm-card-title">Mời người giám hộ học sinh</div>
+            <div className="lm-card-title">Mời thêm phụ huynh</div>
             {!full && (
               <div className="lm-invite">
                 <input
                   className={`lm-input ${phoneError ? 'has-error' : ''}`}
                   inputMode="tel"
-                  placeholder="Nhập số điện thoại"
+                  placeholder="Số điện thoại phụ huynh"
                   value={phone}
                   onChange={(e) => {
                     setPhone(e.target.value)
@@ -186,7 +193,7 @@ export function LinkManageApp({
                   }}
                 />
                 <button className="btn btn-primary lm-invite-btn" onClick={invite} disabled={!phone.trim()}>
-                  Mời người giám hộ
+                  Gửi lời mời
                 </button>
               </div>
             )}
@@ -196,14 +203,14 @@ export function LinkManageApp({
                 <span className="li-info-icon" aria-hidden="true">
                   i
                 </span>
-                <span>Một học sinh có thể liên kết tối đa 3 người. Muốn mời thêm, vui lòng hủy liên kết hoặc hủy lời mời của một người đang dùng suất.</span>
+                <span>Mỗi học sinh có tối đa 3 phụ huynh theo dõi. Để mời thêm, vui lòng hủy theo dõi hoặc hủy lời mời của một người.</span>
               </div>
             )}
           </div>
         )}
 
         <div className="li-benefits">
-          <div className="li-benefits-title">{isManager ? 'Quyền hạn của người được mời' : 'Lợi ích của bạn'}</div>
+          <div className="li-benefits-title">{isManager ? 'Phụ huynh được mời có thể' : 'Lợi ích của bạn'}</div>
           {(isManager
             ? ['Cập nhật thông tin về học sinh tại trường', 'Thanh toán học phí và các khoản thu', 'Nhận thông báo từ nhà trường về học sinh này']
             : ['Cập nhật thông tin về học sinh tại trường', 'Thuận tiện thanh toán học phí', 'Tương tác dễ dàng hơn với nhà trường']
@@ -218,7 +225,7 @@ export function LinkManageApp({
 
       <button className="lm-leave" onClick={() => setConfirm({ kind: 'leave' })}>
         <Unlink size={18} />
-        Huỷ liên kết với học sinh
+        Hủy theo dõi học sinh
       </button>
 
       {dialog && (

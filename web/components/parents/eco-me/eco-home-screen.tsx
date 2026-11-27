@@ -28,13 +28,11 @@ const COACH: CoachStep[] = [
     target: 'student-card',
     title: 'Thông tin của con',
     text: 'Bấm vào học sinh để xem thông tin học sinh và các tiện ích của con.',
-    place: 'above',
   },
   {
     target: 'eco-services',
     title: 'Tiện ích của con',
     text: 'Giúp phụ huynh truy cập nhanh để theo dõi tình hình điểm danh, học tập của con tại trường, đóng học phí và liên lạc kịp thời với nhà trường.',
-    place: 'above',
   },
 ]
 
@@ -222,7 +220,7 @@ export function EcoHomeScreen({
         <div className="eco-invite-widget" role="status">
           <img className="eco-invite-avatar" src="/ds/avatars/pho-thong-nam.svg" alt="" />
           <button className="eco-invite-main" onClick={onOpenInvites}>
-            <span className="eco-invite-title">Bạn có {inviteCount} lời mời liên kết học sinh</span>
+            <span className="eco-invite-title">Bạn có {inviteCount} lời mời theo dõi học sinh</span>
             <span className="eco-invite-cta">Xem lời mời →</span>
           </button>
           <button className="eco-invite-close" onClick={onDismissInvites} aria-label="Ẩn lời mời">

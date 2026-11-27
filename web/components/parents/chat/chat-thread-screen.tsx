@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Camera, ChevronRight, Copy, Download, Image as ImageIcon, Pin, PinOff, Plus, Send, Users, X } from 'lucide-react'
+import { ArrowLeft, Camera, ChevronRight, Copy, Download, Image as ImageIcon, Lock, Pin, PinOff, Plus, Send, Users, X } from 'lucide-react'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 import { PhotoViewer } from '@/components/parents/shared/photo-viewer'
 import { QuickReplies } from '@/components/parents/shared/quick-replies'
+import { useScrollFade } from '@/components/parents/shared/use-scroll-fade'
 import { CHAT_QUICK_REPLIES, draftText, setDraft } from './draft'
 import { Toast } from '@/components/parents/shared/toast'
 import { useToast } from '@/components/parents/shared/use-toast'
@@ -45,7 +46,9 @@ export function ChatThreadScreen({
   // Bản nháp theo từng cuộc trò chuyện (EDU-2118): restored without asking.
   const [text, setText] = useState(() => draftText(thread.id) ?? '')
   const [files, setFiles] = useState<string[]>([])
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const stripRef = useRef<HTMLDivElement>(null)
+  const strip = useScrollFade(stripRef, files.length)
   const [showAttach, setShowAttach] = useState(false)
   const [actionMsg, setActionMsg] = useState<ChatMessage | null>(null)
   const [showPins, setShowPins] = useState(false)
@@ -62,8 +65,16 @@ export function ChatThreadScreen({
   }, [thread])
 
   useEffect(() => {
-    setDraft(thread.id, text)
-  }, [thread.id, text])
+    setDraft(thread.id, thread.readOnly ? '' : text)
+  }, [thread.id, thread.readOnly, text])
+
+  // The composer grows from 1 to 4 lines, then scrolls inside.
+  useEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight + 2}px`
+  }, [text])
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
@@ -216,28 +227,38 @@ export function ChatThreadScreen({
       </div>
 
       {thread.readOnly ? (
-        <div className="composer-locked">Chỉ giáo viên được đăng bài trong nhóm này</div>
+        <div className="composer-locked">
+          <span>
+            <Lock size={18} />
+            Chỉ giáo viên mới được nhắn tin trong nhóm này
+          </span>
+        </div>
       ) : (
         <div className="composer-wrap">
           {files.length > 0 && (
-            <div className="composer-preview">
-              {files.map((src, i) => (
-                <div className="med-photo" key={src}>
-                  <img src={src} alt="" />
-                  <span className="rm" onClick={() => setFiles((f) => f.filter((_, idx) => idx !== i))}>
-                    ✕
-                  </span>
-                </div>
-              ))}
-              {!text.trim() && <span className="med-error">Vui lòng nhập nội dung kèm theo ảnh</span>}
-            </div>
+            <>
+              <div ref={stripRef} onScroll={strip.onScroll} className={`composer-preview ${strip.fading ? 'is-fading' : ''}`}>
+                {files.map((src, i) => (
+                  <div className="med-photo" key={src}>
+                    <img src={src} alt="" />
+                    <span className="rm" onClick={() => setFiles((f) => f.filter((_, idx) => idx !== i))}>
+                      ✕
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {!text.trim() && <div className="med-error composer-hint">Vui lòng nhập nội dung kèm theo ảnh</div>}
+            </>
           )}
-          {!text && (
+          {!text.trim() && (
             <QuickReplies
               items={CHAT_QUICK_REPLIES}
               onPick={(r) => {
                 setText(r.text) // fill only; the parent edits, then sends
-                inputRef.current?.focus()
+                setTimeout(() => {
+                  inputRef.current?.focus()
+                  inputRef.current?.setSelectionRange(r.text.length, r.text.length)
+                })
               }}
             />
           )}
@@ -245,13 +266,19 @@ export function ChatThreadScreen({
             <button className="icon-btn" onClick={() => setShowAttach((v) => !v)} aria-label="Đính kèm">
               {showAttach ? <X size={22} /> : <Plus size={22} />}
             </button>
-            <input
+            <textarea
               ref={inputRef}
+              rows={1}
               placeholder="Nhập tin nhắn"
               maxLength={MAX_CHARS}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && send()}
+              onKeyDown={(e) => {
+                // Enter sends, Shift+Enter breaks the line; ignore Enter while the IME is composing.
+                if (e.key !== 'Enter' || e.shiftKey || e.nativeEvent.isComposing) return
+                e.preventDefault()
+                send()
+              }}
             />
             <button className="icon-btn send" disabled={!text.trim()} onClick={send} aria-label="Gửi">
               <Send size={20} />

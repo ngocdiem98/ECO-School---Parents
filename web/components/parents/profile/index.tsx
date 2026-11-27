@@ -92,11 +92,12 @@ export function ProfileApp({ studentId, initialTab = 'info', onBack, onSelectStu
                     <span>
                       {p.name}
                       {p.isMe && <span className="hp-me"> (Bạn)</span>}
+                      {p.relation && <small className="hp-relation">{p.relation}</small>}
                     </span>
                   </div>
                 ))}
                 <button className="hp-manage" onClick={() => onOpenLinkManage(student.id)}>
-                  {isManager ? 'Quản lý người liên kết' : 'Xem chi tiết'}
+                  {isManager ? 'Quản lý phụ huynh' : 'Xem chi tiết'}
                   <ArrowRight size={18} />
                 </button>
               </>

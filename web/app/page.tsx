@@ -10,6 +10,9 @@ import { PhieuBeNgoanApp } from '@/components/parents/phieu-be-ngoan'
 import { FeeApp } from '@/components/parents/fee'
 import { TopupApp } from '@/components/parents/topup'
 import { AbsenceApp } from '@/components/parents/absence'
+import { clearDraft as clearAbsenceDraft } from '@/components/parents/absence/draft'
+import { setDraft as setChatDraft } from '@/components/parents/chat/draft'
+import { threadsFor } from '@/lib/school-data'
 import { HomeworkApp } from '@/components/parents/homework'
 import { ResultsApp } from '@/components/parents/results'
 import { HoaDonApp } from '@/components/parents/hoa-don'
@@ -543,11 +546,13 @@ export default function Page() {
                   onBack={() => setScreen(returnScreen)}
                   onSelectStudent={setActiveStudentId}
                   onLeft={(studentId) => {
+                    clearAbsenceDraft(studentId)
+                    threadsFor(studentId).forEach((t) => setChatDraft(t.id, ''))
                     const i = MOCK_STUDENTS.findIndex((x) => x.id === studentId)
                     if (i >= 0) MOCK_STUDENTS.splice(i, 1)
                     setActiveStudentId(null)
                     setScreen('eco-home')
-                    showToast('Đã huỷ liên kết với học sinh')
+                    showToast('Đã hủy theo dõi học sinh')
                   }}
                 />
               )}

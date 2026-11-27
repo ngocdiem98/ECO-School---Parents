@@ -176,15 +176,17 @@ export interface Guardian {
   address: string
 }
 
-// "Quản lý liên kết" (Trang học sinh > Cài đặt): everyone linked to, or invited
-// to follow, a student. `status` 'pending' = tag "Chờ xác nhận" (an invite the
+// "Quản lý phụ huynh" (Hồ sơ học sinh > Phụ huynh): everyone linked to, or invited
+// to follow, a student. `status` 'pending' = tag "Chờ đồng ý" (an invite the
 // person has not accepted, or a link the school created for a phone number
 // that has no ECO Me account yet); `source` 'school' = created by the school
 // (QLTH / ECO Card), shown and managed like an invite from the main
-// connector but without "Mời lại". `name` is empty until the person has an
+// connector but without "Nhắc lại". `relation` comes from the school only
+// (people invited on the app have none). `name` is empty until the person has an
 // ECO Me account (the UI then shows the masked phone). `since` = joined
 // time, or invited time while pending. Max 3 people per student, pending ones included.
 export type LinkStatus = 'linked' | 'pending'
+export type Relation = 'Cha' | 'Mẹ' | 'Người giám hộ'
 export interface LinkedPerson {
   id: string
   name: string
@@ -192,6 +194,7 @@ export interface LinkedPerson {
   role: 'manager' | 'follower'
   status: LinkStatus
   source: 'school' | 'parent'
+  relation?: Relation
   since: string
   lastInvitedAt?: string
   isMe?: boolean
@@ -475,16 +478,16 @@ export const MOCK_STUDENTS: Student[] = [
       ],
     },
     profileHistory: [
-      { kind: 'link', text: 'Phan Văn Dũng đã liên kết với học sinh', at: '2026-09-05T09:12' },
+      { kind: 'link', text: 'Phan Văn Dũng đã bắt đầu theo dõi học sinh', at: '2026-09-05T09:12' },
       { kind: 'school', text: 'Nhà trường cập nhật lớp: Lớp Lá', at: '2026-09-02T08:00' },
-      { kind: 'unlink', text: 'Nguyễn Văn Bình đã huỷ liên kết', at: '2026-08-15T20:41' },
+      { kind: 'unlink', text: 'Nguyễn Văn Bình đã hủy theo dõi học sinh', at: '2026-08-15T20:41' },
       { kind: 'created', text: 'Hồ sơ học sinh được tạo', at: '2026-08-10T10:30' },
     ],
     weeklyDigest: { weekLabel: '19/10 - 23/10', viewed: false },
     hasLinkedInvoice: false,
     recentActivity: [
       { title: 'Nạp tiền', time: '10/07/2026 - 09:41', amount: '+1,000 điểm' },
-      { title: 'Thêm liên kết học sinh Phan Khánh Vy | 9192930059', time: '10/07/2026 - 09:29' },
+      { title: 'Thêm học sinh Phan Khánh Vy | 9192930059', time: '10/07/2026 - 09:29' },
       { title: 'Đã kích hoạt thẻ học sinh Phan Khánh Vy', time: '10/07/2026 - 09:29' },
       { title: 'Đã hủy liên kết thẻ học sinh Phan Khánh Vy', time: '10/07/2026 - 09:29' },
     ],
@@ -520,8 +523,8 @@ export const MOCK_STUDENTS: Student[] = [
     // Đủ 3 người: 1 người do trường thêm đã liên kết, 1 người do trường thêm đang Chờ xác nhận (không có "Mời lại").
     linkedPeople: [
       { id: 'lp-kh1', name: 'Trần Đăng Khoa', phone: '0397 486 867', role: 'manager', status: 'linked', source: 'parent', since: '2026-02-02T08:00:00.000Z', isMe: true },
-      { id: 'lp-kh2', name: 'Lê Thị Mai', phone: '0961 222 333', role: 'follower', status: 'linked', source: 'school', since: minsAgo(60 * 30) },
-      { id: 'lp-kh3', name: '', phone: '0912 345 789', role: 'follower', status: 'pending', source: 'school', since: minsAgo(60 * 5) },
+      { id: 'lp-kh2', name: 'Lê Thị Mai', phone: '0961 222 333', role: 'follower', status: 'linked', source: 'school', relation: 'Mẹ', since: minsAgo(60 * 30) },
+      { id: 'lp-kh3', name: '', phone: '0912 345 789', role: 'follower', status: 'pending', source: 'school', relation: 'Người giám hộ', since: minsAgo(60 * 5) },
     ],
     heightCm: 165,
     weightKg: 65,
@@ -554,9 +557,9 @@ export const MOCK_STUDENTS: Student[] = [
     supportsTopUp: false,
     card: null,
     profileHistory: [
-      { kind: 'link', text: 'Lê Thị Mai đã liên kết với học sinh', at: '2026-09-05T09:12' },
+      { kind: 'link', text: 'Lê Thị Mai đã bắt đầu theo dõi học sinh', at: '2026-09-05T09:12' },
       { kind: 'school', text: 'Nhà trường cập nhật lớp: Lớp 10A1', at: '2026-09-02T08:00' },
-      { kind: 'unlink', text: 'Nguyễn Văn Bình đã huỷ liên kết', at: '2026-08-15T20:41' },
+      { kind: 'unlink', text: 'Nguyễn Văn Bình đã hủy theo dõi học sinh', at: '2026-08-15T20:41' },
       { kind: 'created', text: 'Hồ sơ học sinh được tạo', at: '2026-08-10T10:30' },
     ],
     weeklyDigest: null,
@@ -565,7 +568,7 @@ export const MOCK_STUDENTS: Student[] = [
       { title: 'Đã điểm danh', time: 'Thứ tư 08/07/2026 - 08:21' },
       { title: 'Đã điểm danh', time: 'Thứ ba 07/07/2026 - 08:00' },
       { title: 'Đã điểm danh', time: 'Thứ sáu 03/07/2026 - 08:13' },
-      { title: 'Thêm liên kết học sinh Trần Đăng Khoa | 9192930072', time: '02/07/2026 - 13:41' },
+      { title: 'Thêm học sinh Trần Đăng Khoa | 9192930072', time: '02/07/2026 - 13:41' },
     ],
     invoices: {
       linked: true,
@@ -860,8 +863,8 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     // Mình là người liên kết phụ do trường thêm: chỉ xem danh sách, không quản lý.
     linkedPeople: [
-      { id: 'lp-la1', name: 'Võ Thành Nam', phone: '0938 111 222', role: 'manager', status: 'linked', source: 'school', since: '2026-09-02T08:00:00.000Z' },
-      { id: 'lp-la2', name: 'Phạm Thị Hồng', phone: '0907 333 444', role: 'follower', status: 'linked', source: 'school', since: minsAgo(60 * 26), isMe: true },
+      { id: 'lp-la1', name: 'Võ Thành Nam', phone: '0938 111 222', role: 'manager', status: 'linked', source: 'school', relation: 'Cha', since: '2026-09-02T08:00:00.000Z' },
+      { id: 'lp-la2', name: 'Phạm Thị Hồng', phone: '0907 333 444', role: 'follower', status: 'linked', source: 'school', relation: 'Mẹ', since: minsAgo(60 * 26), isMe: true },
     ],
     heightCm: 96,
     weightKg: 14,
@@ -892,15 +895,15 @@ export const MOCK_STUDENTS: Student[] = [
     },
     locked: true,
     profileHistory: [
-      { kind: 'link', text: 'Võ Phạm Hiểu Lam đã liên kết với học sinh', at: '2026-09-05T09:12' },
+      { kind: 'link', text: 'Võ Phạm Hiểu Lam đã bắt đầu theo dõi học sinh', at: '2026-09-05T09:12' },
       { kind: 'school', text: 'Nhà trường cập nhật lớp: Lớp Mầm', at: '2026-09-02T08:00' },
-      { kind: 'unlink', text: 'Nguyễn Văn Bình đã huỷ liên kết', at: '2026-08-15T20:41' },
+      { kind: 'unlink', text: 'Nguyễn Văn Bình đã hủy theo dõi học sinh', at: '2026-08-15T20:41' },
       { kind: 'created', text: 'Hồ sơ học sinh được tạo', at: '2026-08-10T10:30' },
     ],
     weeklyDigest: { weekLabel: '19/10 - 23/10', viewed: true },
     hasLinkedInvoice: false,
     recentActivity: [
-      { title: 'Thêm liên kết học sinh Võ Phạm Hiểu Lam | 9192930085', time: '20/07/2026 - 08:15' },
+      { title: 'Thêm học sinh Võ Phạm Hiểu Lam | 9192930085', time: '20/07/2026 - 08:15' },
       { title: 'Đã kích hoạt thẻ học sinh Võ Phạm Hiểu Lam', time: '20/07/2026 - 08:15' },
     ],
     invoices: { linked: false, sample: [{ name: 'Học phí 07/2026', amount: 200000 }] },
@@ -952,8 +955,8 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt-inv1',
     category: 'school',
-    title: 'Trường THCS Đoàn Thị Điểm mời bạn liên kết học sinh Nguyễn Minh Hoàng Anh',
-    body: 'Trường THCS Đoàn Thị Điểm đã mời bạn liên kết học sinh Nguyễn Minh Hoàng Anh. Bấm vào để xem chi tiết lời mời!',
+    title: 'Trường THCS Đoàn Thị Điểm mời bạn theo dõi học sinh Nguyễn Minh Hoàng Anh',
+    body: 'Trường THCS Đoàn Thị Điểm đã mời bạn theo dõi học sinh Nguyễn Minh Hoàng Anh. Bấm vào để xem chi tiết lời mời!',
     at: '2026-11-18T09:40',
     read: false,
     target: { type: 'invite', inviteId: 'inv1' },
@@ -961,8 +964,8 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt-inv-cancelled',
     category: 'school',
-    title: 'Lời mời liên kết học sinh đã bị hủy',
-    body: 'Lời mời liên kết học sinh Trần Gia Bảo từ Trường TH Lê Quý Đôn đã bị hủy.',
+    title: 'Lời mời theo dõi học sinh đã bị hủy',
+    body: 'Lời mời theo dõi học sinh Trần Gia Bảo từ Trường TH Lê Quý Đôn đã bị hủy.',
     at: '2026-11-17T16:05',
     read: false,
     target: { type: 'invite-expired' },
@@ -970,8 +973,8 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt-link-accepted',
     category: 'school',
-    title: 'Người giám hộ đã chấp nhận lời mời',
-    body: 'Lê Thị Mai đã chấp nhận lời mời theo dõi học sinh Trần Đăng Khoa.',
+    title: 'Phụ huynh đã đồng ý lời mời',
+    body: 'Lê Thị Mai đã đồng ý lời mời theo dõi học sinh Trần Đăng Khoa.',
     at: '2026-11-17T10:20',
     read: false,
     target: { type: 'service', intent: 'linkmanage', studentId: 'khoa' },
@@ -979,7 +982,7 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt-link-declined',
     category: 'school',
-    title: 'Người giám hộ đã từ chối lời mời',
+    title: 'Phụ huynh đã từ chối lời mời',
     body: '0987***321 đã từ chối lời mời theo dõi học sinh Phan Khánh Vy.',
     at: '2026-11-16T19:45',
     read: true,
@@ -988,8 +991,8 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt-link-cancelled',
     category: 'school',
-    title: 'Liên kết học sinh đã bị hủy',
-    body: 'Liên kết với học sinh Võ Phạm Hiểu Lam đã được Trường Mầm non Demo hủy. Vui lòng liên hệ trường nếu cần hỗ trợ.',
+    title: 'Bạn không còn theo dõi học sinh',
+    body: 'Trường Mầm non Demo đã hủy quyền theo dõi học sinh Võ Phạm Hiểu Lam của bạn. Vui lòng liên hệ trường nếu cần hỗ trợ.',
     at: '2026-11-15T14:30',
     read: true,
   },
@@ -1124,7 +1127,7 @@ export const MOCK_INVITES: LinkInvite[] = [
 
 export const pendingInvites = () => MOCK_INVITES.filter((i) => i.status === 'pending')
 
-// Phụ huynh bấm "Đồng ý liên kết": the invite becomes Đã liên kết and the
+// Phụ huynh bấm "Đồng ý theo dõi": the invite is accepted and the
 // student joins the list (the first to accept is the main connector, BR-04).
 // Student data is a copy of the sample 'khoa' record, with invoices cleared.
 export function acceptInvite(id: string): Student | undefined {
@@ -1146,14 +1149,14 @@ export function acceptInvite(id: string): Student | undefined {
     locked: false,
     weeklyDigest: null,
     profileHistory: [
-      { kind: 'link', text: 'Bạn đã liên kết với học sinh', at: new Date().toISOString() },
+      { kind: 'link', text: 'Bạn đã bắt đầu theo dõi học sinh', at: new Date().toISOString() },
       { kind: 'created', text: 'Hồ sơ học sinh được tạo', at: new Date().toISOString() },
     ],
     bills: [],
     hasLinkedInvoice: false,
     invoices: { linked: false, sample: [] },
     linkedPeople: [
-      { id: `lp-${inv.id}`, name: 'Diễm', role: 'manager', status: 'linked', source: 'school', since: new Date().toISOString(), isMe: true },
+      { id: `lp-${inv.id}`, name: 'Diễm', role: 'manager', status: 'linked', source: 'school', relation: 'Mẹ', since: new Date().toISOString(), isMe: true },
     ],
   }
   MOCK_STUDENTS.push(st)
@@ -1177,7 +1180,7 @@ export function linkStudentByCode(code: string): Student {
     locked: false,
     weeklyDigest: null,
     profileHistory: [
-      { kind: 'link', text: 'Bạn đã liên kết với học sinh', at: new Date().toISOString() },
+      { kind: 'link', text: 'Bạn đã bắt đầu theo dõi học sinh', at: new Date().toISOString() },
       { kind: 'created', text: 'Hồ sơ học sinh được tạo', at: new Date().toISOString() },
     ],
     bills: [],

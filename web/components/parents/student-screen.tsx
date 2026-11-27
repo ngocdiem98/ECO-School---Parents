@@ -26,7 +26,6 @@ const COACH: CoachStep[] = [
     target: 'sp-services',
     title: 'Tiện ích của con',
     text: 'Theo dõi sát sao tình hình của con tại trường thông qua các chức năng chính. Lướt ngang để xem thêm.',
-    place: 'above',
   },
   { target: 'sp-help', title: 'Hướng dẫn sử dụng', text: 'Bấm vào đây để xem cách dùng từng tính năng khi cần.' },
 ]

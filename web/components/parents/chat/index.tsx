@@ -105,7 +105,7 @@ function findThread(id: string): ChatThread | undefined {
 
 function ThreadRow({ t, onOpen }: { t: ChatThread; onOpen: () => void }) {
   const last = t.messages[t.messages.length - 1]
-  const draft = draftText(t.id)
+  const draft = t.readOnly ? null : draftText(t.id)
   return (
     <button className="chat-row" onClick={onOpen}>
       <span className={`chat-avatar ${t.kind}`}>{t.kind === 'group' ? <Users size={22} /> : 'GV'}</span>

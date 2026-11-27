@@ -7,9 +7,9 @@ import { relativeTimeVi } from '@/components/parents/shared/relative-time'
 import { MOCK_INVITES, acceptInvite, declineInvite, pendingInvites, type LinkInvite } from '@/lib/mock-data'
 
 // "Nhà trường liên kết Phụ huynh – Học sinh" (PRD 4.6, App ECO Me): the invites
-// the school created for this account. List "Lời mời liên kết của tôi" →
-// detail "Lời mời liên kết học sinh" (Đồng ý liên kết / Từ chối) → popups
-// Xác nhận từ chối, Liên kết thành công, and the error page "Lời mời không
+// the school created for this account. List "Lời mời theo dõi của tôi" →
+// detail "Lời mời theo dõi học sinh" (Đồng ý theo dõi / Từ chối) → popups
+// Từ chối lời mời, Theo dõi thành công, and the error page "Lời mời không
 // còn hiệu lực". Reuses the layout of the invite screens of the phone-invite
 // PRDs; the inviter is the school, so no inviter name or phone is shown.
 
@@ -84,7 +84,7 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
     if (!invite) return
     declineInvite(invite.id)
     setConfirmReject(false)
-    onToast('Đã từ chối lời mời liên kết')
+    onToast('Đã từ chối lời mời')
     if (pendingInvites().length > 0) {
       setView('list')
       setVersion((v) => v + 1)
@@ -96,11 +96,11 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
   if (expired) {
     return (
       <div className="screen li-screen li-expired-screen">
-        <TopBar title="Lời mời liên kết học sinh" onBack={onBack} />
+        <TopBar title="Lời mời theo dõi học sinh" onBack={onBack} />
         <div className="li-expired">
           <span className="li-expired-icon">!</span>
           <h2>Lời mời không còn hiệu lực</h2>
-          <p>Lời mời liên kết này đã bị hủy hoặc không còn tồn tại. Vui lòng liên hệ trường để nhận lời mời mới.</p>
+          <p>Lời mời theo dõi này đã bị hủy hoặc không còn tồn tại. Vui lòng liên hệ trường để được mời lại.</p>
         </div>
         <div className="li-footer">
           <button className="btn btn-primary" onClick={onGoEcoMe}>
@@ -115,7 +115,7 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
   if (view === 'detail' && invite) {
     return (
       <div className="screen li-screen">
-        <TopBar title="Lời mời liên kết học sinh" onBack={() => (fromList ? setView('list') : onBack())} />
+        <TopBar title="Lời mời theo dõi học sinh" onBack={() => (fromList ? setView('list') : onBack())} />
         <div className="li-detail">
           <img className="li-detail-avatar" src={avatarOf(invite)} alt="" />
           <h2 className="li-detail-name">{invite.studentName}</h2>
@@ -130,7 +130,7 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
               i
             </span>
             <span>
-              <b>{invite.schoolName}</b> mời bạn liên kết với học sinh {invite.studentName}
+              <b>{invite.schoolName}</b> mời bạn theo dõi học sinh {invite.studentName}
             </span>
           </div>
 
@@ -146,7 +146,7 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
         </div>
         <div className="li-footer li-footer-stack">
           <button className="btn btn-primary" onClick={accept}>
-            Đồng ý liên kết
+            Đồng ý theo dõi
           </button>
           <button className="li-btn-reject" onClick={() => setConfirmReject(true)}>
             Từ chối
@@ -158,8 +158,8 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
             <div className="scrim" onClick={() => setConfirmReject(false)} />
             <div className="dialog-wrap">
               <div className="dialog-card">
-                <div className="d-title">Lời mời liên kết</div>
-                <div className="d-sub">Bạn có chắc chắn muốn từ chối lời mời liên kết này?</div>
+                <div className="d-title">Từ chối lời mời</div>
+                <div className="d-sub">Bạn có chắc chắn muốn từ chối lời mời theo dõi học sinh {invite.studentName}?</div>
                 <div className="btn-row">
                   <button className="btn btn-outline" onClick={() => setConfirmReject(false)}>
                     Đóng
@@ -181,8 +181,8 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
                 <span className="li-success-icon">
                   <GreenCheck size={48} />
                 </span>
-                <div className="d-title">Liên kết thành công</div>
-                <div className="d-sub">Bạn đã có thể theo dõi {success.studentName}</div>
+                <div className="d-title">Theo dõi thành công</div>
+                <div className="d-sub">Bạn đã có thể xem thông tin của {success.studentName}</div>
                 <button className="btn btn-primary" onClick={() => (successStudentId ? onLinked(successStudentId) : onGoEcoMe())}>
                   Về trang chủ
                 </button>
@@ -208,7 +208,7 @@ export function LinkInviteApp({ initial, onBack, onGoEcoMe, onLinked, onToast }:
   // ---- Lời mời liên kết của tôi ---------------------------------------------
   return (
     <div className="screen li-screen">
-      <TopBar title="Lời mời liên kết của tôi" onBack={onBack} />
+      <TopBar title="Lời mời theo dõi của tôi" onBack={onBack} />
       {pending.length > 0 ? (
         <>
           <div className="li-count">{pending.length} lời mời đang chờ bạn</div>

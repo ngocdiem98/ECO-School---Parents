@@ -24,12 +24,12 @@ export function CodeSheet({
           className="eco-sheet"
           style={{ height: 'auto', maxHeight: '78%' }}
           role="dialog"
-          aria-label="Kích hoạt liên kết học sinh"
+          aria-label="Thêm học sinh"
           onClick={(e) => e.stopPropagation()}
         >
           <span className="eco-sheet__grabber" />
           <div className="eco-sheet__head">
-            <h3>Kích hoạt liên kết học sinh</h3>
+            <h3>Thêm học sinh</h3>
             <button
               type="button"
               className="eco-iconbtn eco-iconbtn--md eco-iconbtn--ghost"

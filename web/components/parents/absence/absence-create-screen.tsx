@@ -1,14 +1,18 @@
 'use client'
 
+import { useRef, useState } from 'react'
+import { Info } from 'lucide-react'
 import { StudentHeader } from '@/components/parents/shared/header'
 import { QuickReplies, type QuickReply } from '@/components/parents/shared/quick-replies'
 import type { Student } from '@/lib/mock-data'
 
-// Lý do nghỉ soạn sẵn (EDU-2095), same wording for Mầm non and K12.
+const MIN_NOTE = 10
+
+// Lý do nghỉ soạn sẵn (PRD BR-01), same wording for Mầm non and K12.
 const ABSENCE_REASONS: QuickReply[] = [
-  { label: 'Con bị ốm', text: 'Con bị ốm, gia đình xin phép cô cho con nghỉ học để ở nhà theo dõi sức khỏe ạ.' },
-  { label: 'Đi khám bệnh', text: 'Gia đình đưa con đi khám bệnh, xin phép cô cho con nghỉ học ạ.' },
-  { label: 'Việc gia đình', text: 'Gia đình có việc riêng, xin phép cô cho con nghỉ học ạ.' },
+  { label: 'Con bị ốm', text: 'Con bị ốm, gia đình xin phép cho con nghỉ học để ở nhà theo dõi sức khỏe ạ.' },
+  { label: 'Đi khám bệnh', text: 'Gia đình đưa con đi khám bệnh, xin phép cho con nghỉ học ạ.' },
+  { label: 'Việc gia đình', text: 'Gia đình có việc riêng, xin phép cho con nghỉ học ạ.' },
 ]
 
 export interface AbsenceFormState {
@@ -46,6 +50,26 @@ export function AbsenceCreateScreen({
   onChangeStudent?: () => void
   onSubmit: () => void
 }) {
+  const noteRef = useRef<HTMLTextAreaElement>(null)
+  const [picked, setPicked] = useState<string | null>(null)
+  const [flash, setFlash] = useState(0)
+  // Chips only while Nội dung has no text (spaces count as empty), so they never overwrite.
+  const hasText = !!form.note.trim()
+  // Morning / afternoon only for schools with two sessions.
+  const hasSessions = student.attendance.sessions === 'two'
+
+  const pickReason = (reason: QuickReply) => {
+    onFieldChange('note', reason.text)
+    setPicked(reason.label)
+    setFlash((n) => n + 1)
+    setTimeout(() => {
+      const el = noteRef.current
+      el?.focus()
+      el?.setSelectionRange(reason.text.length, reason.text.length)
+    })
+    setTimeout(() => setFlash(0), 900)
+  }
+
   return (
     <div className="screen">
       <div className="topbar">
@@ -59,7 +83,8 @@ export function AbsenceCreateScreen({
       <div className="field">
         <label>Hôm nay, ngày 10/07/2026</label>
       </div>
-      <div className="section-heading">Thời gian nghỉ</div>
+      <div className="section-heading">Thời gian xin nghỉ</div>
+      {hasSessions && (
       <div className="segmented" style={{ marginTop: 0 }}>
         <button
           className={form.period === 'full' ? 'active' : ''}
@@ -80,6 +105,7 @@ export function AbsenceCreateScreen({
           Buổi chiều
         </button>
       </div>
+      )}
       <div className="field-row" style={{ margin: '14px 16px' }}>
         <div className="field" style={{ margin: 0 }}>
           <label>Từ ngày</label>
@@ -100,11 +126,17 @@ export function AbsenceCreateScreen({
           />
         </div>
       </div>
+      <div className="section-heading">Lý do xin nghỉ</div>
       <div className="field">
-        <label>Ghi chú</label>
-        {/* A chip replaces whatever is in the field; it stays tappable and unmarked. */}
-        <QuickReplies items={ABSENCE_REASONS} onPick={(r) => onFieldChange('note', r.text)} />
+        {!hasText && (
+          <>
+            <div className="qr-label">Chọn nhanh lý do</div>
+            <QuickReplies wrap items={ABSENCE_REASONS} onPick={pickReason} />
+          </>
+        )}
         <textarea
+          ref={noteRef}
+          className={flash ? 'is-flash' : ''}
           maxLength={256}
           placeholder="Nội dung *"
           value={form.note}
@@ -113,6 +145,15 @@ export function AbsenceCreateScreen({
         <div className="char-count">
           <span>{form.note.length}</span>/256
         </div>
+        {hasText && (
+          <div className="draft-notice">
+            <Info size={16} />
+            <span>Đơn nháp sẽ được lưu trong vòng 24 giờ.</span>
+          </div>
+        )}
+        <span className="sr-only" role="status">
+          {picked ? `Đã điền lý do: ${picked}` : ''}
+        </span>
       </div>
       <div className="field">
         <label>
@@ -131,7 +172,7 @@ export function AbsenceCreateScreen({
         </label>
       </div>
       <div className="cta-bar sticky">
-        <button className="btn btn-primary" disabled={!form.note.trim()} onClick={onSubmit}>
+        <button className="btn btn-primary" disabled={form.note.trim().length < MIN_NOTE} onClick={onSubmit}>
           Nộp đơn
         </button>
       </div>

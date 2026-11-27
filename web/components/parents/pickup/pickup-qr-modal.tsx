@@ -119,7 +119,7 @@ export function PickupQRModal({ person, onClose }: PickupQRModalProps) {
                   <div className="pickup-pass-paused-icon">⚠️</div>
                   <div className="pickup-pass-paused-title">Thẻ tạm thời bị tạm dừng</div>
                   <div className="pickup-pass-paused-text">
-                    Người liên kết chính đã tạm dừng quyền đón của người này. Bật lại quyền đón để kích hoạt mã QR.
+                    Người quản lý đã tạm dừng quyền đón của người này. Bật lại quyền đón để kích hoạt mã QR.
                   </div>
                 </div>
               )}
@@ -140,9 +140,9 @@ export function PickupQRModal({ person, onClose }: PickupQRModalProps) {
               <div className="pickup-pass-person-info">
                 <div className="pickup-pass-person-role-tag">
                   {person.role === 'main_connector'
-                    ? 'NGƯỜI LIÊN KẾT CHÍNH'
+                    ? 'NGƯỜI QUẢN LÝ'
                     : person.authorizedType === 'sub_connector'
-                      ? 'NGƯỜI LIÊN KẾT PHỤ'
+                      ? 'PHỤ HUYNH'
                       : 'NGƯỜI ĐƯỢC THÊM MỚI'}
                 </div>
                 <div className="pickup-pass-person-name">{person.fullName}</div>

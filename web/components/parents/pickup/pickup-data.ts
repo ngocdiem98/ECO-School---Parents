@@ -2,8 +2,8 @@ export type PickupRole = 'main_connector' | 'auxiliary'
 
 /**
  * Hai nhóm người được ủy quyền đón trẻ:
- * - 'sub_connector' (Case 1): Người liên kết phụ (tự động thêm vào danh sách, mặc định tắt, chỉ tính vào hạn mức khi bật)
- * - 'added_new' (Case 2): Người được thêm mới bởi Người liên kết chính
+ * - 'sub_connector' (Case 1): Phụ huynh không phải người quản lý (tự động thêm vào danh sách, mặc định tắt, chỉ tính vào hạn mức khi bật)
+ * - 'added_new' (Case 2): Người được thêm mới bởi Người quản lý
  */
 export type PickupAuthorizedType = 'sub_connector' | 'added_new'
 
@@ -77,7 +77,7 @@ export const INITIAL_PICKUP_DATA: Record<string, PickupPerson[]> = {
       avatarUrl: '👨',
       role: 'main_connector',
       status: 'active',
-      note: 'Người liên kết chính',
+      note: 'Người quản lý',
       createdAt: '2026-09-01T08:00:00Z',
       updatedAt: '2026-09-01T08:00:00Z',
     },
@@ -107,7 +107,7 @@ export const INITIAL_PICKUP_DATA: Record<string, PickupPerson[]> = {
       avatarUrl: '👩',
       role: 'main_connector',
       status: 'active',
-      note: 'Người liên kết chính',
+      note: 'Người quản lý',
       createdAt: '2026-09-01T08:00:00Z',
       updatedAt: '2026-09-01T08:00:00Z',
     },
@@ -152,7 +152,7 @@ export const INITIAL_PICKUP_DATA: Record<string, PickupPerson[]> = {
       avatarUrl: '👨',
       role: 'main_connector',
       status: 'active',
-      note: 'Người liên kết chính',
+      note: 'Người quản lý',
       createdAt: '2026-09-01T08:00:00Z',
       updatedAt: '2026-09-01T08:00:00Z',
     },
@@ -218,7 +218,7 @@ export function loadPickupData(studentId: string): PickupPerson[] {
         avatarUrl: '👨',
         role: 'main_connector',
         status: 'active',
-        note: 'Người liên kết chính',
+        note: 'Người quản lý',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },

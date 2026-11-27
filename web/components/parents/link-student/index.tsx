@@ -126,7 +126,7 @@ export function LinkStudentApp({
         {/* ECO.StepsCard + ECO.StepList */}
         <div style={{ padding: '4px 12px 0' }}>
           <section className="eco-stepscard">
-            <h4>Nhập thông tin học sinh để liên kết</h4>
+            <h4>Nhập thông tin để thêm học sinh</h4>
             <ol className="eco-steps">
               <li>
                 <i />
@@ -143,7 +143,7 @@ export function LinkStudentApp({
               <li>
                 <i />
                 <p>
-                  <b>Bước 3:</b> Kiểm tra và nhấn <b>&quot;Xác nhận&quot;</b> để kích hoạt liên kết
+                  <b>Bước 3:</b> Kiểm tra và nhấn <b>&quot;Xác nhận&quot;</b> để thêm học sinh
                 </p>
               </li>
             </ol>
